@@ -192,6 +192,7 @@ class reqboxfileparser():
         result = s.strip()
         #result = result.split("\n")[0]
         if result is not utf8(""):
+            #result = result.split(utf8(".\t"))[1]
             result = result.split(utf8(". "))[1]
         return result
     
@@ -299,13 +300,16 @@ class reqboxfileparser():
         for idx, funstr in enumerate(reversed(self.funlist)):
             newidx = count - idx
             #newfunstr = "%s. %s" % (newidx, funstr)
-            newfunstr = utf8("\n" + str(newidx) + ". ") + funstr
+            #newfunstr = utf8(str(newidx) + ".\t") + funstr
             if ISWORD:
                 #newfunstr = newfunstr.decode('utf-8')
                 #newfunstr = utf8(newfunstr.upper())
+                #newfunstr = utf8("\n" + str(newidx) + ".\t") + funstr
+                newfunstr = utf8("\n" + str(newidx) + ". ") + funstr
                 newfunstr = newfunstr.decode('utf-8').upper().encode('utf-8')
                 #utf8(str(newfunstr.upper()))#.encode('utf-8')
             else:
+                newfunstr = utf8("\n" + str(newidx) + ". ") + funstr
                 #newfunstr = utf8(newfunstr)
                 pass
             self.vlog(VERB_MAX, "finding... '%s'" % (newfunstr))
@@ -465,7 +469,7 @@ class reqboxfileparser():
 def main(argv):
     if ISWORD:
         #rfp = reqboxfileparser("./data/LRCv12-utf8-win.txt") # SAVE AS UTF-8 in Win!!
-        rfp = reqboxfileparser("./data/LRCv12-utf8-crlf.txt") # SAVE AS UTF-8 in Win!!
+        rfp = reqboxfileparser("./data/LRCv12-utf8-win-dos2unix.txt") # SAVE AS UTF-8 in Win!!
         #rfp = reqboxfileparser("./data/Rv12w.txt")
     else:
         #rfp = reqboxfileparser("./data/Rv12.txt")
@@ -483,7 +487,7 @@ def main(argv):
     #rfp.printfun("18", utf8("Manter Prontuário"))
     #rfp.printfun("43", utf8("Manter Plano de Ação"))
     rfp.vlog(VERB_MED, "rfp = \n%s" % (rfp))
-    rfp.getrfidic(utf8("Manter Tabela de Retenção Tributária"))
+    #rfp.getrfidic(utf8("Manter Tabela de Retenção Tributária"))
     del rfp
 
 if __name__ == "__main__":
