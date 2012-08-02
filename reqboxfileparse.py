@@ -193,7 +193,7 @@ class reqboxfileparser():
         #result = result.split("\n")[0]
         if result is not utf8(""):
             #result = result.split(utf8(".\t"))[1]
-            result = result.split(utf8(". "))[1]
+            result = result.split(utf8(".\t"))[1]
         return result
     
     def __cleanfunfrombody(self, s):
@@ -305,19 +305,36 @@ class reqboxfileparser():
                 #newfunstr = newfunstr.decode('utf-8')
                 #newfunstr = utf8(newfunstr.upper())
                 #newfunstr = utf8("\n" + str(newidx) + ".\t") + funstr
-                newfunstr = utf8("\n" + str(newidx) + ". ") + funstr
-                newfunstr = newfunstr.decode('utf-8').upper().encode('utf-8')
+                fieldterm = "\r\n"
+                fieldsize = 101
+                #newfunstr = utf8(fieldterm + str(newidx) + ".\t") + funstr
+                newfunstr = utf8(fieldterm + str(newidx) + ".\t")
+                #newfunstr = utf8(str(newidx) + ".\t") + funstr
+                #if len(funstr) >= fieldsize:
+                #    #TODO: BREAKPOINT HERE
+                #    newfunstr = newfunstr[:fieldsize] + utf8(fieldterm) # + newfunstr[fieldsize:len(newfunstr)]
+                #    #newfunstr = utf8(fieldterm) + newfunstr[:fieldsize-2] + utf8(fieldterm) # + newfunstr[fieldsize:len(newfunstr)]
+                #    #newfunstr = newfunstr[:fieldsize-2] # + newfunstr[fieldsize:len(newfunstr)]
+                #    #newfunstr = funstr[:99]
+                #newfunstr = newfunstr.decode('utf-8').upper().encode('utf-8')
+                #newfunstr = newfunstr.upper()
                 #utf8(str(newfunstr.upper()))#.encode('utf-8')
             else:
                 newfunstr = utf8("\n" + str(newidx) + ". ") + funstr
                 #newfunstr = utf8(newfunstr)
                 pass
-            self.vlog(VERB_MAX, "finding... '%s'" % (newfunstr))
+            self.vlog(VERB_MAX, "looking for: '%s'" % (newfunstr))
             #beginloc = self.__f.rfind(newfunstr, beginloc, endloc)
+            beginloc = 0
             beginloc = self.__f.rfind(newfunstr, beginloc, endloc)
             if beginloc != -1:
-                self.__f.seek(beginloc+1)
+                beginloc += 2
+                self.__f.seek(beginloc)
                 line = self.__f.readline()
+                fieldsize = 85
+                if ISWORD:
+                    if len(line.strip()) > fieldsize:
+                        print("-----------------------------------MULTILINE")
                 funid = self.__getfunid(line)
                 line = self.__cleanfunfrombody(line)
                 self.vlog(VERB_MAX, "found from %d to %d out of %d | '%s. %s'" % (beginloc, endloc, finalloc, funid, line))
@@ -350,6 +367,7 @@ class reqboxfileparser():
         header = secstr
         if ISWORD:
             header = header.upper()
+            #header = header.decode('utf-8').upper().encode('utf-8')
         # Secstr is always going to be a str, so it needs to be converted to utf8
         header = utf8(header)
         found = self.__f.find(header, beginloc, endloc)
@@ -450,12 +468,12 @@ class reqboxfileparser():
             result = "FUN %s: '%s' [%d | %d]\n" % (funid, funname, beginloc, endloc)
             if self.funhasrfi(funstr):
                 result = result + "RFIs\n"
-            if self.funhasrfn(funstr):
-                result = result + "RFNs\n"
-            if self.funhasrnf(funstr):
-                result = result + "RNFs\n"
-            if self.funhasrng(funstr):
-                result = result + "RNGs\n"
+            #if self.funhasrfn(funstr):
+            #    result = result + "RFNs\n"
+            #if self.funhasrnf(funstr):
+            #    result = result + "RNFs\n"
+            #if self.funhasrng(funstr):
+            #    result = result + "RNGs\n"
         return result
         
     def __str__(self):
@@ -469,7 +487,8 @@ class reqboxfileparser():
 def main(argv):
     if ISWORD:
         #rfp = reqboxfileparser("./data/LRCv12-utf8-win.txt") # SAVE AS UTF-8 in Win!!
-        rfp = reqboxfileparser("./data/LRCv12-utf8-win-dos2unix.txt") # SAVE AS UTF-8 in Win!!
+        #rfp = reqboxfileparser("./data/LRCv12-utf8-win-dos2unix.txt") # SAVE AS UTF-8 in Win!!
+        rfp = reqboxfileparser("./data/LRCv12-utf8-crlf.txt") # SAVE AS UTF-8 in Win!!
         #rfp = reqboxfileparser("./data/Rv12w.txt")
     else:
         #rfp = reqboxfileparser("./data/Rv12.txt")
