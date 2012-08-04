@@ -103,6 +103,16 @@ class reqboxfileparser():
         self.__file = None
         self.__f = None
         pass
+    
+    def fixcrlf(self, filename):        
+        self.__file = codecs.open(filename, encoding='utf-8', mode='rw') # open(filename, 'r')
+        self.vlog(VERB_MIN, "fixing CRLF on file: %s" % filename)
+        self.__f = mmap.mmap(self.__file.fileno(), 0, access=mmap.ACCESS_READ)
+        self.__f.seek(0) # rewind
+        
+        self.__f.move()
+        pass
+
 
     def openfile(self, filename):
         # Public
@@ -256,7 +266,7 @@ class reqboxfileparser():
         beginloc = self.__f.find(begintag)
         # Find the position of the end tag
         endtag = "Lista Completa de Funcionalidades"
-        if self.parsingasutf8_win_crlf() | self.parsingasutf8_win():
+        if self.parsingasutf8_win_crlf() or self.parsingasutf8_win():
             endtag = endtag.upper() #"LISTA COMPLETA DE FUNCIONALIDADES"
         endtag = utf8(endtag)
         endloc = self.__f.find(endtag, beginloc+1)
@@ -399,7 +409,7 @@ class reqboxfileparser():
         endloc = self.funendloc(funstr)
         self.__f.seek(beginloc)
         header = secstr
-        if self.parsingasutf8_win_crlf():
+        if self.parsingasutf8_win_crlf() or self.parsingasutf8_win():
             header = header.upper()
             #header = header.decode('utf-8').upper().encode('utf-8')
         # Secstr is always going to be a str, so it needs to be converted to utf8
@@ -452,8 +462,8 @@ class reqboxfileparser():
                 search_offset = self.__f.tell() - len(line) - 1
                 return search_offset + m.start(), search_offset + m.end()
 
-    def getrfidic(self, funstr):
-        if self.funhasrfi(funstr):
+    def gettagdic(self, funstr, tag):
+        if (self.funhasrfi(funstr)) and (tag == "RFI"):
             beginloc = self.funbeginloc(funstr)
             endloc = self.funendloc(funstr)
             funid = self.funid(funstr)
@@ -464,24 +474,44 @@ class reqboxfileparser():
             #findstr = "\nNome\nAlias\nDescrição\nCriticidade"
             #findstr = funidstr
             findstr = "^RFI.*"
+            #findstr = "^Nome.*"
+            expr = re.compile(findstr)
             findstr = utf8(findstr)
             self.vlog(VERB_MAX, "finding from %d... '%s'" % (loc, findstr))
+            
+    #pos = 0
+    #if endpos is None:
+    #    endpos = len(text)
+    #d = {}
+    #while 1:
+    #    m = entityRE.search(text,pos,endpos)
+    #    if not m:
+    #        break
+    #    name,charcode,comment = m.groups()
+    #    d[name] = charcode,comment
+    #    pos = m.end()
+    #return d
+
+            
             while cond:
-                #self.search_file(findstr, beginloc, endloc)
-                #m = re.search(findstr, self.__f)
-                #print("found error", m.)
-                #if m:
-                #    print("found error", m.group(1))
-                #loc = self.__f.find(findstr, loc, endloc)
                 line = self.__f.readline()
+                #self.search_file(findstr, beginloc, endloc)
+                m = re.search(findstr, line)#, beginloc, endloc)
+                #print("found error", m.)
+                if m:
+                    print("M IS TRUE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                    tagitem = m.group(0)[:6]
+                    #print("found error", m.group(1))
+                #loc = self.__f.find(findstr, loc, endloc)
                 loc += len(line)
                 self.__f.seek(loc)
                 cond = loc < endloc
                 self.vlog(VERB_MAX, "line: '%s'" % (line))
-                if cond:
-                    #line = self.__f.readline()
-                    #self.vlog(VERB_MAX, "found on location %d | '%s'" % (m.start(), m.group()))
-                    pass    
+                #if cond:
+                #    line = self.__f.readline()
+                #    if line:
+                #        self.vlog(VERB_MAX, "found on location %d | '%s'" % (m.start(), m.group()))
+                #    pass    
             pass
     
     #def printmap(self, d):
@@ -502,6 +532,7 @@ class reqboxfileparser():
             result = "FUN %s: '%s' [%d | %d]\n" % (funid, funname, beginloc, endloc)
             if self.funhasrfi(funstr):
                 result = result + "RFIs\n"
+                rfidict = self.gettagdic(funstr, 'RFI')
             #if self.funhasrfn(funstr):
             #    result = result + "RFNs\n"
             #if self.funhasrnf(funstr):
@@ -521,7 +552,10 @@ class reqboxfileparser():
 def main(argv):
     rfp = reqboxfileparser()
     if rfp.parsingasutf8_win():# rfp.parsingasutf8_win():
-        rfp.openfile("./data/LRCv12-utf8-win.txt") # SAVE AS UTF-8 in Win!!
+        #rfp.openfile("./data/LRCv12-utf8-win.txt") # SAVE AS UTF-8 in Win!!
+        #rfp.openfile("./data/LRCv12-utf8-dow2unix-l.txt")
+        #rfp.openfile("./data/LRCv12-win.txt")
+        rfp.openfile("./data/LRCv12.txt")
     elif self.parsingasutf8_win_crlf():
         #rfp = reqboxfileparser("./data/LRCv12-utf8-win.txt") # SAVE AS UTF-8 in Win!!
         #rfp = reqboxfileparser("./data/LRCv12-utf8-win-dos2unix.txt") # SAVE AS UTF-8 in Win!!
