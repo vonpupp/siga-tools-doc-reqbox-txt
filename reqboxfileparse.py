@@ -46,6 +46,7 @@
 
 import logging, sys, mmap, shutil, contextlib, codecs, re
 from vlog import vlogger
+import reqboxmodel as model
 
 #sys.setdefaultencoding('utf-8')
 
@@ -82,6 +83,16 @@ def safe_str(obj):
         # obj is unicode
         return unicode(obj).encode('unicode_escape')
 
+class tagstruc():
+    def __init__(self):
+        # Public
+        pass
+
+class funstruc():
+    def __init__(self):
+        # Public
+        pass
+
 class reqboxfileparser():
     """ Requirements doc file parsing
     Attributes:
@@ -103,18 +114,8 @@ class reqboxfileparser():
         self.__file = None
         self.__f = None
         pass
-    
-    def fixcrlf(self, filename):        
-        self.__file = codecs.open(filename, encoding='utf-8', mode='rw') # open(filename, 'r')
-        self.vlog(VERB_MIN, "fixing CRLF on file: %s" % filename)
-        self.__f = mmap.mmap(self.__file.fileno(), 0, access=mmap.ACCESS_READ)
-        self.__f.seek(0) # rewind
-        
-        self.__f.move()
-        pass
 
-
-    def openfile(self, filename):
+    def parsefile(self, filename):
         # Public
         self.filename = filename
         
@@ -123,6 +124,13 @@ class reqboxfileparser():
         self.vlog(VERB_MIN, "opening file: %s" % filename)
         self.__f = mmap.mmap(self.__file.fileno(), 0, access=mmap.ACCESS_READ)
         self.__f.seek(0) # rewind
+        
+        # Parsing stuff
+        self.getfunlist()
+        #self.vlog(VERB_MED, "fun = %s" % (self.funstr))
+        self.vlog(VERB_MED, "len(fun) = %d" % (len(self.funlist)))
+        self.getfundict()
+        self.vlog(VERB_MED, "fundict = %s" % (self.fundict))
         pass
     
     def __del__(self):
@@ -327,8 +335,7 @@ class reqboxfileparser():
     def getfundict(self):
         """
         Fills the fundict property with a dict where each element is indexed
-        by the fun name and each value is a tuple with the (begining, end)
-        positions on the file.
+        by the fun name and each value is an object from the model
         """
         self.vlog(VERB_MED, "-> getfundict()")
         self.__fundict = {}
@@ -385,7 +392,30 @@ class reqboxfileparser():
                 #self.fundict[funstr] = (beginloc, endloc, funid)
                 # I switched the dict keys from uppercase (body) to as they are
                 # on the index (capitalized as they are)
-                self.fundict[funstr] = (beginloc, endloc, funid)
+                
+                currentpos = self.__f.tell()
+                
+                #newidx = count - funidx
+                fun = model.funmodel(funid, funstr, beginloc, endloc)
+                fun.funstart = beginloc
+                fun.funend   = endloc
+                fun.rfistart = self.funrfistart(funstr)
+                fun.rfiend   = self.funrfiend(funstr)
+                fun.rfnstart = self.funrfnstart(funstr)
+                fun.rfnend   = self.funrfnend(funstr)
+                fun.rnfstart = self.funrnfstart(funstr)
+                fun.rnfend   = self.funrnfend(funstr)
+                fun.rgnstart = self.funrgnstart(funstr)
+                fun.rgnend   = self.funrgnend(funstr)
+                self.vlog(VERB_MED, "%s" % (self.printfun(funidx+1, funname)))
+    #            self.fun[funname].rfi = self.fp.gettagdic(funname, 'RFI')
+                if funstart != -1:
+                    #self.fun[funname].rfi = self.fp.gettagdic(funname, 'RFI', rfistart, rfiend)
+                    pass
+                
+                self.__f.seek(currentpos)
+                
+                self.fundict[funstr] = fun
                 endloc = beginloc - 1
                 beginloc = 0
             else:
@@ -405,42 +435,86 @@ class reqboxfileparser():
             funstr -- the string
             secstr -- the string
         """
-        beginloc = self.funbeginloc(funstr)
-        endloc = self.funendloc(funstr)
+        beginloc = self.funstart(funstr)
+        endloc = self.funend(funstr)
         self.__f.seek(beginloc)
         header = secstr
         if self.parsingasutf8_win_crlf() or self.parsingasutf8_win():
-            header = header.upper()
+            #header = header.upper()
+            header = utf8(header.decode('utf-8').upper())
             #header = header.decode('utf-8').upper().encode('utf-8')
         # Secstr is always going to be a str, so it needs to be converted to utf8
-        header = utf8(header)
+        #header = utf8(header)
         found = self.__f.find(header, beginloc, endloc)
         if not found in range(beginloc, endloc):
             return -1
         else:
             return found
         #return found in range(beginloc, endloc)
+
+    def getorderedstarts(self, funstr):
+        funstart = self.funstart(funstr)
+        funend   = self.funend(funstr)
+        rfistart = self.funrfistart(funstr)
+        rfnstart = self.funrfnstart(funstr)
+        rnfstart = self.funrnfstart(funstr)
+        rgnstart = self.funrgnstart(funstr)
+        startmarkups = [funstart, rfistart, rfnstart, rnfstart, rgnstart, funend]
+        startmarkups.sort()
+        return startmarkups
         
-    def funhasrfi(self, funstr):
+    def funrfistart(self, funstr):
         header = "Requisitos Funcionais de Interface"
-        return self.funhassection(funstr, header) != -1
+        return self.funhassection(funstr, header)
         
-    def funhasrfn(self, funstr):
+    def funrfiend(self, funstr):
+        startmarkups = self.getorderedstarts(funstr)
+        result = -1
+        secstart = self.funrfistart(funstr)
+        if secstart != -1:
+            result = startmarkups[startmarkups.index(secstart)+1]
+        return result
+        
+    def funrfnstart(self, funstr):
         header = "Requisitos Funcionais de Negócio"
-        return self.funhassection(funstr, header) != -1
+        return self.funhassection(funstr, header)
+
+    def funrfnend(self, funstr):
+        startmarkups = self.getorderedstarts(funstr)
+        result = -1
+        secstart = self.funrfnstart(funstr)
+        if secstart != -1:
+            result = startmarkups[startmarkups.index(secstart)+1]
+        return result
         
-    def funhasrnf(self, funstr):
+    def funrnfstart(self, funstr):
         header = "Requisitos Não Funcionais"
-        return self.funhassection(funstr, header) != -1
+        return self.funhassection(funstr, header)
         
-    def funhasrng(self, funstr):
+    def funrnfend(self, funstr):
+        startmarkups = self.getorderedstarts(funstr)
+        result = -1
+        secstart = self.funrnfstart(funstr)
+        if secstart != -1:
+            result = startmarkups[startmarkups.index(secstart)+1]
+        return result
+        
+    def funrgnstart(self, funstr):
         header = "Regras de Negócio"
-        return self.funhassection(funstr, header) != -1
+        return self.funhassection(funstr, header)
         
-    def funbeginloc(self, funstr):
+    def funrgnend(self, funstr):
+        startmarkups = self.getorderedstarts(funstr)
+        result = -1
+        secstart = self.funrgnstart(funstr)
+        if secstart != -1:
+            result = startmarkups[startmarkups.index(secstart)+1]
+        return result
+        
+    def funstart(self, funstr):
         return self.fundict[funstr][0]
         
-    def funendloc(self, funstr):
+    def funend(self, funstr):
         return self.fundict[funstr][1]
         
     def funid(self, funstr):
@@ -462,21 +536,34 @@ class reqboxfileparser():
                 search_offset = self.__f.tell() - len(line) - 1
                 return search_offset + m.start(), search_offset + m.end()
 
+    def tagid(self, tagstr):
+        return self.fundict[funstr][2]
+        
+    def tagidname(self, tagstr):
+        funid = self.fundict[funstr][2]
+        return "%s. %s" % (funid, funstr)
+        
+    def cleantagid(self, tagstr):
+        return self.fundict[funstr][2]
+        
+    def cleantagbody(self, tagstr):
+        funid = self.fundict[funstr][2]
+        return "%s. %s" % (funid, funstr)
+
     def gettagdic(self, funstr, tag):
-        if (self.funhasrfi(funstr)) and (tag == "RFI"):
-            beginloc = self.funbeginloc(funstr)
-            endloc = self.funendloc(funstr)
+        if (self.funrfistart(funstr) != -1) and (tag == "RFI"):
+            beginloc = self.funstart(funstr)
+            endloc = self.funend(funstr)
             funid = self.funid(funstr)
             funidstr = self.funidname(funstr)
             self.__f.seek(beginloc)
             loc = beginloc #self.__f.tell()
+            
             cond = 1
-            #findstr = "\nNome\nAlias\nDescrição\nCriticidade"
-            #findstr = funidstr
-            findstr = "^RFI.*"
-            #findstr = "^Nome.*"
+            findstr = "^" + tag + ".*"
             expr = re.compile(findstr)
             findstr = utf8(findstr)
+            resultdict = {}
             self.vlog(VERB_MAX, "finding from %d... '%s'" % (loc, findstr))
             
     #pos = 0
@@ -492,15 +579,17 @@ class reqboxfileparser():
     #    pos = m.end()
     #return d
 
-            
             while cond:
                 line = self.__f.readline()
                 #self.search_file(findstr, beginloc, endloc)
+                            
                 m = re.search(findstr, line)#, beginloc, endloc)
                 #print("found error", m.)
                 if m:
-                    print("M IS TRUE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                    tagitem = m.group(0)[:6]
+                    self.vlog(VERB_MAX, "M IS TRUE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                    print()
+                    #resultdict[] = 
+                    tagitem = m.group(0)#[:6]
                     #print("found error", m.group(1))
                 #loc = self.__f.find(findstr, loc, endloc)
                 loc += len(line)
@@ -525,14 +614,14 @@ class reqboxfileparser():
             result = "ERROR %s [%s] not found, and it should exist!!!\n" % (idx, funstr)
         else:
             t = self.fundict[funstr]
-            beginloc = self.funbeginloc(funstr)
-            endloc = self.funendloc(funstr)
+            beginloc = self.funstart(funstr)
+            endloc = self.funend(funstr)
             funid = self.funid(funstr)
             funname = funstr #.upper()
             result = "FUN %s: '%s' [%d | %d]\n" % (funid, funname, beginloc, endloc)
-            if self.funhasrfi(funstr):
+            if self.funrfistart(funstr) != -1:
                 result = result + "RFIs\n"
-                rfidict = self.gettagdic(funstr, 'RFI')
+                #rfidict = self.gettagdic(funstr, 'RFI')
             #if self.funhasrfn(funstr):
             #    result = result + "RFNs\n"
             #if self.funhasrnf(funstr):
@@ -552,10 +641,10 @@ class reqboxfileparser():
 def main(argv):
     rfp = reqboxfileparser()
     if rfp.parsingasutf8_win():# rfp.parsingasutf8_win():
-        #rfp.openfile("./data/LRCv12-utf8-win.txt") # SAVE AS UTF-8 in Win!!
-        #rfp.openfile("./data/LRCv12-utf8-dow2unix-l.txt")
-        #rfp.openfile("./data/LRCv12-win.txt")
-        rfp.openfile("./data/LRCv12.txt")
+        #rfp.parsefile("./data/LRCv12-utf8-win.txt") # SAVE AS UTF-8 in Win!!
+        #rfp.parsefile("./data/LRCv12-utf8-dow2unix-l.txt")
+        #rfp.parsefile("./data/LRCv12-win.txt")
+        rfp.parsefile("./data/LRCv12.txt")
     elif self.parsingasutf8_win_crlf():
         #rfp = reqboxfileparser("./data/LRCv12-utf8-win.txt") # SAVE AS UTF-8 in Win!!
         #rfp = reqboxfileparser("./data/LRCv12-utf8-win-dos2unix.txt") # SAVE AS UTF-8 in Win!!
@@ -578,11 +667,6 @@ def main(argv):
         pass
     print("INPUT:   " + rfp.filename)
     
-    rfp.getfunlist()
-    #rfp.vlog(VERB_MED, "fun = %s" % (rfp.funstr))
-    rfp.vlog(VERB_MED, "len(fun) = %d" % (len(rfp.funlist)))
-    rfp.getfundict()
-    rfp.vlog(VERB_MED, "fundict = %s" % (rfp.fundict))
     #rfp.vlog(VERB_MED, "%d" % (rfp.fundict['Gerar Etiqueta de Destino']))
     #rfp.vlog(VERB_MED, "%d" % (rfp.fundict['Provisão para despesas futuras']))
     #rfp.printmap(rfp.fundict)

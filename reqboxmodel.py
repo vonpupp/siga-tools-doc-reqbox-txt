@@ -105,18 +105,28 @@ def user_struct():
 class funmodel():
     """ Functionalities model
     Attributes:
-        rfi, rfn, rnf, rng: dict
+        rfi, rfn, rnf, rgn: dict
     """
     
-    def __init__(self, fid, fname):
+    def __init__(self, funid, funname, funstart, funend):
         # Public
-        self.fid = fid
-        self.fname = fname
+        self.funid = funid
+        self.funname = funname
+        self.funstart = funstart
+        self.funend = funend
         self.rfi = {}
+        self.rfistart = -1
+        self.rfiend = -1
         self.rfn = {}
+        self.rfnstart = -1
+        self.rfnend = -1
         self.rnf = {}
-        self.rng = {}
-        self.wrf = ""
+        self.rnfstart = -1
+        self.rnfend = -1
+        self.rgn = {}
+        self.rgnstart = -1
+        self.rgnend = -1
+        self.wrf = {}
         
         # Init structures
         pass
@@ -149,12 +159,12 @@ class reqboxmodel():
             # on the dict
             result = "ERROR %s [%s] not found, and it should exist!!!\n" % (idx, funstr)
         else:
-            t = self.fun[funstr]
-            funid = t.fid
-            funname = t.fname
-            result = "FUN %s: '%s'\n" % (funid, funname)
-            #if self.funhasrfi(funstr):
-            #    result = result + "RFIs\n"
+            f = self.fun[funstr]
+
+            result = "FUN id=%s [bytes=%d/%d]:\t'%s'\n" % (f.funid, f.funstart, f.funend, f.funname)
+            #print(result)
+#            if self.funhasrfi(funstr):
+#                result = result + "- RFI id=%s [bytes=%d/%d]: '%s'\n" % (f.rfistart, f.rfiend)
             #if self.funhasrfn(funstr):
             #    result = result + "RFNs\n"
             #if self.funhasrnf(funstr):
@@ -171,19 +181,35 @@ class reqboxmodel():
         
     def parsefile(self, fname):
         # Init structures
-        self.fp = rfp.reqboxfileparser(fname)
+        self.fp = rfp.reqboxfileparser()
         rfp.VERB_MAX = 10
+        self.fp.parsefile(fname)
         
-        self.fp.getfunlist()
+#        self.fp.getfunlist()
         #count = len(fp.funlist)
         for funidx, funname in enumerate(self.fp.funlist):
             #newidx = count - funidx
-            self.fun[funname] = funmodel(funidx + 1, funname)
-            self.fun[funname].rfi = self.fp.getrfidic(funname)
-            #if fp.funhasrfi(funname):
-            #    self.fun[funname].rfi = fp.getrfidic(funname)
-            #    #for rfiidx, rfiname in enumerate(self.fun[funname].rfi):
-            #    #    self.fun[funname].rfi = fp.getrfidic(funname)
+            funstart = self.fp.funstart(funname)
+            funend   = self.fp.funend(funname)
+            fun = funmodel(funidx + 1, funname, funstart, funend)
+            fun.funstart = funstart
+            fun.funend   = funend
+            fun.rfistart = self.fp.funrfistart(funname)
+            fun.rfiend   = self.fp.funrfiend(funname)
+            fun.rfnstart = self.fp.funrfnstart(funname)
+            fun.rfnend   = self.fp.funrfnend(funname)
+            fun.rnfstart = self.fp.funrnfstart(funname)
+            fun.rnfend   = self.fp.funrnfend(funname)
+            fun.rgnstart = self.fp.funrgnstart(funname)
+            fun.rgnend   = self.fp.funrgnend(funname)
+            self.fun[funname] = fun
+            self.vlog(VERB_MED, "%s" % (self.printfun(funidx+1, funname)))
+#            self.fun[funname].rfi = self.fp.gettagdic(funname, 'RFI')
+            if funstart != -1:
+                #self.fun[funname].rfi = self.fp.gettagdic(funname, 'RFI', rfistart, rfiend)
+                pass
+                #for rfiidx, rfiname in enumerate(self.fun[funname].rfi):
+                #    self.fun[funname].rfi = fp.getrfidic(funname)
             #if fp.funhasrfn(funname):
             #    self.fun[funname].rfn = fp.getrfndic(funname)
             #if fp.funhasrnf(funname):
@@ -254,8 +280,9 @@ s = {
 
 def main(argv):
     r = reqboxmodel()
-    r.parsefile("./data/LRCv12-utf8-win.txt")
-    r.vlog(VERB_MED, "r = \n%s" % (r))
+    #r.parsefile("./data/LRCv12-utf8-win.txt")
+    r.parsefile("./data/LRCv12.txt")
+    #r.vlog(VERB_MED, "r = \n%s" % (r))
     
 #    print s
 ##    print s['fun001']
