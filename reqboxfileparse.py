@@ -267,6 +267,19 @@ class reqboxfileparser():
         result = result.strip()
         return result
     
+    def __getfunname(self, s):
+        """
+        Returns the index of a funstr s, ex:
+        s = 'RFI227. MANTER REMESSA DE CARTÃO DE IDENTIFICAÇÃO'
+        result = 'MANTER REMESSA DE CARTÃO DE IDENTIFICAÇÃO'
+        
+        Args:
+            s -- the string
+        """        
+        result = s.split(utf8("."))[1]
+        result = result.strip()
+        return result
+    
     def bodystartloc(self):
         # Find the position of the begining tag
         self.__f.seek(0)
@@ -396,30 +409,33 @@ class reqboxfileparser():
                 currentpos = self.__f.tell()
                 
                 #newidx = count - funidx
-                fun = model.funmodel(funid, funstr, beginloc, endloc)
-                fun.funstart = beginloc
-                fun.funend   = endloc
-                fun.rfistart = self.funrfistart(funstr, beginloc, endloc)
-                fun.rfnstart = self.funrfnstart(funstr, beginloc, endloc)
-                fun.rnfstart = self.funrnfstart(funstr, beginloc, endloc)
-                fun.rgnstart = self.funrgnstart(funstr, beginloc, endloc)
-                startmarkups = [fun.funstart, fun.rfistart, fun.rfnstart, fun.rnfstart, fun.rgnstart, fun.funend]
+                r = model.funmodel(funid, funstr, beginloc, endloc)
+                r.fun.reqstart = beginloc
+                r.fun.reqend   = endloc
+                r.rfistart = self.funrfistart(funstr, beginloc, endloc)
+                r.rfnstart = self.funrfnstart(funstr, beginloc, endloc)
+                r.rnfstart = self.funrnfstart(funstr, beginloc, endloc)
+                r.rgnstart = self.funrgnstart(funstr, beginloc, endloc)
+                startmarkups = [r.fun.reqstart, r.rfistart, r.rfnstart, r.rnfstart, r.rgnstart, r.fun.reqend]
                 startmarkups.sort()
-                result = "FUN id=%s [bytes=%d/%d]:\t'%s'\n" % (fun.funid, fun.funstart, fun.funend, fun.funname)
+                result = "FUN id=%s [bytes=%d/%d]:\t'%s'\n" % (r.fun.reqid, r.fun.reqstart, r.fun.reqend, r.fun.reqname)
                 print(result)
-                fun.rfiend   = self.funsecend(funstr, fun.rfistart, startmarkups)
-                fun.rfnend   = self.funsecend(funstr, fun.rfnstart, startmarkups)
-                fun.rnfend   = self.funsecend(funstr, fun.rnfstart, startmarkups)
-                fun.rgnend   = self.funsecend(funstr, fun.rgnstart, startmarkups)
+                r.rfiend   = self.funsecend(funstr, r.rfistart, startmarkups)
+                r.rfnend   = self.funsecend(funstr, r.rfnstart, startmarkups)
+                r.rnfend   = self.funsecend(funstr, r.rnfstart, startmarkups)
+                r.rgnend   = self.funsecend(funstr, r.rgnstart, startmarkups)
                 #self.vlog(VERB_MED, "%s" % (self.printfun(funidx+1, funname)))
     #            self.fun[funname].rfi = self.fp.gettagdic(funname, 'RFI')
-                if fun.rfistart != -1:
-                    #self.fun[funname].rfi = self.fp.gettagdic(funname, 'RFI', rfistart, rfiend)
+                
+                self.fundict[funstr] = r #(beginloc, endloc, funid)
+                
+                if r.rfistart != -1:
+                    rfidict = self.gettagdic(funstr, 'RFI', r.rfistart, r.rfiend)
+                    r.fun.rfi = rfidict
                     pass
                 
                 self.__f.seek(currentpos)
                 
-                self.fundict[funstr] = fun #(beginloc, endloc, funid)
                 endloc = beginloc - 1
                 beginloc = 0
             else:
@@ -534,14 +550,14 @@ class reqboxfileparser():
         return result
         
     def funstart(self, funstr):
-        return self.fundict[funstr].funstart
+        return self.fundict[funstr].fun.reqstart
         #self.fundict[funstr][0]
         
     def funend(self, funstr):
-        return self.fundict[funstr].funend #[1]
+        return self.fundict[funstr].fun.reqend #[1]
         
     def funid(self, funstr):
-        return self.fundict[funstr].funid #[2]
+        return self.fundict[funstr].fun.reqid #[2]
         
     def funidname(self, funstr):
         funid = self.funid(funstr)
@@ -573,20 +589,26 @@ class reqboxfileparser():
         funid = self.fundict[funstr][2]
         return "%s. %s" % (funid, funstr)
 
-    def gettagdic(self, funstr, tag):
+    def gettagdic(self, funstr, tag, start, end):
         if (self.funrfistart(funstr) != -1) and (tag == "RFI"):
-            beginloc = self.funstart(funstr)
-            endloc = self.funend(funstr)
+            if start != 0:
+                beginloc = start
+            else:
+                beginloc = self.funstart(funstr)
+            if end != 0:
+                endloc = end
+            else:
+                endloc = self.funend(funstr)
             funid = self.funid(funstr)
             funidstr = self.funidname(funstr)
             self.__f.seek(beginloc)
             loc = beginloc #self.__f.tell()
             
-            cond = 1
+            insection = 1
             findstr = "^" + tag + ".*"
             expr = re.compile(findstr)
             findstr = utf8(findstr)
-            resultdict = {}
+            result = {}
             self.vlog(VERB_MAX, "finding from %d... '%s'" % (loc, findstr))
             
     #pos = 0
@@ -601,29 +623,50 @@ class reqboxfileparser():
     #    d[name] = charcode,comment
     #    pos = m.end()
     #return d
-
-            while cond:
+            isfirst = 1
+            reqbody = ""
+            while insection:
                 line = self.__f.readline()
-                #self.search_file(findstr, beginloc, endloc)
-                            
+                loc += len(line)
+                #self.search_file(findstr, beginloc, endloc)   
                 m = re.search(findstr, line)#, beginloc, endloc)
                 #print("found error", m.)
-                if m:
+                if m and len(m.group(0)) > 9:
+                    inbody = 1
+                    tagitem = m.group(0)#[:6]
+                    reqid = self.__getfunid(tagitem)
+                    reqname = self.__getfunname(tagitem)
+                    reqstart = self.__f.tell()
+                    while inbody and insection:
+                        line = self.__f.readline()
+                        loc += len(line)
+                        m = re.search(findstr, line)
+                        if m == None or (m != None and len(m.group(0)) > 9):
+                            reqbody += line
+                        ended = re.search("^Media\r\n", line)
+                        inbody = (m == None or (m != None and len(m.group(0)) == 8)) and (ended == None)
+                        insection = loc < endloc
+                    reqend = self.__f.tell()
+                    newreq = model.reqmodel(reqid, reqname, reqstart, reqend)
+                    newreq.reqbody = reqbody
+                    result[reqid] = newreq
+                    if isfirst:
+                        inblock = 1
                     self.vlog(VERB_MAX, "M IS TRUE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                     print()
                     #resultdict[] = 
-                    tagitem = m.group(0)#[:6]
+                    
                     #print("found error", m.group(1))
                 #loc = self.__f.find(findstr, loc, endloc)
-                loc += len(line)
                 self.__f.seek(loc)
-                cond = loc < endloc
+                insection = loc < endloc
                 self.vlog(VERB_MAX, "line: '%s'" % (line))
                 #if cond:
                 #    line = self.__f.readline()
                 #    if line:
                 #        self.vlog(VERB_MAX, "found on location %d | '%s'" % (m.start(), m.group()))
-                #    pass    
+                #    pass
+            return result
             pass
     
     #def printmap(self, d):

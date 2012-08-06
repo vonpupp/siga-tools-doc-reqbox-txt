@@ -100,7 +100,21 @@ def board_struct():
     
 def user_struct():
     return dict(pageviews=0,username='',comments=0)
+
+class reqmodel():
+    """ Functionalities model
+    Attributes:
+        funid, funname, funbody: str
+        funstart, funend: int
+    """
     
+    def __init__(self, funid, funname, funstart, funend):
+        # Public
+        self.reqid = funid
+        self.reqname = funname
+        self.reqbody = None
+        self.reqstart = funstart
+        self.reqend = funend
     
 class funmodel():
     """ Functionalities model
@@ -110,10 +124,12 @@ class funmodel():
     
     def __init__(self, funid, funname, funstart, funend):
         # Public
-        self.funid = funid
-        self.funname = funname
-        self.funstart = funstart
-        self.funend = funend
+        self.fun = reqmodel(funid, funname, funstart, funend)
+        #self.funid = funid
+        #self.funname = funname
+        #self.funbody = None
+        #self.funstart = funstart
+        #self.funend = funend
         self.rfi = {}
         self.rfistart = -1
         self.rfiend = -1
