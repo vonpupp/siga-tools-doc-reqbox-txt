@@ -430,9 +430,10 @@ class reqboxfileparser():
                 self.fundict[funstr] = r #(beginloc, endloc, funid)
                 
                 if r.rfistart != -1:
-                    rfidict = self.gettagdic(funstr, 'RFI', r.rfistart, r.rfiend)
-                    r.fun.rfi = rfidict
+#                    r.rfi = self.gettagdic(funstr, 'RFI', r.rfistart, r.rfiend)
                     pass
+                if r.rfnstart != -1:
+                    r.rfn = self.gettagdic(funstr, 'RFN', r.rfnstart, r.rfnend)
                 
                 self.__f.seek(currentpos)
                 
@@ -590,84 +591,83 @@ class reqboxfileparser():
         return "%s. %s" % (funid, funstr)
 
     def gettagdic(self, funstr, tag, start, end):
-        if (self.funrfistart(funstr) != -1) and (tag == "RFI"):
-            if start != 0:
-                beginloc = start
-            else:
-                beginloc = self.funstart(funstr)
-            if end != 0:
-                endloc = end
-            else:
-                endloc = self.funend(funstr)
-            funid = self.funid(funstr)
-            funidstr = self.funidname(funstr)
-            self.__f.seek(beginloc)
-            loc = beginloc #self.__f.tell()
-            
-            insection = 1
-            findstr = "^" + tag + ".*"
-            expr = re.compile(findstr)
-            findstr = utf8(findstr)
-            result = {}
-            self.vlog(VERB_MAX, "finding from %d... '%s'" % (loc, findstr))
-            
-    #pos = 0
-    #if endpos is None:
-    #    endpos = len(text)
-    #d = {}
-    #while 1:
-    #    m = entityRE.search(text,pos,endpos)
-    #    if not m:
-    #        break
-    #    name,charcode,comment = m.groups()
-    #    d[name] = charcode,comment
-    #    pos = m.end()
-    #return d
-            isfirst = 1
-            reqbody = ""
-            while insection:
-                line = self.__f.readline()
-                loc += len(line)
-                #self.search_file(findstr, beginloc, endloc)   
-                m = re.search(findstr, line)#, beginloc, endloc)
-                #print("found error", m.)
-                if m and len(m.group(0)) > 9:
-                    inbody = 1
-                    tagitem = m.group(0)#[:6]
-                    reqid = self.__getfunid(tagitem)
-                    reqname = self.__getfunname(tagitem)
-                    reqstart = self.__f.tell()
-                    while inbody and insection:
-                        line = self.__f.readline()
-                        loc += len(line)
-                        m = re.search(findstr, line)
-                        if m == None or (m != None and len(m.group(0)) > 9):
-                            reqbody += line
-                        ended = re.search("^Media\r\n", line)
-                        inbody = (m == None or (m != None and len(m.group(0)) == 8)) and (ended == None)
-                        insection = loc < endloc
-                    reqend = self.__f.tell()
-                    newreq = model.reqmodel(reqid, reqname, reqstart, reqend)
-                    newreq.reqbody = reqbody
-                    result[reqid] = newreq
-                    if isfirst:
-                        inblock = 1
-                    self.vlog(VERB_MAX, "M IS TRUE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                    print()
-                    #resultdict[] = 
-                    
-                    #print("found error", m.group(1))
-                #loc = self.__f.find(findstr, loc, endloc)
-                self.__f.seek(loc)
-                insection = loc < endloc
-                self.vlog(VERB_MAX, "line: '%s'" % (line))
-                #if cond:
-                #    line = self.__f.readline()
-                #    if line:
-                #        self.vlog(VERB_MAX, "found on location %d | '%s'" % (m.start(), m.group()))
-                #    pass
-            return result
-            pass
+        if start != 0:
+            beginloc = start
+        else:
+            beginloc = self.funstart(funstr)
+        if end != 0:
+            endloc = end
+        else:
+            endloc = self.funend(funstr)
+        funid = self.funid(funstr)
+        funidstr = self.funidname(funstr)
+        self.__f.seek(beginloc)
+        loc = beginloc #self.__f.tell()
+        
+        insection = 1
+        findstr = "^" + tag + ".*"
+        expr = re.compile(findstr)
+        findstr = utf8(findstr)
+        result = {}
+        self.vlog(VERB_MAX, "finding from %d... '%s'" % (loc, findstr))
+        
+        #pos = 0
+        #if endpos is None:
+        #    endpos = len(text)
+        #d = {}
+        #while 1:
+        #    m = entityRE.search(text,pos,endpos)
+        #    if not m:
+        #        break
+        #    name,charcode,comment = m.groups()
+        #    d[name] = charcode,comment
+        #    pos = m.end()
+        #return d
+
+        isfirst = 1
+        reqbody = ""
+        while insection:
+            line = self.__f.readline()
+            loc += len(line)
+            #self.search_file(findstr, beginloc, endloc)   
+            m = re.search(findstr, line)#, beginloc, endloc)
+            #print("found error", m.)
+            if m and len(m.group(0)) > 9:
+                inbody = 1
+                tagitem = m.group(0)#[:6]
+                reqid = self.__getfunid(tagitem)
+                reqname = self.__getfunname(tagitem)
+                reqstart = self.__f.tell()
+                while inbody and insection:
+                    line = self.__f.readline()
+                    loc += len(line)
+                    m = re.search(findstr, line)
+                    ended = re.search("^Media\r\n", line)
+                    if (m == None or (m != None and len(m.group(0)) > 9)) and (ended == None):
+                        reqbody += line
+                    inbody = (m == None or (m != None and len(m.group(0)) == 8)) and (ended == None)
+                    insection = loc < endloc
+                reqend = self.__f.tell()
+                newreq = model.reqmodel(reqid, reqname, reqstart, reqend)
+                newreq.reqbody = reqbody
+                reqbody = ''
+                result[reqid] = newreq
+                self.vlog(VERB_MAX, "M IS TRUE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                print()
+                #resultdict[] = 
+                
+                #print("found error", m.group(1))
+            #loc = self.__f.find(findstr, loc, endloc)
+            self.__f.seek(loc)
+            insection = loc < endloc
+            self.vlog(VERB_MAX, "line: '%s'" % (line))
+            #if cond:
+            #    line = self.__f.readline()
+            #    if line:
+            #        self.vlog(VERB_MAX, "found on location %d | '%s'" % (m.start(), m.group()))
+            #    pass
+        return result
+        pass
     
     #def printmap(self, d):
     #    for k, v in d.items():

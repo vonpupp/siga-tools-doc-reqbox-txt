@@ -92,14 +92,14 @@ VERB_MIN = 1
 VERB_MED = 2
 VERB_MAX = 3
 
-def site_struct():
-    return defaultdict(board_struct)
-    
-def board_struct():
-    return defaultdict(user_struct)
-    
-def user_struct():
-    return dict(pageviews=0,username='',comments=0)
+#def site_struct():
+#    return defaultdict(board_struct)
+#    
+#def board_struct():
+#    return defaultdict(user_struct)
+#    
+#def user_struct():
+#    return dict(pageviews=0,username='',comments=0)
 
 class reqmodel():
     """ Functionalities model
@@ -107,6 +107,14 @@ class reqmodel():
         funid, funname, funbody: str
         funstart, funend: int
     """
+    
+    #def __init__(self):
+    #    # Public
+    #    self.reqid = None
+    #    self.reqname = None
+    #    self.reqbody = None
+    #    self.reqstart = None
+    #    self.reqend = None
     
     def __init__(self, funid, funname, funstart, funend):
         # Public
@@ -125,6 +133,36 @@ class funmodel():
     def __init__(self, funid, funname, funstart, funend):
         # Public
         self.fun = reqmodel(funid, funname, funstart, funend)
+        #self.fun = reqmodel()
+        #self.funid = funid
+        #self.funname = funname
+        #self.funbody = None
+        #self.funstart = funstart
+        #self.funend = funend
+        self.rfi = {}
+        self.rfistart = -1
+        self.rfiend = -1
+        self.rfn = {}
+        self.rfnstart = -1
+        self.rfnend = -1
+        self.rnf = {}
+        self.rnfstart = -1
+        self.rnfend = -1
+        self.rgn = {}
+        self.rgnstart = -1
+        self.rgnend = -1
+        self.wrf = {}
+        pass
+
+class reqboxmodel():
+    """ Reqbox model
+    Attributes:
+    """
+    
+    def __init__(self):
+        # Public
+        #self.fun = reqmodel(funid, funname, funstart, funend)
+        self.fun = reqmodel()
         #self.funid = funid
         #self.funname = funname
         #self.funbody = None
@@ -145,17 +183,6 @@ class funmodel():
         self.wrf = {}
         
         # Init structures
-        pass
-
-
-class reqboxmodel():
-    """ Reqbox model
-    Attributes:
-    """
-    
-    def __init__(self):
-        # Public\
-        self.fun = {}
         self.fp = None
         
         # Init vlogger
@@ -164,8 +191,7 @@ class reqboxmodel():
         #self.vlog = self.__log()
         
     def __del__(self):
-        self.fun.clear()
-        del self.fun
+        del self.rfi
         del self.fp
         
     def printfun(self, idx, funstr):
@@ -203,27 +229,27 @@ class reqboxmodel():
         
 #        self.fp.getfunlist()
         #count = len(fp.funlist)
-        for funidx, funname in enumerate(self.fp.funlist):
-            #newidx = count - funidx
-            funstart = self.fp.funstart(funname)
-            funend   = self.fp.funend(funname)
-            fun = funmodel(funidx + 1, funname, funstart, funend)
-            fun.funstart = funstart
-            fun.funend   = funend
-            fun.rfistart = self.fp.funrfistart(funname)
-            fun.rfiend   = self.fp.funrfiend(funname)
-            fun.rfnstart = self.fp.funrfnstart(funname)
-            fun.rfnend   = self.fp.funrfnend(funname)
-            fun.rnfstart = self.fp.funrnfstart(funname)
-            fun.rnfend   = self.fp.funrnfend(funname)
-            fun.rgnstart = self.fp.funrgnstart(funname)
-            fun.rgnend   = self.fp.funrgnend(funname)
-            self.fun[funname] = fun
-            self.vlog(VERB_MED, "%s" % (self.printfun(funidx+1, funname)))
-#            self.fun[funname].rfi = self.fp.gettagdic(funname, 'RFI')
-            if funstart != -1:
+#        for funidx, funname in enumerate(self.fp.funlist):
+#            #newidx = count - funidx
+#            funstart = self.fp.funstart(funname)
+#            funend   = self.fp.funend(funname)
+#            fun = funmodel(funidx + 1, funname, funstart, funend)
+#            fun.funstart = funstart
+#            fun.funend   = funend
+#            fun.rfistart = self.fp.funrfistart(funname)
+#            fun.rfiend   = self.fp.funrfiend(funname)
+#            fun.rfnstart = self.fp.funrfnstart(funname)
+#            fun.rfnend   = self.fp.funrfnend(funname)
+#            fun.rnfstart = self.fp.funrnfstart(funname)
+#            fun.rnfend   = self.fp.funrnfend(funname)
+#            fun.rgnstart = self.fp.funrgnstart(funname)
+#            fun.rgnend   = self.fp.funrgnend(funname)
+#            self.fun[funname] = fun
+#            self.vlog(VERB_MED, "%s" % (self.printfun(funidx+1, funname)))
+##            self.fun[funname].rfi = self.fp.gettagdic(funname, 'RFI')
+#            if funstart != -1:
                 #self.fun[funname].rfi = self.fp.gettagdic(funname, 'RFI', rfistart, rfiend)
-                pass
+#                pass
                 #for rfiidx, rfiname in enumerate(self.fun[funname].rfi):
                 #    self.fun[funname].rfi = fp.getrfidic(funname)
             #if fp.funhasrfn(funname):
@@ -295,10 +321,14 @@ s = {
 }
 
 def main(argv):
-    r = reqboxmodel()
+#    r = reqboxmodel()
     #r.parsefile("./data/LRCv12-utf8-win.txt")
-    r.parsefile("./data/LRCv12.txt")
+#    r.fp.parsefile("./data/LRCv12.txt")
     #r.vlog(VERB_MED, "r = \n%s" % (r))
+    
+    fp = rfp.reqboxfileparser()
+    fp.parsefile("./data/LRCv12.txt")
+
     
 #    print s
 ##    print s['fun001']
