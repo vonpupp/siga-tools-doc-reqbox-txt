@@ -399,23 +399,27 @@ class reqboxfileparser():
                 fun = model.funmodel(funid, funstr, beginloc, endloc)
                 fun.funstart = beginloc
                 fun.funend   = endloc
-                fun.rfistart = self.funrfistart(funstr)
-                fun.rfiend   = self.funrfiend(funstr)
-                fun.rfnstart = self.funrfnstart(funstr)
-                fun.rfnend   = self.funrfnend(funstr)
-                fun.rnfstart = self.funrnfstart(funstr)
-                fun.rnfend   = self.funrnfend(funstr)
-                fun.rgnstart = self.funrgnstart(funstr)
-                fun.rgnend   = self.funrgnend(funstr)
-                self.vlog(VERB_MED, "%s" % (self.printfun(funidx+1, funname)))
+                fun.rfistart = self.funrfistart(funstr, beginloc, endloc)
+                fun.rfnstart = self.funrfnstart(funstr, beginloc, endloc)
+                fun.rnfstart = self.funrnfstart(funstr, beginloc, endloc)
+                fun.rgnstart = self.funrgnstart(funstr, beginloc, endloc)
+                startmarkups = [fun.funstart, fun.rfistart, fun.rfnstart, fun.rnfstart, fun.rgnstart, fun.funend]
+                startmarkups.sort()
+                result = "FUN id=%s [bytes=%d/%d]:\t'%s'\n" % (fun.funid, fun.funstart, fun.funend, fun.funname)
+                print(result)
+                fun.rfiend   = self.funsecend(funstr, fun.rfistart, startmarkups)
+                fun.rfnend   = self.funsecend(funstr, fun.rfnstart, startmarkups)
+                fun.rnfend   = self.funsecend(funstr, fun.rnfstart, startmarkups)
+                fun.rgnend   = self.funsecend(funstr, fun.rgnstart, startmarkups)
+                #self.vlog(VERB_MED, "%s" % (self.printfun(funidx+1, funname)))
     #            self.fun[funname].rfi = self.fp.gettagdic(funname, 'RFI')
-                if funstart != -1:
+                if fun.rfistart != -1:
                     #self.fun[funname].rfi = self.fp.gettagdic(funname, 'RFI', rfistart, rfiend)
                     pass
                 
                 self.__f.seek(currentpos)
                 
-                self.fundict[funstr] = fun
+                self.fundict[funstr] = fun #(beginloc, endloc, funid)
                 endloc = beginloc - 1
                 beginloc = 0
             else:
@@ -425,7 +429,7 @@ class reqboxfileparser():
         self.vlog(VERB_MED, "<- getfundict()")
         pass
     
-    def funhassection(self, funstr, secstr):
+    def funhassection(self, funstr, secstr, start=0, end=0):
         """
         Returns the position in bytes if a funstr has an secstr section within,
         or -1 if it is not found.
@@ -435,17 +439,26 @@ class reqboxfileparser():
             funstr -- the string
             secstr -- the string
         """
-        beginloc = self.funstart(funstr)
-        endloc = self.funend(funstr)
+        if start == 0:
+            beginloc = self.funstart(funstr)
+        else:
+            beginloc = start
+        if end == 0:
+            endloc = self.funend(funstr)
+        else:
+            endloc = end
+        #self.vlog(VERB_MAX, "pos = %d" % (self.__f.tell()))
         self.__f.seek(beginloc)
+        #self.vlog(VERB_MAX, "pos = %d" % (self.__f.tell()))
         header = secstr
         if self.parsingasutf8_win_crlf() or self.parsingasutf8_win():
             #header = header.upper()
-            header = utf8(header.decode('utf-8').upper())
-            #header = header.decode('utf-8').upper().encode('utf-8')
+            #header = utf8(header.decode('utf-8').upper())
+            header = header.decode('utf-8').upper().encode('utf-8')
         # Secstr is always going to be a str, so it needs to be converted to utf8
         #header = utf8(header)
-        found = self.__f.find(header, beginloc, endloc)
+        found = self.__f.find(header, beginloc+1, endloc-1)
+        #self.vlog(VERB_MAX, "found = %d" % (found))
         if not found in range(beginloc, endloc):
             return -1
         else:
@@ -462,66 +475,76 @@ class reqboxfileparser():
         startmarkups = [funstart, rfistart, rfnstart, rnfstart, rgnstart, funend]
         startmarkups.sort()
         return startmarkups
-        
-    def funrfistart(self, funstr):
-        header = "Requisitos Funcionais de Interface"
-        return self.funhassection(funstr, header)
-        
-    def funrfiend(self, funstr):
-        startmarkups = self.getorderedstarts(funstr)
-        result = -1
-        secstart = self.funrfistart(funstr)
-        if secstart != -1:
-            result = startmarkups[startmarkups.index(secstart)+1]
-        return result
-        
-    def funrfnstart(self, funstr):
-        header = "Requisitos Funcionais de Negócio"
-        return self.funhassection(funstr, header)
 
-    def funrfnend(self, funstr):
-        startmarkups = self.getorderedstarts(funstr)
+    def funsecend(self, funstr, secstart, startmarkups):
+        #startmarkups = self.getorderedstarts(funstr)
         result = -1
-        secstart = self.funrfnstart(funstr)
+        #secstart = self.funrfistart(funstr)
+        if secstart != -1:
+            result = startmarkups[startmarkups.index(secstart)+1] -1
+        return result
+        
+    def funrfistart(self, funstr, start=0, end=0):
+        header = "Requisitos Funcionais de Interface"
+        return self.funhassection(funstr, header, start, end)
+        
+    def funrfiend(self, funstr, secstart, startmarkups):
+        #startmarkups = self.getorderedstarts(funstr)
+        result = -1
+        #secstart = self.funrfistart(funstr)
         if secstart != -1:
             result = startmarkups[startmarkups.index(secstart)+1]
         return result
         
-    def funrnfstart(self, funstr):
+    def funrfnstart(self, funstr, start=0, end=0):
+        header = "REQUISITOS FUNCIONAIS DE NEG"
+        #"Requisitos Funcionais de Negócio"
+        return self.funhassection(funstr, header, start, end)
+
+    def funrfnend(self, funstr, secstart, startmarkups):
+        #startmarkups = self.getorderedstarts(funstr)
+        result = -1
+        #secstart = self.funrfnstart(funstr)
+        if secstart != -1:
+            result = startmarkups[startmarkups.index(secstart)+1]
+        return result
+        
+    def funrnfstart(self, funstr, start=0, end=0):
         header = "Requisitos Não Funcionais"
-        return self.funhassection(funstr, header)
+        return self.funhassection(funstr, header, start, end)
         
-    def funrnfend(self, funstr):
-        startmarkups = self.getorderedstarts(funstr)
+    def funrnfend(self, funstr, secstart, startmarkups):
+        #startmarkups = self.getorderedstarts(funstr)
         result = -1
-        secstart = self.funrnfstart(funstr)
+        #secstart = self.funrnfstart(funstr)
         if secstart != -1:
             result = startmarkups[startmarkups.index(secstart)+1]
         return result
         
-    def funrgnstart(self, funstr):
+    def funrgnstart(self, funstr, start=0, end=0):
         header = "Regras de Negócio"
-        return self.funhassection(funstr, header)
+        return self.funhassection(funstr, header, start, end)
         
-    def funrgnend(self, funstr):
-        startmarkups = self.getorderedstarts(funstr)
+    def funrgnend(self, funstr, secstart, startmarkups):
+        #startmarkups = self.getorderedstarts(funstr)
         result = -1
-        secstart = self.funrgnstart(funstr)
+        #secstart = self.funrgnstart(funstr)
         if secstart != -1:
             result = startmarkups[startmarkups.index(secstart)+1]
         return result
         
     def funstart(self, funstr):
-        return self.fundict[funstr][0]
+        return self.fundict[funstr].funstart
+        #self.fundict[funstr][0]
         
     def funend(self, funstr):
-        return self.fundict[funstr][1]
+        return self.fundict[funstr].funend #[1]
         
     def funid(self, funstr):
-        return self.fundict[funstr][2]
+        return self.fundict[funstr].funid #[2]
         
     def funidname(self, funstr):
-        funid = self.fundict[funstr][2]
+        funid = self.funid(funstr)
         return "%s. %s" % (funid, funstr)
         
     def search_file(self, pattern, boffset, eoffset):
