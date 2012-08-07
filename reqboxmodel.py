@@ -327,11 +327,6 @@ class reqboxmodel():
         pass
 
 def main(argv):
-#    r = reqboxmodel()
-    #r.parsefile("./data/LRCv12-utf8-win.txt")
-#    r.fp.parsefile("./data/LRCv12.txt")
-    #r.vlog(VERB_MED, "r = \n%s" % (r))
-
     rbm = reqboxmodel()
     rbm.printf()
 
