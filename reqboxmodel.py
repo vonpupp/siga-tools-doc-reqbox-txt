@@ -215,10 +215,78 @@ class reqboxmodel():
             print("  %s [%d]" % ("RGN", count))
             self.printdic(d)
         pass
+    
+    def exporter_rfi(self, fh):
+        
+        #if self.outfile != "":
+        #    fh = open(self.outfile, 'wb')
+        #else:
+        #    fh = sys.stdout
+            
+        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
+        csvhdlr.writerow(["Name", "Alias", "Type", "Notes", "Priority", "Author", ])
+        
+        for idx, funstr in enumerate(self.fp.funlist):
+            d = self.fp.fundict[funstr].rfi
+            for idx, reqstr in enumerate(sorted(d)):
+                r = d[reqstr]
+                
+                #self.vlog(VERB_MED, "len = '%d'" % len(result.split(utf8("\t"))))
+                row = [r.reqid + ". " + r.reqname, r.reqid, 'Requirement', r.reqbody, "Medium", "Albert De La Fuente"]
+                
+                #Name    Alias   Type    Notes   Priority        Author
+                #RFI001. MANTER HOSPEDAGEM       RFI001. Requirement     "
+                #O sistema deve disponibilizar uma interface para incluir, alterar, excluir e consultar hospedagens, contemplando os seguintes atributos:
+                #* Código da hospedagem
+                #* ...
+                #"       Medium  Albert De La Fuente
+
+                    
+                    #self.logv(2, "parsedir().wftuple=" + str(wftuple))
+                    #self.logv(2, "parsedir().wftuple=%s" .join(map(str, wftuple)))
+                print("Writing...%s" % (r.reqid))
+                csvhdlr.writerow(row)
+
+    def exporter_rfn(self, fh):
+        
+        #if self.outfile != "":
+        #    fh = open(self.outfile, 'wb')
+        #else:
+        #    fh = sys.stdout
+            
+        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
+        csvhdlr.writerow(["Name", "Alias", "Type", "Notes", "Priority", "Author", ])
+        
+        for idx, funstr in enumerate(self.fp.funlist):
+            d = self.fp.fundict[funstr].rfn
+            for idx, reqstr in enumerate(sorted(d)):
+                r = d[reqstr]
+                
+                #self.vlog(VERB_MED, "len = '%d'" % len(result.split(utf8("\t"))))
+                row = [r.reqid + ". " + r.reqname, r.reqid, 'Requirement', r.reqbody, "Medium", "Albert De La Fuente"]
+                
+                #Name    Alias   Type    Notes   Priority        Author
+                #RFI001. MANTER HOSPEDAGEM       RFI001. Requirement     "
+                #O sistema deve disponibilizar uma interface para incluir, alterar, excluir e consultar hospedagens, contemplando os seguintes atributos:
+                #* Código da hospedagem
+                #* ...
+                #"       Medium  Albert De La Fuente
+
+                    
+                    #self.logv(2, "parsedir().wftuple=" + str(wftuple))
+                    #self.logv(2, "parsedir().wftuple=%s" .join(map(str, wftuple)))
+                print("Writing...%s" % (r.reqid))
+                csvhdlr.writerow(row)
 
 def main(argv):
     rbm = reqboxmodel()
     rbm.printf()
+    
+    fh = open("rfi.csv", 'wb')
+    rbm.exporter_rfi(fh)
+    
+    fh = open("rfn.csv", 'wb')
+    rbm.exporter_rfn(fh)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
