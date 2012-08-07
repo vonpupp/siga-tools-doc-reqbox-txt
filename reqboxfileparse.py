@@ -430,10 +430,14 @@ class reqboxfileparser():
                 self.fundict[funstr] = r #(beginloc, endloc, funid)
                 
                 if r.rfistart != -1:
-#                    r.rfi = self.gettagdic(funstr, 'RFI', r.rfistart, r.rfiend)
+                    r.rfi = self.gettagdic(funstr, 'RFI', r.rfistart, r.rfiend)
                     pass
                 if r.rfnstart != -1:
                     r.rfn = self.gettagdic(funstr, 'RFN', r.rfnstart, r.rfnend)
+                if r.rnfstart != -1:
+                    r.rnf = self.gettagdic(funstr, 'RNF', r.rnfstart, r.rnfend)
+                if r.rgnstart != -1:
+                    r.rgn = self.gettagdic(funstr, 'RGN', r.rgnstart, r.rgnend)
                 
                 self.__f.seek(currentpos)
                 
@@ -527,7 +531,8 @@ class reqboxfileparser():
         return result
         
     def funrnfstart(self, funstr, start=0, end=0):
-        header = "Requisitos Não Funcionais"
+        #header = "Requisitos Não Funcionais"
+        header = "Requisitos N"
         return self.funhassection(funstr, header, start, end)
         
     def funrnfend(self, funstr, secstart, startmarkups):
@@ -539,7 +544,8 @@ class reqboxfileparser():
         return result
         
     def funrgnstart(self, funstr, start=0, end=0):
-        header = "Regras de Negócio"
+        #header = "Regras de Negócio"
+        header = "Regras de Neg"
         return self.funhassection(funstr, header, start, end)
         
     def funrgnend(self, funstr, secstart, startmarkups):
@@ -652,15 +658,15 @@ class reqboxfileparser():
                 newreq.reqbody = reqbody
                 reqbody = ''
                 result[reqid] = newreq
-                self.vlog(VERB_MAX, "M IS TRUE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                print()
+                #self.vlog(VERB_MAX, "M IS TRUE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                #print()
                 #resultdict[] = 
                 
                 #print("found error", m.group(1))
             #loc = self.__f.find(findstr, loc, endloc)
             self.__f.seek(loc)
             insection = loc < endloc
-            self.vlog(VERB_MAX, "line: '%s'" % (line))
+            #self.vlog(VERB_MAX, "line: '%s'" % (line))
             #if cond:
             #    line = self.__f.readline()
             #    if line:
@@ -695,6 +701,11 @@ class reqboxfileparser():
             #if self.funhasrng(funstr):
             #    result = result + "RNGs\n"
         return result
+
+    def printf(self):
+        result = ""
+        for idx, funstr in enumerate(self.funlist):
+            result = result + self.printfun(idx + 1, funstr)
         
     def __str__(self):
         result = ""

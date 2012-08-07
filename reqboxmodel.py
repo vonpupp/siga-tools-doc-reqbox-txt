@@ -161,29 +161,9 @@ class reqboxmodel():
     
     def __init__(self):
         # Public
-        #self.fun = reqmodel(funid, funname, funstart, funend)
-        self.fun = reqmodel()
-        #self.funid = funid
-        #self.funname = funname
-        #self.funbody = None
-        #self.funstart = funstart
-        #self.funend = funend
-        self.rfi = {}
-        self.rfistart = -1
-        self.rfiend = -1
-        self.rfn = {}
-        self.rfnstart = -1
-        self.rfnend = -1
-        self.rnf = {}
-        self.rnfstart = -1
-        self.rnfend = -1
-        self.rgn = {}
-        self.rgnstart = -1
-        self.rgnend = -1
-        self.wrf = {}
-        
         # Init structures
-        self.fp = None
+        self.fp = rfp.reqboxfileparser()
+        self.fp.parsefile("./data/LRCv12.txt")
         
         # Init vlogger
         self.__verbosity = VERB_MAX
@@ -191,7 +171,7 @@ class reqboxmodel():
         #self.vlog = self.__log()
         
     def __del__(self):
-        del self.rfi
+        #del self.rfi
         del self.fp
         
     def printfun(self, idx, funstr):
@@ -313,21 +293,47 @@ class reqboxmodel():
 #m['fun001']['rfi234']['wrf001'] = '...'
 #
 
-s = {
-  'fun001': 'FUNManter Tipo de Verificacao de Item de Checklist',
-  'fun001': {'rfi234' : 'RFIManter Tipo de Verificacao de Item de Checklist', 'rfn001' : 'Permissao de acesso por perfil de seguranca',
-             'rfn366' : 'Busca e retorno de dados de tipo de verificao de item de checklist', 'rnf001' : '...', 'rng001' : '...',
-             'wrf001' : '...'}
-}
+    def printdic(self, d):
+        #if d == self.fp.fundict[funstr].rfi:
+        #    prefix = "RFI"
+        #elif d == self.fp.fundict[funstr].rfn:
+        #    prefix = "RFN"        
+        for idx, funstr in enumerate(sorted(d)):
+            r = d[funstr]
+            print("    - %s: '%s...' ('%s...', begin=%d, end=%d)" % (r.reqid, r.reqname[:20], r.reqbody[:15], r.reqstart, r.reqend))
+
+    def printf(self):
+        for idx, funstr in enumerate(self.fp.funlist):
+            print("FUN %d: %s" % (idx + 1, funstr))
+            d = self.fp.fundict[funstr].rfi
+            count = len(d)
+            print("  %s [%d]" % ("RFI", count))
+            self.printdic(d)
+            
+            d = self.fp.fundict[funstr].rfn
+            count = len(d)
+            print("  %s [%d]" % ("RFI", count))
+            self.printdic(d)
+            
+            d = self.fp.fundict[funstr].rnf
+            count = len(d)
+            print("  %s [%d]" % ("RNF", count))
+            self.printdic(d)
+
+            d = self.fp.fundict[funstr].rgn
+            count = len(d)
+            print("  %s [%d]" % ("RGN", count))
+            self.printdic(d)
+        pass
 
 def main(argv):
 #    r = reqboxmodel()
     #r.parsefile("./data/LRCv12-utf8-win.txt")
 #    r.fp.parsefile("./data/LRCv12.txt")
     #r.vlog(VERB_MED, "r = \n%s" % (r))
-    
-    fp = rfp.reqboxfileparser()
-    fp.parsefile("./data/LRCv12.txt")
+
+    rbm = reqboxmodel()
+    rbm.printf()
 
     
 #    print s
