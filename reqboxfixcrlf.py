@@ -2,7 +2,7 @@
 #!/usr/bin/env python
 
 #   Project:			SIGA
-#   Component Name:		reqboxmodel
+#   Component Name:		reqboxfixcrlf
 #   Language:			Python
 #
 #   License: 			GNU Public License
@@ -21,8 +21,9 @@
 #   Author:			Albert De La Fuente (www.albertdelafuente.com)
 #   E-Mail:			http://www.google.com/recaptcha/mailhide/d?k=01eb_9W_IYJ4Pm_Y9ALRIPug==&c=L15IEH_kstH8WRWfqnRyeW4IDQuZPzNDRB0KCzMTbHQ=
 #
-#   Description:		This script it is a higher level wrapper of
-#       reqboxfileparse for easier structures iteration
+#   Description:		This script it is a format fixing tool.
+#       MS files sometimes have '\r' character only instead of '\r\n'. This tool
+#       fixes those cases for properly parsing the file
 #
 #   Limitations:		Error handling is not correctly implemented, time constraints
 #	The code is not clean and elegant as it should, again, time constraints

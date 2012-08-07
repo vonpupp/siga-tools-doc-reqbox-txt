@@ -92,15 +92,6 @@ VERB_MIN = 1
 VERB_MED = 2
 VERB_MAX = 3
 
-#def site_struct():
-#    return defaultdict(board_struct)
-#    
-#def board_struct():
-#    return defaultdict(user_struct)
-#    
-#def user_struct():
-#    return dict(pageviews=0,username='',comments=0)
-
 class reqmodel():
     """ Functionalities model
     Attributes:
@@ -133,12 +124,6 @@ class funmodel():
     def __init__(self, funid, funname, funstart, funend):
         # Public
         self.fun = reqmodel(funid, funname, funstart, funend)
-        #self.fun = reqmodel()
-        #self.funid = funid
-        #self.funname = funname
-        #self.funbody = None
-        #self.funstart = funstart
-        #self.funend = funend
         self.rfi = {}
         self.rfistart = -1
         self.rfiend = -1
@@ -184,15 +169,6 @@ class reqboxmodel():
             f = self.fun[funstr]
 
             result = "FUN id=%s [bytes=%d/%d]:\t'%s'\n" % (f.funid, f.funstart, f.funend, f.funname)
-            #print(result)
-#            if self.funhasrfi(funstr):
-#                result = result + "- RFI id=%s [bytes=%d/%d]: '%s'\n" % (f.rfistart, f.rfiend)
-            #if self.funhasrfn(funstr):
-            #    result = result + "RFNs\n"
-            #if self.funhasrnf(funstr):
-            #    result = result + "RNFs\n"
-            #if self.funhasrng(funstr):
-            #    result = result + "RNGs\n"
         return result
         
     def __str__(self):
@@ -206,92 +182,6 @@ class reqboxmodel():
         self.fp = rfp.reqboxfileparser()
         rfp.VERB_MAX = 10
         self.fp.parsefile(fname)
-        
-#        self.fp.getfunlist()
-        #count = len(fp.funlist)
-#        for funidx, funname in enumerate(self.fp.funlist):
-#            #newidx = count - funidx
-#            funstart = self.fp.funstart(funname)
-#            funend   = self.fp.funend(funname)
-#            fun = funmodel(funidx + 1, funname, funstart, funend)
-#            fun.funstart = funstart
-#            fun.funend   = funend
-#            fun.rfistart = self.fp.funrfistart(funname)
-#            fun.rfiend   = self.fp.funrfiend(funname)
-#            fun.rfnstart = self.fp.funrfnstart(funname)
-#            fun.rfnend   = self.fp.funrfnend(funname)
-#            fun.rnfstart = self.fp.funrnfstart(funname)
-#            fun.rnfend   = self.fp.funrnfend(funname)
-#            fun.rgnstart = self.fp.funrgnstart(funname)
-#            fun.rgnend   = self.fp.funrgnend(funname)
-#            self.fun[funname] = fun
-#            self.vlog(VERB_MED, "%s" % (self.printfun(funidx+1, funname)))
-##            self.fun[funname].rfi = self.fp.gettagdic(funname, 'RFI')
-#            if funstart != -1:
-                #self.fun[funname].rfi = self.fp.gettagdic(funname, 'RFI', rfistart, rfiend)
-#                pass
-                #for rfiidx, rfiname in enumerate(self.fun[funname].rfi):
-                #    self.fun[funname].rfi = fp.getrfidic(funname)
-            #if fp.funhasrfn(funname):
-            #    self.fun[funname].rfn = fp.getrfndic(funname)
-            #if fp.funhasrnf(funname):
-            #    self.fun[funname].rnf = fp.getrnfdic(funname)
-            #if fp.funhasrng(funname):
-            #    self.fun[funname].rng = fp.getrngdic(funname)
-            
-            
-        #fp.vlog(VERB_MED, "fun = %s" % (fun))
-        #fp.vlog(VERB_MED, "len(fun) = %d" % (len(rfp.funlist)))
-        #fp.getfundict()
-        #fp.vlog(VERB_MED, "fundict = %s" % (rfp.fundict))
-        #fp.vlog(VERB_MED, "%d" % (rfp.fundict['Gerar Etiqueta de Destino']))
-        #fp.vlog(VERB_MED, "%d" % (rfp.fundict['Provisão para despesas futuras']))
-        #fp.printmap(fp.fundict)
-        #fp.printfun("18", "Manter Prontuário")
-        #fp.printfun("43", "Manter Plano de Ação")
-        #fp.vlog(VERB_MED, "rfp = \n%s" % (rfp))
-        
-        # Init
-
-#s.fun[001] = 'Manter Tipo de Verificacao de Item de Checklist'
-#s.fun[002] = ' Manter Carta de Convocacao / Comunicado'
-#s.fun[003] = ' Manter Remessa de Cartao de Identificacao'
-#s.fun.count = x
-#
-#s.fun[001].rfi[234] = 'Manter tipo de verificacao de item de checklist'
-#s.fun.rfi.count = y
-#
-#s.fun[001].rfn[001] = 'Permissao de acesso por perfil de seguranca'
-#s.fun[001].rfn[366] = 'Busca e retorno de dados de tipo de verificacao de item de checklist'
-
-#--- FUN vs. XXX case
-
-#m['fun001'] = 'Manter Tipo de Verificacao de Item de Checklist'
-#
-#m['fun001']['rfi234'] = 'Manter tipo de verificacao de item de checklist'
-#
-#m['fun001']['rfn001'] = 'Permissao de acesso por perfil de seguranca'
-#m['fun001']['rfn366'] = 'Busca e retorno de dados de tipo de verificao de item de checklist'
-#
-#m['fun001']['rnf001'] = '...'
-#m['fun001']['rng001'] = '...'
-#
-#m['fun001']['wrf001'] = '...'
-
-#--- FUN vs. RFI vs. XXX case
-
-#m['fun001'] = 'Manter Tipo de Verificacao de Item de Checklist'
-#
-#m['fun001']['rfi234'] = 'Manter tipo de verificacao de item de checklist'
-#
-#m['fun001']['rfi234']['rfn001'] = 'Permissao de acesso por perfil de seguranca'
-#m['fun001']['rfi234']['rfn366'] = 'Busca e retorno de dados de tipo de verificao de item de checklist'
-#
-#m['fun001']['rfi234']['rnf001'] = '...'
-#m['fun001']['rfi234']['rng001'] = '...'
-#
-#m['fun001']['rfi234']['wrf001'] = '...'
-#
 
     def printdic(self, d):
         #if d == self.fp.fundict[funstr].rfi:
@@ -329,40 +219,6 @@ class reqboxmodel():
 def main(argv):
     rbm = reqboxmodel()
     rbm.printf()
-
-    
-#    print s
-##    print s['fun001']
-#    print s['fun001']['rfi234']
-#    print s['fun001']
-#    
-#    f.fid = xx
-#    f.fname = yy
-#    
-#    fun['001'] = f
-#    
-#    fun['001'].fname = yy
-#    
-#    fun['001'].rfi['rfi001'] = zz
-#    fun['001'].rfn['rfn001'] = yy
-#    
-#    rfi = fun.indexbyrfi
-#    rfi['001'].fun
-#    
-#    myDict = {'Apple': {'American':'16', 'Mexican':10, 'Chinese':5},
-#              'Grapes':{'Arabian':'25','Indian':'20'} }
-#
-#
-#    print myDict['Apple']['American']
-#    
-#    
-#    userdict = defaultdict(site_struct)
-#    userdict['site1']['board1']['username'] = 'tommy'
-#    #userdict['site1']['board1']['username']['pageviews'] += 1
-#    print userdict
-#    print userdict['site1']['board1']['username']
-
-
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
