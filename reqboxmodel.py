@@ -300,7 +300,7 @@ class reqboxmodel():
         #    prefix = "RFN"        
         for idx, funstr in enumerate(sorted(d)):
             r = d[funstr]
-            print("    - %s: '%s...' ('%s...', begin=%d, end=%d)" % (r.reqid, r.reqname[:20], r.reqbody[:15], r.reqstart, r.reqend))
+            print("    - %s: '%s...' ('%s...%s', begin=%d, end=%d)" % (r.reqid, r.reqname[:20], r.reqbody[:15], r.reqbody[len(r.reqbody)-17:len(r.reqbody)-2], r.reqstart, r.reqend))
 
     def printf(self):
         for idx, funstr in enumerate(self.fp.funlist):
@@ -312,14 +312,14 @@ class reqboxmodel():
             
             d = self.fp.fundict[funstr].rfn
             count = len(d)
-            print("  %s [%d]" % ("RFI", count))
+            print("  %s [%d]" % ("RFN", count))
             self.printdic(d)
             
             d = self.fp.fundict[funstr].rnf
             count = len(d)
             print("  %s [%d]" % ("RNF", count))
             self.printdic(d)
-
+            
             d = self.fp.fundict[funstr].rgn
             count = len(d)
             print("  %s [%d]" % ("RGN", count))
