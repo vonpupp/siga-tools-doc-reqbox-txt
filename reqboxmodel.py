@@ -149,6 +149,10 @@ class reqboxmodel():
         # Init structures
         self.fp = rfp.reqboxfileparser()
         self.fp.parsefile("./data/LRCv12.txt")
+        self.uniquerfi = {}
+        self.uniquerfn = {}
+        self.uniquernf = {}
+        self.uniquergn = {}
         
         # Init vlogger
         self.__verbosity = VERB_MAX
@@ -247,6 +251,45 @@ class reqboxmodel():
                 print("Writing...%s" % (r.reqid))
                 csvhdlr.writerow(row)
 
+    def builduniquerfndict(self):
+        for idx, funstr in enumerate(self.fp.funlist):
+            d = self.fp.fundict[funstr].rfn
+            for idx, reqstr in enumerate(sorted(d)):
+                r = d[reqstr]
+                
+                if not reqstr in self.uniquerfn:
+                    self.uniquerfn[reqstr] = reqmodel(r.reqid, r.reqname, r.reqstart, r.reqend)
+                    self.uniquerfn[reqstr].reqbody = r.reqbody
+                    print("inserting %s" % (r.reqid))
+                else:
+                    print("skipping %s" % (r.reqid))
+                    
+    def builduniquernfdict(self):
+        for idx, funstr in enumerate(self.fp.funlist):
+            d = self.fp.fundict[funstr].rnf
+            for idx, reqstr in enumerate(sorted(d)):
+                r = d[reqstr]
+                
+                if not reqstr in self.uniquerfn:
+                    self.uniquernf[reqstr] = reqmodel(r.reqid, r.reqname, r.reqstart, r.reqend)
+                    self.uniquernf[reqstr].reqbody = r.reqbody
+                    print("inserting %s" % (r.reqid))
+                else:
+                    print("skipping %s" % (r.reqid))
+                    
+    def builduniquergndict(self):
+        for idx, funstr in enumerate(self.fp.funlist):
+            d = self.fp.fundict[funstr].rgn
+            for idx, reqstr in enumerate(sorted(d)):
+                r = d[reqstr]
+                
+                if not reqstr in self.uniquerfn:
+                    self.uniquergn[reqstr] = reqmodel(r.reqid, r.reqname, r.reqstart, r.reqend)
+                    self.uniquergn[reqstr].reqbody = r.reqbody
+                    print("inserting %s" % (r.reqid))
+                else:
+                    print("skipping %s" % (r.reqid))
+                
     def exporter_rfn(self, fh):
         
         #if self.outfile != "":
@@ -257,13 +300,14 @@ class reqboxmodel():
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         csvhdlr.writerow(["Name", "Alias", "Type", "Notes", "Priority", "Author", ])
         
-        for idx, funstr in enumerate(self.fp.funlist):
-            d = self.fp.fundict[funstr].rfn
-            for idx, reqstr in enumerate(sorted(d)):
-                r = d[reqstr]
+        d = self.uniquerfn
+        for idx, reqstr in enumerate(sorted(d)):
+            r = d[reqstr]
+                
+                #if self.uniquerfn
                 
                 #self.vlog(VERB_MED, "len = '%d'" % len(result.split(utf8("\t"))))
-                row = [r.reqid + ". " + r.reqname, r.reqid, 'Requirement', r.reqbody, "Medium", "Albert De La Fuente"]
+            row = [r.reqid + ". " + r.reqname, r.reqid, 'Requirement', r.reqbody, "Medium", "Albert De La Fuente"]
                 
                 #Name    Alias   Type    Notes   Priority        Author
                 #RFI001. MANTER HOSPEDAGEM       RFI001. Requirement     "
@@ -275,8 +319,8 @@ class reqboxmodel():
                     
                     #self.logv(2, "parsedir().wftuple=" + str(wftuple))
                     #self.logv(2, "parsedir().wftuple=%s" .join(map(str, wftuple)))
-                print("Writing...%s" % (r.reqid))
-                csvhdlr.writerow(row)
+            print("Writing...%s" % (r.reqid))
+            csvhdlr.writerow(row)
 
 def main(argv):
     rbm = reqboxmodel()
@@ -285,8 +329,17 @@ def main(argv):
     fh = open("rfi.csv", 'wb')
     rbm.exporter_rfi(fh)
     
+    rbm.builduniquerfndict()
     fh = open("rfn.csv", 'wb')
     rbm.exporter_rfn(fh)
+    
+    rbm.builduniquernfdict()
+    fh = open("rnf.csv", 'wb')
+    rbm.exporter_rnf(fh)
+    
+    rbm.builduniquergndict()
+    fh = open("rgn.csv", 'wb')
+    rbm.exporter_rgn(fh)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
