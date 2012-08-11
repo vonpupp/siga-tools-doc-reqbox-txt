@@ -220,6 +220,45 @@ class reqboxmodel():
             self.printdic(d)
         pass
     
+    def builduniquerfndict(self):
+        for idx, funstr in enumerate(self.fp.funlist):
+            d = self.fp.fundict[funstr].rfn
+            for idx, reqstr in enumerate(sorted(d)):
+                r = d[reqstr]
+                
+                if not reqstr in self.uniquerfn:
+                    self.uniquerfn[reqstr] = reqmodel(r.reqid, r.reqname, r.reqstart, r.reqend)
+                    self.uniquerfn[reqstr].reqbody = r.reqbody
+                    print("inserting %s" % (r.reqid))
+                else:
+                    print("skipping %s" % (r.reqid))
+
+    def builduniquernfdict(self):
+        for idx, funstr in enumerate(self.fp.funlist):
+            d = self.fp.fundict[funstr].rnf
+            for idx, reqstr in enumerate(sorted(d)):
+                r = d[reqstr]
+                
+                if not reqstr in self.uniquerfn:
+                    self.uniquernf[reqstr] = reqmodel(r.reqid, r.reqname, r.reqstart, r.reqend)
+                    self.uniquernf[reqstr].reqbody = r.reqbody
+                    print("inserting %s" % (r.reqid))
+                else:
+                    print("skipping %s" % (r.reqid))
+
+    def builduniquergndict(self):
+        for idx, funstr in enumerate(self.fp.funlist):
+            d = self.fp.fundict[funstr].rgn
+            for idx, reqstr in enumerate(sorted(d)):
+                r = d[reqstr]
+                
+                if not reqstr in self.uniquerfn:
+                    self.uniquergn[reqstr] = reqmodel(r.reqid, r.reqname, r.reqstart, r.reqend)
+                    self.uniquergn[reqstr].reqbody = r.reqbody
+                    print("inserting %s" % (r.reqid))
+                else:
+                    print("skipping %s" % (r.reqid))
+
     def exporter_rfi(self, fh):
         
         #if self.outfile != "":
@@ -244,52 +283,12 @@ class reqboxmodel():
                 #* Código da hospedagem
                 #* ...
                 #"       Medium  Albert De La Fuente
-
                     
                     #self.logv(2, "parsedir().wftuple=" + str(wftuple))
                     #self.logv(2, "parsedir().wftuple=%s" .join(map(str, wftuple)))
                 print("Writing...%s" % (r.reqid))
                 csvhdlr.writerow(row)
 
-    def builduniquerfndict(self):
-        for idx, funstr in enumerate(self.fp.funlist):
-            d = self.fp.fundict[funstr].rfn
-            for idx, reqstr in enumerate(sorted(d)):
-                r = d[reqstr]
-                
-                if not reqstr in self.uniquerfn:
-                    self.uniquerfn[reqstr] = reqmodel(r.reqid, r.reqname, r.reqstart, r.reqend)
-                    self.uniquerfn[reqstr].reqbody = r.reqbody
-                    print("inserting %s" % (r.reqid))
-                else:
-                    print("skipping %s" % (r.reqid))
-                    
-    def builduniquernfdict(self):
-        for idx, funstr in enumerate(self.fp.funlist):
-            d = self.fp.fundict[funstr].rnf
-            for idx, reqstr in enumerate(sorted(d)):
-                r = d[reqstr]
-                
-                if not reqstr in self.uniquerfn:
-                    self.uniquernf[reqstr] = reqmodel(r.reqid, r.reqname, r.reqstart, r.reqend)
-                    self.uniquernf[reqstr].reqbody = r.reqbody
-                    print("inserting %s" % (r.reqid))
-                else:
-                    print("skipping %s" % (r.reqid))
-                    
-    def builduniquergndict(self):
-        for idx, funstr in enumerate(self.fp.funlist):
-            d = self.fp.fundict[funstr].rgn
-            for idx, reqstr in enumerate(sorted(d)):
-                r = d[reqstr]
-                
-                if not reqstr in self.uniquerfn:
-                    self.uniquergn[reqstr] = reqmodel(r.reqid, r.reqname, r.reqstart, r.reqend)
-                    self.uniquergn[reqstr].reqbody = r.reqbody
-                    print("inserting %s" % (r.reqid))
-                else:
-                    print("skipping %s" % (r.reqid))
-                
     def exporter_rfn(self, fh):
         
         #if self.outfile != "":
@@ -298,7 +297,7 @@ class reqboxmodel():
         #    fh = sys.stdout
             
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
-        csvhdlr.writerow(["Name", "Alias", "Type", "Notes", "Priority", "Author", ])
+        csvhdlr.writerow(["Name", "Alias", "Type", "Notes", "Priority", "Author"])
         
         d = self.uniquerfn
         for idx, reqstr in enumerate(sorted(d)):
@@ -315,10 +314,82 @@ class reqboxmodel():
                 #* Código da hospedagem
                 #* ...
                 #"       Medium  Albert De La Fuente
-
                     
                     #self.logv(2, "parsedir().wftuple=" + str(wftuple))
                     #self.logv(2, "parsedir().wftuple=%s" .join(map(str, wftuple)))
+            print("Writing...%s" % (r.reqid))
+            csvhdlr.writerow(row)
+
+    def exporter_rnf(self, fh):
+        
+        #if self.outfile != "":
+        #    fh = open(self.outfile, 'wb')
+        #else:
+        #    fh = sys.stdout
+            
+        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
+        csvhdlr.writerow(["Name", "Alias", "Type", "Notes", "Priority", "Author"])
+        
+        d = self.uniquernf
+        for idx, reqstr in enumerate(sorted(d)):
+            r = d[reqstr]
+                
+                #if self.uniquerfn
+                
+                #self.vlog(VERB_MED, "len = '%d'" % len(result.split(utf8("\t"))))
+            row = [r.reqid + ". " + r.reqname, r.reqid, 'Requirement', r.reqbody, "Medium", "Albert De La Fuente"]
+                
+                #Name    Alias   Type    Notes   Priority        Author
+                #RFI001. MANTER HOSPEDAGEM       RFI001. Requirement     "
+                #O sistema deve disponibilizar uma interface para incluir, alterar, excluir e consultar hospedagens, contemplando os seguintes atributos:
+                #* Código da hospedagem
+                #* ...
+                #"       Medium  Albert De La Fuente
+                    
+                    #self.logv(2, "parsedir().wftuple=" + str(wftuple))
+                    #self.logv(2, "parsedir().wftuple=%s" .join(map(str, wftuple)))
+            print("Writing...%s" % (r.reqid))
+            csvhdlr.writerow(row)
+
+    def exporter_rgn(self, fh):
+        
+        #if self.outfile != "":
+        #    fh = open(self.outfile, 'wb')
+        #else:
+        #    fh = sys.stdout
+            
+        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
+        csvhdlr.writerow(["Name", "Alias", "Type", "Notes", "Priority", "Author"])
+        
+        d = self.uniquergn
+        for idx, reqstr in enumerate(sorted(d)):
+            r = d[reqstr]
+                
+                #if self.uniquerfn
+                
+                #self.vlog(VERB_MED, "len = '%d'" % len(result.split(utf8("\t"))))
+            row = [r.reqid + ". " + r.reqname, r.reqid, 'Requirement', r.reqbody, "Medium", "Albert De La Fuente"]
+                
+                #Name    Alias   Type    Notes   Priority        Author
+                #RFI001. MANTER HOSPEDAGEM       RFI001. Requirement     "
+                #O sistema deve disponibilizar uma interface para incluir, alterar, excluir e consultar hospedagens, contemplando os seguintes atributos:
+                #* Código da hospedagem
+                #* ...
+                #"       Medium  Albert De La Fuente
+                    
+                    #self.logv(2, "parsedir().wftuple=" + str(wftuple))
+                    #self.logv(2, "parsedir().wftuple=%s" .join(map(str, wftuple)))
+            print("Writing...%s" % (r.reqid))
+            csvhdlr.writerow(row)
+
+    def exporter_funobjects(self, fh):
+        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
+        csvhdlr.writerow(["Name", "Alias", "Type", "Notes", "Priority", "Author", ])
+        
+        d = self.fp.fundict
+        for idx, reqstr in enumerate(self.fp.funlist):
+            r = d[reqstr].fun
+            row = [r.reqid + ". " + r.reqname, r.reqid, 'Requirement', r.reqbody, "Medium", "Albert De La Fuente"]
             print("Writing...%s" % (r.reqid))
             csvhdlr.writerow(row)
 
@@ -326,20 +397,23 @@ def main(argv):
     rbm = reqboxmodel()
     rbm.printf()
     
-    fh = open("rfi.csv", 'wb')
+    fh = open("rfi-objects.csv", 'wb')
     rbm.exporter_rfi(fh)
     
     rbm.builduniquerfndict()
-    fh = open("rfn.csv", 'wb')
+    fh = open("rfn-objects.csv", 'wb')
     rbm.exporter_rfn(fh)
     
     rbm.builduniquernfdict()
-    fh = open("rnf.csv", 'wb')
+    fh = open("rnf-objects.csv", 'wb')
     rbm.exporter_rnf(fh)
-    
+
     rbm.builduniquergndict()
-    fh = open("rgn.csv", 'wb')
+    fh = open("rgn-objects.csv", 'wb')
     rbm.exporter_rgn(fh)
+    
+    fh = open("fun-objects.csv", 'wb')
+    rbm.exporter_funobjects(fh)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
