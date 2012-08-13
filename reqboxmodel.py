@@ -389,7 +389,8 @@ class reqboxmodel():
         d = self.fp.fundict
         for idx, reqstr in enumerate(self.fp.funlist):
             r = d[reqstr].fun
-            row = [r.reqid + ". " + r.reqname, r.reqid, 'UseCase', r.reqbody, "Medium", "Albert De La Fuente"]
+            alias = "UC" + r.reqid.zfill(3)
+            row = [alias + ". " + r.reqname, alias, 'UseCase', r.reqbody, "Medium", "Albert De La Fuente"]
             print("Writing...%s" % (r.reqid))
             csvhdlr.writerow(row)
             
