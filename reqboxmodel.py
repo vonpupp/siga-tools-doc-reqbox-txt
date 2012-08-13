@@ -389,13 +389,18 @@ class reqboxmodel():
         d = self.fp.fundict
         for idx, reqstr in enumerate(self.fp.funlist):
             r = d[reqstr].fun
-            row = [r.reqid + ". " + r.reqname, r.reqid, 'Requirement', r.reqbody, "Medium", "Albert De La Fuente"]
+            row = [r.reqid + ". " + r.reqname, r.reqid, 'UseCase', r.reqbody, "Medium", "Albert De La Fuente"]
             print("Writing...%s" % (r.reqid))
             csvhdlr.writerow(row)
+            
+    def fixsecondlevelbullets(self):
+        pass
 
 def main(argv):
     rbm = reqboxmodel()
     rbm.printf()
+    
+    rbm.fixsecondlevelbullets()
     
     fh = open("rfi-objects.csv", 'wb')
     rbm.exporter_rfi(fh)
