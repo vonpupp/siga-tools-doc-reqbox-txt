@@ -382,6 +382,9 @@ class reqboxmodel():
             print("Writing...%s" % (r.reqid))
             csvhdlr.writerow(row)
 
+    def uclabel(self, ucid):
+        return "UC" + ucid.zfill(3)
+    
     def exporter_funobjects(self, fh):
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         csvhdlr.writerow(["Name", "Alias", "Type", "Notes", "Priority", "Author", ])
@@ -389,13 +392,25 @@ class reqboxmodel():
         d = self.fp.fundict
         for idx, reqstr in enumerate(self.fp.funlist):
             r = d[reqstr].fun
-            alias = "UC" + r.reqid.zfill(3)
+            alias = self.uclabel(r.reqid) # "UC" + r.reqid.zfill(3)
             row = [alias + ". " + r.reqname, alias, 'UseCase', r.reqbody, "Medium", "Albert De La Fuente"]
             print("Writing...%s" % (r.reqid))
             csvhdlr.writerow(row)
             
     def fixsecondlevelbullets(self):
         pass
+    
+    def exporter_funrfirelations(self, fh):
+        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
+        csvhdlr.writerow(["Name", "Alias", "Type", "Notes", "Priority", "Author", ])
+        
+        d = self.fp.fundict
+        for idx, reqstr in enumerate(self.fp.funlist):
+            r = d[reqstr].fun
+            alias = self.uclabel(r.reqid) # "UC" + r.reqid.zfill(3)
+            row = [alias + ". " + r.reqname, alias, 'UseCase', r.reqbody, "Medium", "Albert De La Fuente"]
+            print("Writing...%s" % (r.reqid))
+            csvhdlr.writerow(row)
 
 def main(argv):
     rbm = reqboxmodel()
