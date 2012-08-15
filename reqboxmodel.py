@@ -379,7 +379,7 @@ class reqboxmodel():
                     
                     #self.logv(2, "parsedir().wftuple=" + str(wftuple))
                     #self.logv(2, "parsedir().wftuple=%s" .join(map(str, wftuple)))
-            print("Writing...%s" % (r.reqid))
+            print("Writing... %s" % (r.reqid))
             csvhdlr.writerow(row)
 
     def uclabel(self, ucid):
@@ -387,30 +387,35 @@ class reqboxmodel():
     
     def exporter_funobjects(self, fh):
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
-        csvhdlr.writerow(["Name", "Alias", "Type", "Notes", "Priority", "Author", ])
+        csvhdlr.writerow(["Name", "Alias", "Type", "Notes", "Priority", "Author"])
         
         d = self.fp.fundict
         for idx, reqstr in enumerate(self.fp.funlist):
             r = d[reqstr].fun
             alias = self.uclabel(r.reqid) # "UC" + r.reqid.zfill(3)
             row = [alias + ". " + r.reqname, alias, 'UseCase', r.reqbody, "Medium", "Albert De La Fuente"]
-            print("Writing...%s" % (r.reqid))
+            print("Writing... %s" % (r.reqid))
             csvhdlr.writerow(row)
             
     def fixsecondlevelbullets(self):
         pass
     
-    def exporter_funrfirelations(self, fh):
+    def exporter_funrfilinks(self, fh):
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
-        csvhdlr.writerow(["Name", "Alias", "Type", "Notes", "Priority", "Author", ])
+        csvhdlr.writerow(["SIGA stable|Biblioteca de Interfaces|test", "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)", "Name"])
         
-        d = self.fp.fundict
-        for idx, reqstr in enumerate(self.fp.funlist):
-            r = d[reqstr].fun
-            alias = self.uclabel(r.reqid) # "UC" + r.reqid.zfill(3)
-            row = [alias + ". " + r.reqname, alias, 'UseCase', r.reqbody, "Medium", "Albert De La Fuente"]
-            print("Writing...%s" % (r.reqid))
-            csvhdlr.writerow(row)
+        fd = self.fp.fundict
+        for i0, funstr in enumerate(self.fp.funlist):
+            fun = fd[funstr].fun
+            funalias = self.uclabel(fun.reqid) # "UC" + r.reqid.zfill(3)
+            
+            rd = fd[funstr].rfi
+            for i1, reqstr in enumerate(sorted(rd)):
+                reqalias = rd[reqstr].reqid
+                
+                row = [funalias, reqalias, "rel-%s-%s" % (funalias, reqalias)]
+                print("Writing... %s-%s" % (funalias, reqalias))
+                csvhdlr.writerow(row)
 
 def main(argv):
     rbm = reqboxmodel()
@@ -435,6 +440,9 @@ def main(argv):
     
     fh = open("fun-objects.csv", 'wb')
     rbm.exporter_funobjects(fh)
+    
+    fh = open("fun-rfi-relationships.csv", 'wb')
+    rbm.exporter_funrfilinks(fh)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
