@@ -79,6 +79,7 @@ import sys
 import os
 import csv
 import codecs
+from vlog import vlogger
 import reqboxmodel as rbm
 
 #---- exceptions
@@ -90,16 +91,45 @@ VERB_MIN = 1
 VERB_MED = 2
 VERB_MAX = 3
 
+class reqbox():
+    """ Reqbox
+    Attributes:
+    """
+    
+    def __init__(self):
+        # Public
+        # Init structures
+        self.rbm = rbm.reqboxmodel()
+        self.inputfile = None
+        self.parseall = 0
+        self.parserfi = 0
+        self.parserfn = 0
+        self.parsernf = 0
+        self.parsergn = 0
+        
+        # Init vlogger
+        self.__verbosity = VERB_MAX
+        self.logv = vlogger(self.__verbosity, sys.stdout)
+        #self.vlog = self.__log()
+        
+    def __del__(self):
+        #del self.rfi
+        del self.rbm
+        
+    def parserfiobjects(self, fn):
+        fh = open(fn, 'wb')
+        self.rbm.exporter_rfiobjects(fh)
+        print "OUTPUT:  " + wfl.outfile
+
 def main(argv):
-    wfl = WF()
+    rb = reqbox()
     try:
-        optlist, args = getopt.getopt(argv[1:], 'hp:r:f:o:v:l:s:', ['help', 'verbose', 'export-all', 'export-rfi', 'export-rfn'])
+        optlist, args = getopt.getopt(argv[1:], 'hv:aing', ['help', 'verbose', 'export-all', 'export-rfi', 'export-rfn'])
     except getopt.GetoptError, msg:
         sys.stderr.write("reqbox: error: %s" % msg)
         sys.stderr.write("See 'reqbox --help'.\n")
         return 1
 
-    print str(optlist)
     for opt, optarg in optlist:
         if opt in ('-h', '--help'):
             sys.stdout.write(__doc__)
@@ -110,42 +140,49 @@ def main(argv):
             #wfl.logv(VERB_MED, "main.optarg = " .join(map(str, optarg)))
             #wfl.logv(VERB_MED, "main.optlist = " .join(map(str, optlist)))
             pass
-        elif opt in ('-a', '--export-all'):
-            wfl.logfile = optarg            
-            wfl.logv(VERB_MED, "main.optarg = " .join(map(str, optarg)))
-            if wfl.isVerbose:
-                wfl.setLogger('/home/afu/Dropbox/mnt-ccb/siga/siga-tools/siga-tools-wf2ea/myapp.log')
+        elif opt in ('-a', '--export-all',
+                     '-i', '--export-rfi'):
+            rb.inputfile = args[0]
+            rb.parseall = rb.parseall or opt in ('-a', '--export-all')
+            rb.parserfi = rb.parserfi or opt in ('-i', '--export-rfi')
+            #if wfl.isVerbose:
+                #wfl.setLogger('/home/afu/Dropbox/mnt-ccb/siga/siga-tools/siga-tools-wf2ea/myapp.log')
             pass
+        
 
-    rbm = reqboxmodel()
+    rb.parserfi = rb.parserfi or rb.parseall
     
-    fh = open("out-rfi-objects.csv", 'wb')
-    rbm.exporter_rfi(fh)
+    rb.rbm.parsefile(rb.inputfile)
     
-    rbm.builduniquerfndict()
-    fh = open("out-rfn-objects.csv", 'wb')
-    rbm.exporter_rfn(fh)
+    if rb.parserfi:
+        rb.parserfiobjects("out-rfi-objects.csv")
     
-    rbm.builduniquernfdict()
-    fh = open("out-rnf-objects.csv", 'wb')
-    rbm.exporter_rnf(fh)
-
-    rbm.builduniquergndict()
-    fh = open("out-rgn-objects.csv", 'wb')
-    rbm.exporter_rgn(fh)
+        
+        rbm.builduniquerfndict()
+        fh = open("out-rfn-objects.csv", 'wb')
+        rbm.exporter_rfn(fh)
+        
+        rbm.builduniquernfdict()
+        fh = open("out-rnf-objects.csv", 'wb')
+        rbm.exporter_rnf(fh)
     
-    fh = open("out-fun-objects.csv", 'wb')
-    rbm.exporter_funobjects(fh)
+        rbm.builduniquergndict()
+        fh = open("out-rgn-objects.csv", 'wb')
+        rbm.exporter_rgn(fh)
+        
+        fh = open("out-fun-objects.csv", 'wb')
+        rbm.exporter_funobjects(fh)
+        
+        fh = open("out-fun-rfi-relationships.csv", 'wb')
+        rbm.exporter_funrfilinks(fh)
+        
+        fh = open("out-rfi-fun-relationships.csv", 'wb')
+        rbm.exporter_rfifunlinks(fh)
     
-    fh = open("out-fun-rfi-relationships.csv", 'wb')
-    rbm.exporter_funrfilinks(fh)
-    
-    fh = open("out-rfi-fun-relationships.csv", 'wb')
-    rbm.exporter_rfifunlinks(fh)
-
-    print "OUTPUT:  " + wfl.outfile
-    print " * Replace:  " + wfl.replacepath
-    print " * Fix with: " + wfl.prependpath
+        print "OUTPUT:  " + wfl.outfile
+        print " * Replace:  " + wfl.replacepath
+        print " * Fix with: " + wfl.prependpath
+    del rb
 #    print "wfl.verbosity=" + str(wfl.__verbosity)
 
 if __name__ == "__main__":

@@ -135,8 +135,10 @@ class reqboxfileparser():
     
     def __del__(self):
         self.fundict.clear()
-        self.__f.close()
-        self.__file.close()
+        if self.__f:
+            self.__f.close()
+        if self.__file:
+            self.__file.close()
         del self.funlist
         del self.fundict
         del self.__f

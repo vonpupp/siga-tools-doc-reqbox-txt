@@ -148,7 +148,7 @@ class reqboxmodel():
         # Public
         # Init structures
         self.fp = rfp.reqboxfileparser()
-        self.fp.parsefile("./data/LRCv12.txt")
+        #self.fp.parsefile("./data/LRCv12.txt")
         self.uniquerfi = {}
         self.uniquerfn = {}
         self.uniquernf = {}
@@ -183,8 +183,8 @@ class reqboxmodel():
         
     def parsefile(self, fname):
         # Init structures
-        self.fp = rfp.reqboxfileparser()
-        rfp.VERB_MAX = 10
+        #self.fp = rfp.reqboxfileparser()
+        #rfp.VERB_MAX = 10
         self.fp.parsefile(fname)
 
     def printdic(self, d):
@@ -259,7 +259,7 @@ class reqboxmodel():
                 else:
                     print("skipping %s" % (r.reqid))
 
-    def exporter_rfi(self, fh):
+    def exporter_rfiobjects(self, fh):
         
         #if self.outfile != "":
         #    fh = open(self.outfile, 'wb')
@@ -289,7 +289,7 @@ class reqboxmodel():
                 print("Writing...%s" % (r.reqid))
                 csvhdlr.writerow(row)
 
-    def exporter_rfn(self, fh):
+    def exporter_rfnobjects(self, fh):
         
         #if self.outfile != "":
         #    fh = open(self.outfile, 'wb')
@@ -320,7 +320,7 @@ class reqboxmodel():
             print("Writing...%s" % (r.reqid))
             csvhdlr.writerow(row)
 
-    def exporter_rnf(self, fh):
+    def exporter_rnfobjects(self, fh):
         
         #if self.outfile != "":
         #    fh = open(self.outfile, 'wb')
@@ -351,7 +351,7 @@ class reqboxmodel():
             print("Writing...%s" % (r.reqid))
             csvhdlr.writerow(row)
 
-    def exporter_rgn(self, fh):
+    def exporter_rgnobjects(self, fh):
         
         #if self.outfile != "":
         #    fh = open(self.outfile, 'wb')
@@ -436,24 +436,25 @@ class reqboxmodel():
 
 def main(argv):
     rbm = reqboxmodel()
+    rbm.parsefile("./data/LRCv12.txt")
     rbm.printf()
     
     rbm.fixsecondlevelbullets()
     
     fh = open("rfi-objects.csv", 'wb')
-    rbm.exporter_rfi(fh)
+    rbm.exporter_rfiobjects(fh)
     
     rbm.builduniquerfndict()
     fh = open("rfn-objects.csv", 'wb')
-    rbm.exporter_rfn(fh)
+    rbm.exporter_rfnobjects(fh)
     
     rbm.builduniquernfdict()
     fh = open("rnf-objects.csv", 'wb')
-    rbm.exporter_rnf(fh)
+    rbm.exporter_rnfobjects(fh)
 
     rbm.builduniquergndict()
     fh = open("rgn-objects.csv", 'wb')
-    rbm.exporter_rgn(fh)
+    rbm.exporter_rgnobjects(fh)
     
     fh = open("fun-objects.csv", 'wb')
     rbm.exporter_funobjects(fh)
