@@ -119,7 +119,25 @@ class reqbox():
     def parserfiobjects(self, fn):
         fh = open(fn, 'wb')
         self.rbm.exporter_rfiobjects(fh)
-        print "OUTPUT:  " + wfl.outfile
+        print "RFI objects exported to:\t" + fn
+        
+    def parserfnobjects(self, fn):
+        self.rbm.builduniquerfndict()
+        fh = open(fn, 'wb')
+        self.rbm.exporter_rfnobjects(fh)
+        print "RFN objects exported to:\t" + fn
+
+    def parsernfobjects(self, fn):
+        self.rbm.builduniquernfdict()
+        fh = open(fn, 'wb')
+        self.rbm.exporter_rnfobjects(fh)
+        print "RFN objects exported to:\t" + fn
+    
+    def parsergnobjects(self, fn):
+        self.rbm.builduniquergndict()
+        fh = open(fn, 'wb')
+        self.rbm.exporter_rgnobjects(fh)
+        print "RNF objects exported to:\t" + fn
 
 def main(argv):
     rb = reqbox()
@@ -148,40 +166,35 @@ def main(argv):
             #if wfl.isVerbose:
                 #wfl.setLogger('/home/afu/Dropbox/mnt-ccb/siga/siga-tools/siga-tools-wf2ea/myapp.log')
             pass
-        
 
     rb.parserfi = rb.parserfi or rb.parseall
+    rb.parserfn = rb.parserfn or rb.parseall
+    rb.parsernf = rb.parsernf or rb.parseall
+    rb.parsergn = rb.parsergn or rb.parseall
     
     rb.rbm.parsefile(rb.inputfile)
     
     if rb.parserfi:
         rb.parserfiobjects("out-rfi-objects.csv")
     
-        
-        rbm.builduniquerfndict()
-        fh = open("out-rfn-objects.csv", 'wb')
-        rbm.exporter_rfn(fh)
-        
-        rbm.builduniquernfdict()
-        fh = open("out-rnf-objects.csv", 'wb')
-        rbm.exporter_rnf(fh)
+    if rb.parserfn:
+        rb.parserfnobjects("out-rnf-objects.csv")
     
-        rbm.builduniquergndict()
-        fh = open("out-rgn-objects.csv", 'wb')
-        rbm.exporter_rgn(fh)
+    if rb.parsernf:
+        rb.parsernfobjects("out-rnf-objects.csv")
         
-        fh = open("out-fun-objects.csv", 'wb')
-        rbm.exporter_funobjects(fh)
+    if rb.parsergn:
+        rb.parsergnobjects("out-rgn-objects.csv")
         
-        fh = open("out-fun-rfi-relationships.csv", 'wb')
-        rbm.exporter_funrfilinks(fh)
-        
-        fh = open("out-rfi-fun-relationships.csv", 'wb')
-        rbm.exporter_rfifunlinks(fh)
-    
-        print "OUTPUT:  " + wfl.outfile
-        print " * Replace:  " + wfl.replacepath
-        print " * Fix with: " + wfl.prependpath
+        #
+        #fh = open("out-fun-objects.csv", 'wb')
+        #rbm.exporter_funobjects(fh)
+        #
+        #fh = open("out-fun-rfi-relationships.csv", 'wb')
+        #rbm.exporter_funrfilinks(fh)
+        #
+        #fh = open("out-rfi-fun-relationships.csv", 'wb')
+        #rbm.exporter_rfifunlinks(fh)
     del rb
 #    print "wfl.verbosity=" + str(wfl.__verbosity)
 
