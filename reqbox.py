@@ -102,6 +102,7 @@ class reqbox():
         self.rbm = rbm.reqboxmodel()
         self.inputfile = None
         self.parseall = 0
+        self.parsefun = 0
         self.parserfi = 0
         self.parserfn = 0
         self.parsernf = 0
@@ -115,6 +116,11 @@ class reqbox():
     def __del__(self):
         #del self.rfi
         del self.rbm
+
+    def parsefunobjects(self, fn):
+        fh = open(fn, 'wb')
+        self.rbm.exporter_funobjects(fh)
+        print "FUN objects exported to:\t" + fn
         
     def parserfiobjects(self, fn):
         fh = open(fn, 'wb')
@@ -162,23 +168,31 @@ def main(argv):
                      '-i', '--export-rfi'):
             rb.inputfile = args[0]
             rb.parseall = rb.parseall or opt in ('-a', '--export-all')
-            rb.parserfi = rb.parserfi or opt in ('-i', '--export-rfi')
+            rb.parsefun = rb.parseall or rb.parsefun or opt in ('-f', '--export-fun')
+            rb.parserfi = rb.parseall or rb.parserfi or opt in ('-i', '--export-rfi')
+            rb.parserfn = rb.parseall or rb.parserfn or opt in ('-r', '--export-rfn')
+            rb.parsernf = rb.parseall or rb.parsernf or opt in ('-n', '--export-rnf')
+            rb.parsergn = rb.parseall or rb.parsergn or opt in ('-g', '--export-rgn')
             #if wfl.isVerbose:
                 #wfl.setLogger('/home/afu/Dropbox/mnt-ccb/siga/siga-tools/siga-tools-wf2ea/myapp.log')
             pass
 
-    rb.parserfi = rb.parserfi or rb.parseall
-    rb.parserfn = rb.parserfn or rb.parseall
-    rb.parsernf = rb.parsernf or rb.parseall
-    rb.parsergn = rb.parsergn or rb.parseall
+    #rb.parsefun = rb.parsefun or rb.parseall
+    #rb.parserfi = rb.parserfi or rb.parseall
+    #rb.parserfn = rb.parserfn or rb.parseall
+    #rb.parsernf = rb.parsernf or rb.parseall
+    #rb.parsergn = rb.parsergn or rb.parseall
     
     rb.rbm.parsefile(rb.inputfile)
+    
+    if rb.parsefun:
+        rb.parserfiobjects("out-fun-objects.csv")
     
     if rb.parserfi:
         rb.parserfiobjects("out-rfi-objects.csv")
     
     if rb.parserfn:
-        rb.parserfnobjects("out-rnf-objects.csv")
+        rb.parserfnobjects("out-rfn-objects.csv")
     
     if rb.parsernf:
         rb.parsernfobjects("out-rnf-objects.csv")
@@ -186,10 +200,6 @@ def main(argv):
     if rb.parsergn:
         rb.parsergnobjects("out-rgn-objects.csv")
         
-        #
-        #fh = open("out-fun-objects.csv", 'wb')
-        #rbm.exporter_funobjects(fh)
-        #
         #fh = open("out-fun-rfi-relationships.csv", 'wb')
         #rbm.exporter_funrfilinks(fh)
         #

@@ -90,15 +90,19 @@ def fixcrlf(sourcefile, destinationfile):
             df.write(fileline)
             totallines += count
         linecounter += 1
-        
     vlog(VERB_MIN, "Inputfile: %s" % sourcefile)
     vlog(VERB_MIN, "  * Total number of lines: %d" % linecounter)
     vlog(VERB_MIN, "Outfile: %s" % destinationfile)
     vlog(VERB_MIN, "  * Total number of lines: %d" % totallines)
+        
+    def fixdoublecrlf(sourcefile, destinationfile):
+        # HEX pattern to match: 0D0A0A0D0A
+        # Idea: just remove 0A0D0A
 
 def main(argv):
     if len(argv) == 3:
-        fixcrlf(argv[1], argv[2])
+        fixcrlf(argv[1], argv[2] + ".tmp")
+        fixdoublecrlf(argv[2] + ".tmp", argv[2])
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
