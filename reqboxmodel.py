@@ -414,7 +414,24 @@ class reqboxmodel():
                 reqalias = rd[reqstr].reqid
                 
                 row = [funalias, reqalias, "rel-%s-%s" % (funalias, reqalias)]
-                print("Writing... %s-%s" % (funalias, reqalias))
+                print("Writing... rel-%s-%s" % (funalias, reqalias))
+                csvhdlr.writerow(row)
+                
+    def exporter_rfifunlinks(self, fh):
+        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
+        csvhdlr.writerow(["SIGA stable|Biblioteca de Interfaces|test", "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)", "Name"])
+        
+        fd = self.fp.fundict
+        for i0, funstr in enumerate(self.fp.funlist):
+            fun = fd[funstr].fun
+            funalias = self.uclabel(fun.reqid) # "UC" + r.reqid.zfill(3)
+            
+            rd = fd[funstr].rfi
+            for i1, reqstr in enumerate(sorted(rd)):
+                reqalias = rd[reqstr].reqid
+                
+                row = [reqalias, funalias, "rel-%s-%s" % (reqalias, funalias)]
+                print("Writing... rel-%s-%s" % (reqalias, funalias))
                 csvhdlr.writerow(row)
 
 def main(argv):
@@ -443,6 +460,9 @@ def main(argv):
     
     fh = open("fun-rfi-relationships.csv", 'wb')
     rbm.exporter_funrfilinks(fh)
+    
+    fh = open("rfi-fun-relationships.csv", 'wb')
+    rbm.exporter_rfifunlinks(fh)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
