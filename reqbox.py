@@ -164,18 +164,17 @@ def main(argv):
             #wfl.logv(VERB_MED, "main.optarg = " .join(map(str, optarg)))
             #wfl.logv(VERB_MED, "main.optlist = " .join(map(str, optlist)))
             pass
-        elif opt in ('-a', '--export-all',
-                     '-i', '--export-rfi'):
-            rb.inputfile = args[0]
-            rb.parseall = rb.parseall or opt in ('-a', '--export-all')
-            rb.parsefun = rb.parseall or rb.parsefun or opt in ('-f', '--export-fun')
-            rb.parserfi = rb.parseall or rb.parserfi or opt in ('-i', '--export-rfi')
-            rb.parserfn = rb.parseall or rb.parserfn or opt in ('-r', '--export-rfn')
-            rb.parsernf = rb.parseall or rb.parsernf or opt in ('-n', '--export-rnf')
-            rb.parsergn = rb.parseall or rb.parsergn or opt in ('-g', '--export-rgn')
+        #elif opt in ('-a', '--export-all',
+        #             '-i', '--export-rfi'):
+        rb.inputfile = args[0]
+        rb.parseall = rb.parseall or opt in ('-a', '--export-all')
+        rb.parsefun = rb.parseall or rb.parsefun or opt in ('-f', '--export-fun')
+        rb.parserfi = rb.parseall or rb.parserfi or opt in ('-i', '--export-rfi')
+        rb.parserfn = rb.parseall or rb.parserfn or opt in ('-r', '--export-rfn')
+        rb.parsernf = rb.parseall or rb.parsernf or opt in ('-n', '--export-rnf')
+        rb.parsergn = rb.parseall or rb.parsergn or opt in ('-g', '--export-rgn')
             #if wfl.isVerbose:
                 #wfl.setLogger('/home/afu/Dropbox/mnt-ccb/siga/siga-tools/siga-tools-wf2ea/myapp.log')
-            pass
 
     #rb.parsefun = rb.parsefun or rb.parseall
     #rb.parserfi = rb.parserfi or rb.parseall
