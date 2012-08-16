@@ -79,6 +79,7 @@ import sys
 import os
 import csv
 import codecs
+import reqboxmodel as rbm
 
 #---- exceptions
 
@@ -90,8 +91,62 @@ VERB_MED = 2
 VERB_MAX = 3
 
 def main(argv):
-    pass
+    wfl = WF()
+    try:
+        optlist, args = getopt.getopt(argv[1:], 'hp:r:f:o:v:l:s:', ['help', 'verbose', 'export-all', 'export-rfi', 'export-rfn'])
+    except getopt.GetoptError, msg:
+        sys.stderr.write("reqbox: error: %s" % msg)
+        sys.stderr.write("See 'reqbox --help'.\n")
+        return 1
 
+    print str(optlist)
+    for opt, optarg in optlist:
+        if opt in ('-h', '--help'):
+            sys.stdout.write(__doc__)
+            return 0
+        elif opt in ('-v', '--verbose'):
+            #wfl.setVerbosity(int(optarg))
+            #wfl.logv(VERB_MED, "main.optarg[%d]" % len(optlist))
+            #wfl.logv(VERB_MED, "main.optarg = " .join(map(str, optarg)))
+            #wfl.logv(VERB_MED, "main.optlist = " .join(map(str, optlist)))
+            pass
+        elif opt in ('-a', '--export-all'):
+            wfl.logfile = optarg            
+            wfl.logv(VERB_MED, "main.optarg = " .join(map(str, optarg)))
+            if wfl.isVerbose:
+                wfl.setLogger('/home/afu/Dropbox/mnt-ccb/siga/siga-tools/siga-tools-wf2ea/myapp.log')
+            pass
+
+    rbm = reqboxmodel()
+    
+    fh = open("out-rfi-objects.csv", 'wb')
+    rbm.exporter_rfi(fh)
+    
+    rbm.builduniquerfndict()
+    fh = open("out-rfn-objects.csv", 'wb')
+    rbm.exporter_rfn(fh)
+    
+    rbm.builduniquernfdict()
+    fh = open("out-rnf-objects.csv", 'wb')
+    rbm.exporter_rnf(fh)
+
+    rbm.builduniquergndict()
+    fh = open("out-rgn-objects.csv", 'wb')
+    rbm.exporter_rgn(fh)
+    
+    fh = open("out-fun-objects.csv", 'wb')
+    rbm.exporter_funobjects(fh)
+    
+    fh = open("out-fun-rfi-relationships.csv", 'wb')
+    rbm.exporter_funrfilinks(fh)
+    
+    fh = open("out-rfi-fun-relationships.csv", 'wb')
+    rbm.exporter_rfifunlinks(fh)
+
+    print "OUTPUT:  " + wfl.outfile
+    print " * Replace:  " + wfl.replacepath
+    print " * Fix with: " + wfl.prependpath
+#    print "wfl.verbosity=" + str(wfl.__verbosity)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
