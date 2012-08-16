@@ -98,6 +98,7 @@ def fixcrlf(sourcefile, destinationfile):
     def fixdoublecrlf(sourcefile, destinationfile):
         # HEX pattern to match: 0D0A0A0D0A
         # Idea: just remove 0A0D0A
+        pass
 
 def main(argv):
     if len(argv) == 3:

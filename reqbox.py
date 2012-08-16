@@ -153,7 +153,11 @@ def main(argv):
         sys.stderr.write("reqbox: error: %s" % msg)
         sys.stderr.write("See 'reqbox --help'.\n")
         return 1
-
+    
+    if len(args) is not 1:
+        sys.stderr.write("Not enough arguments. See 'reqbox --help'.\n")
+        return 1
+    
     for opt, optarg in optlist:
         if opt in ('-h', '--help'):
             sys.stdout.write(__doc__)
@@ -185,7 +189,7 @@ def main(argv):
     rb.rbm.parsefile(rb.inputfile)
     
     if rb.parsefun:
-        rb.parserfiobjects("out-fun-objects.csv")
+        rb.parsefunobjects("out-fun-objects.csv")
     
     if rb.parserfi:
         rb.parserfiobjects("out-rfi-objects.csv")
