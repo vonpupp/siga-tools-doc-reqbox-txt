@@ -402,7 +402,7 @@ class reqboxmodel():
     
     def exporter_funrfilinks(self, fh):
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
-        csvhdlr.writerow(["SIGA stable|Biblioteca de Interfaces|test", "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)", "Name"])
+        csvhdlr.writerow(["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)", "Name"])
         
         fd = self.fp.fundict
         for i0, funstr in enumerate(self.fp.funlist):
@@ -419,7 +419,7 @@ class reqboxmodel():
                 
     def exporter_rfifunlinks(self, fh):
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
-        csvhdlr.writerow(["SIGA stable|Biblioteca de Interfaces|test", "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)", "Name"])
+        csvhdlr.writerow(["SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)", "SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "Name"])
         
         fd = self.fp.fundict
         for i0, funstr in enumerate(self.fp.funlist):
@@ -436,7 +436,7 @@ class reqboxmodel():
 
 def main(argv):
     rbm = reqboxmodel()
-    rbm.parsefile("./data/LRCv12.txt")
+    rbm.parsefile("./input/LRCv13-mod.utf8.fix.txt")
     rbm.printf()
     
     rbm.fixsecondlevelbullets()

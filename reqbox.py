@@ -144,6 +144,16 @@ class reqbox():
         fh = open(fn, 'wb')
         self.rbm.exporter_rgnobjects(fh)
         print "RNF objects exported to:\t" + fn
+    
+    def parsefunrfilinks(self, fn):
+        fh = open(fn, 'wb')
+        self.rbm.exporter_funrfilinks(fh)
+        print "FUN-RFI links exported to:\t" + fn
+
+    def parserfifunlinks(self, fn):
+        fh = open(fn, 'wb')
+        self.rbm.exporter_rfifunlinks(fh)
+        print "RFI-FUN links exported to:\t" + fn
 
 def main(argv):
     rb = reqbox()
@@ -190,9 +200,11 @@ def main(argv):
     
     if rb.parsefun:
         rb.parsefunobjects("out-fun-objects.csv")
+        rb.parsefunrfilinks("out-fun-rfi-links.csv")
     
     if rb.parserfi:
         rb.parserfiobjects("out-rfi-objects.csv")
+        rb.parserfifunlinks("out-rfi-fun-links.csv")
     
     if rb.parserfn:
         rb.parserfnobjects("out-rfn-objects.csv")
@@ -203,11 +215,6 @@ def main(argv):
     if rb.parsergn:
         rb.parsergnobjects("out-rgn-objects.csv")
         
-        #fh = open("out-fun-rfi-relationships.csv", 'wb')
-        #rbm.exporter_funrfilinks(fh)
-        #
-        #fh = open("out-rfi-fun-relationships.csv", 'wb')
-        #rbm.exporter_rfifunlinks(fh)
     del rb
 #    print "wfl.verbosity=" + str(wfl.__verbosity)
 

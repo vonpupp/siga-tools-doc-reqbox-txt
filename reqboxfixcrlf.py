@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-#!/usr/bin/env python
-
 #   Project:			SIGA
 #   Component Name:		reqboxfixcrlf
 #   Language:			Python
