@@ -416,7 +416,7 @@ class reqboxmodel():
                 row = [funalias, reqalias, "rel-%s-%s" % (funalias, reqalias)]
                 print("Writing... rel-%s-%s" % (funalias, reqalias))
                 csvhdlr.writerow(row)
-                
+
     def exporter_rfifunlinks(self, fh):
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         csvhdlr.writerow(["SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)", "SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "Name"])
@@ -427,6 +427,40 @@ class reqboxmodel():
             funalias = self.uclabel(fun.reqid) # "UC" + r.reqid.zfill(3)
             
             rd = fd[funstr].rfi
+            for i1, reqstr in enumerate(sorted(rd)):
+                reqalias = rd[reqstr].reqid
+                
+                row = [reqalias, funalias, "rel-%s-%s" % (reqalias, funalias)]
+                print("Writing... rel-%s-%s" % (reqalias, funalias))
+                csvhdlr.writerow(row)
+
+    def exporter_funrfnlinks(self, fh):
+        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
+        csvhdlr.writerow(["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais (RFN)|Comum - Requisitos Funcionais (RFN)", "Name"])
+        
+        fd = self.fp.fundict
+        for i0, funstr in enumerate(self.fp.funlist):
+            fun = fd[funstr].fun
+            funalias = self.uclabel(fun.reqid) # "UC" + r.reqid.zfill(3)
+            
+            rd = fd[funstr].rfn
+            for i1, reqstr in enumerate(sorted(rd)):
+                reqalias = rd[reqstr].reqid
+                
+                row = [funalias, reqalias, "rel-%s-%s" % (funalias, reqalias)]
+                print("Writing... rel-%s-%s" % (funalias, reqalias))
+                csvhdlr.writerow(row)
+
+    def exporter_rfnfunlinks(self, fh):
+        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
+        csvhdlr.writerow(["SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais (RFN)|Comum - Requisitos Funcionais (RFN)", "SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "Name"])
+        
+        fd = self.fp.fundict
+        for i0, funstr in enumerate(self.fp.funlist):
+            fun = fd[funstr].fun
+            funalias = self.uclabel(fun.reqid) # "UC" + r.reqid.zfill(3)
+            
+            rd = fd[funstr].rfn
             for i1, reqstr in enumerate(sorted(rd)):
                 reqalias = rd[reqstr].reqid
                 
