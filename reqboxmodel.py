@@ -468,6 +468,40 @@ class reqboxmodel():
                 print("Writing... rel-%s-%s" % (reqalias, funalias))
                 csvhdlr.writerow(row)
 
+    def exporter_funrnflinks(self, fh):
+        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
+        csvhdlr.writerow(["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Não Funcionais (RNF)|Comum - Não Funcionais (RNF)", "Name"])
+        
+        fd = self.fp.fundict
+        for i0, funstr in enumerate(self.fp.funlist):
+            fun = fd[funstr].fun
+            funalias = self.uclabel(fun.reqid) # "UC" + r.reqid.zfill(3)
+            
+            rd = fd[funstr].rnf
+            for i1, reqstr in enumerate(sorted(rd)):
+                reqalias = rd[reqstr].reqid
+                
+                row = [funalias, reqalias, "rel-%s-%s" % (funalias, reqalias)]
+                print("Writing... rel-%s-%s" % (funalias, reqalias))
+                csvhdlr.writerow(row)
+
+    def exporter_rnffunlinks(self, fh):
+        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
+        csvhdlr.writerow(["SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Não Funcionais (RNF)|Comum - Não Funcionais (RNF)", "SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "Name"])
+        
+        fd = self.fp.fundict
+        for i0, funstr in enumerate(self.fp.funlist):
+            fun = fd[funstr].fun
+            funalias = self.uclabel(fun.reqid) # "UC" + r.reqid.zfill(3)
+            
+            rd = fd[funstr].rnf
+            for i1, reqstr in enumerate(sorted(rd)):
+                reqalias = rd[reqstr].reqid
+                
+                row = [reqalias, funalias, "rel-%s-%s" % (reqalias, funalias)]
+                print("Writing... rel-%s-%s" % (reqalias, funalias))
+                csvhdlr.writerow(row)
+
 def main(argv):
     rbm = reqboxmodel()
     rbm.parsefile("./input/LRCv13-mod.utf8.fix.txt")

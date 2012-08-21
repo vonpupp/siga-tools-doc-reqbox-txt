@@ -149,21 +149,31 @@ class reqbox():
         fh = open(fn, 'wb')
         self.rbm.exporter_funrfilinks(fh)
         print "FUN-RFI links exported to:\t" + fn
-        
-    def parsefunrfnlinks(self, fn):
-        fh = open(fn, 'wb')
-        self.rbm.exporter_funrfnlinks(fh)
-        print "FUN-RFN links exported to:\t" + fn
 
     def parserfifunlinks(self, fn):
         fh = open(fn, 'wb')
         self.rbm.exporter_rfifunlinks(fh)
         print "RFI-FUN links exported to:\t" + fn
 
+    def parsefunrfnlinks(self, fn):
+        fh = open(fn, 'wb')
+        self.rbm.exporter_funrfnlinks(fh)
+        print "FUN-RFN links exported to:\t" + fn
+
     def parserfnfunlinks(self, fn):
         fh = open(fn, 'wb')
         self.rbm.exporter_rfnfunlinks(fh)
         print "RFN-FUN links exported to:\t" + fn
+
+    def parsefunrnflinks(self, fn):
+        fh = open(fn, 'wb')
+        self.rbm.exporter_funrnflinks(fh)
+        print "FUN-RNF links exported to:\t" + fn
+
+    def parsernffunlinks(self, fn):
+        fh = open(fn, 'wb')
+        self.rbm.exporter_rnffunlinks(fh)
+        print "RNF-FUN links exported to:\t" + fn
 
 def main(argv):
     rb = reqbox()
@@ -212,6 +222,7 @@ def main(argv):
         rb.parsefunobjects("out-fun-objects.csv")
         rb.parsefunrfilinks("out-fun-rfi-links.csv")
         rb.parsefunrfnlinks("out-fun-rfn-links.csv")
+        rb.parsefunrnflinks("out-fun-rnf-links.csv")
     
     if rb.parserfi:
         rb.parserfiobjects("out-rfi-objects.csv")
@@ -223,6 +234,7 @@ def main(argv):
     
     if rb.parsernf:
         rb.parsernfobjects("out-rnf-objects.csv")
+        rb.parsernffunlinks("out-rnf-fun-links.csv")
         
     if rb.parsergn:
         rb.parsergnobjects("out-rgn-objects.csv")
