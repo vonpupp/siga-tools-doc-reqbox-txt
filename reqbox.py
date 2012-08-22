@@ -165,6 +165,16 @@ class reqbox():
         self.rbm.exporter_rfnfunlinks(fh)
         print "RFN-FUN links exported to:\t" + fn
 
+    def parsefunrgnlinks(self, fn):
+        fh = open(fn, 'wb')
+        self.rbm.exporter_funrgnlinks(fh)
+        print "FUN-RGN links exported to:\t" + fn
+
+    def parsergnfunlinks(self, fn):
+        fh = open(fn, 'wb')
+        self.rbm.exporter_rgnfunlinks(fh)
+        print "RGN-FUN links exported to:\t" + fn
+
     def parsefunrnflinks(self, fn):
         fh = open(fn, 'wb')
         self.rbm.exporter_funrnflinks(fh)
@@ -222,6 +232,7 @@ def main(argv):
         rb.parsefunobjects("out-fun-objects.csv")
         rb.parsefunrfilinks("out-fun-rfi-links.csv")
         rb.parsefunrfnlinks("out-fun-rfn-links.csv")
+        rb.parsefunrgnlinks("out-fun-rgn-links.csv")
         rb.parsefunrnflinks("out-fun-rnf-links.csv")
     
     if rb.parserfi:
@@ -231,13 +242,14 @@ def main(argv):
     if rb.parserfn:
         rb.parserfnobjects("out-rfn-objects.csv")
         rb.parserfnfunlinks("out-rfn-fun-links.csv")
+
+    if rb.parsergn:
+        rb.parsergnobjects("out-rgn-objects.csv")
+        rb.parsergnfunlinks("out-rgn-fun-links.csv")
     
     if rb.parsernf:
         rb.parsernfobjects("out-rnf-objects.csv")
         rb.parsernffunlinks("out-rnf-fun-links.csv")
-        
-    if rb.parsergn:
-        rb.parsergnobjects("out-rgn-objects.csv")
         
     del rb
 #    print "wfl.verbosity=" + str(wfl.__verbosity)
