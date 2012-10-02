@@ -3,7 +3,7 @@
 
 #   Project:			SIGA
 #   Component Name:		reqboxfileparse
-#   Language:			Python
+#   Language:			Python2
 #
 #   License: 			GNU Public License
 #       This file is part of the project.
@@ -33,15 +33,7 @@
 #   Compiler Options:		
 
 """
-    Create a CSV file with the wireframe data based on a hierarchy.
-
-    Command Line Usage:
-        reqbox-fileparse {<option> <argument>}
-
-    Options:
-        -h, --help              Print this help and exit.
-        
-    Examples:
+    Physical data parsing model. This is not intended to be used directly on the commandline.
 """
 
 import logging, sys, mmap, shutil, contextlib, codecs, re

@@ -3,7 +3,7 @@
 
 #   Project:			SIGA
 #   Component Name:		reqboxmodel
-#   Language:			Python
+#   Language:			Python2
 #
 #   License: 			GNU Public License
 #       This file is part of the project.

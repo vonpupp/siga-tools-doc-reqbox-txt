@@ -3,7 +3,7 @@
 
 #   Project:			SIGA
 #   Component Name:		reqbox
-#   Language:			Python
+#   Language:			Python2
 #
 #   License: 			GNU Public License
 #       This file is part of the project.
@@ -188,7 +188,7 @@ class reqbox():
 def main(argv):
     rb = reqbox()
     try:
-        optlist, args = getopt.getopt(argv[1:], 'hv:aing', ['help', 'verbose', 'export-all', 'export-rfi', 'export-rfn'])
+        optlist, args = getopt.getopt(argv[1:], 'hv:aingo:', ['help', 'verbose', 'export-all', 'export-rfi', 'export-rfn', 'in-objects'])
     except getopt.GetoptError, msg:
         sys.stderr.write("reqbox: error: %s" % msg)
         sys.stderr.write("See 'reqbox --help'.\n")
@@ -217,6 +217,7 @@ def main(argv):
         rb.parserfn = rb.parseall or rb.parserfn or opt in ('-r', '--export-rfn')
         rb.parsernf = rb.parseall or rb.parsernf or opt in ('-n', '--export-rnf')
         rb.parsergn = rb.parseall or rb.parsergn or opt in ('-g', '--export-rgn')
+        rb.inobjects = opt in ('-o', '--in-objects')
             #if wfl.isVerbose:
                 #wfl.setLogger('/home/afu/Dropbox/mnt-ccb/siga/siga-tools/siga-tools-wf2ea/myapp.log')
 
