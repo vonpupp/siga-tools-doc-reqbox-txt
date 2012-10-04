@@ -55,7 +55,7 @@ VERB_MAX = 3
 PARSETYPE = 'utf8-win'
 #PARSETYPE = 'utf8-win-crlf'
 
-class reqboxfileparserng(reqboxfileparser):
+class reqboxfileparserng(reqboxfileparser, object):
     """ Requirements doc file parsing
     Attributes:
         - dir: objects imports dir
@@ -101,11 +101,120 @@ class reqboxfileparserng(reqboxfileparser):
         #        column[header].append(value)
 
         for line in f:
-            self.funlist += [line[2]]
+            self.funlist += [line[0]]
             
         self.vlog(VERB_MED, "<- %s" % __name__)
         self.vlog(VERB_MAX, "result = %s" % (self.funlist))
         return self.funlist
+    
+    def getfundict(self):
+        """
+        Fills the fundict property with a dict where each element is indexed
+        by the fun name and each value is an object from the model
+        """
+        self.vlog(VERB_MED, "-> getfundict()")
+        self.__fundict = {}
+        
+        beginloc = self.bodystartloc()
+        #finalloc = __f.size() - 1
+        test = issubclass(reqboxfileparserng, object)
+        test = issubclass(reqboxfileparserng, reqboxfileparser)
+        finalloc = reqboxfileparser(self).__f.size() - 1
+        finalloc = super(reqboxfileparser, self).__f.size() - 1
+        endloc = finalloc
+        self.__f.seek(beginloc)
+        self.vlog(VERB_MAX, "bytes = %d" % (beginloc))
+        count = len(self.funlist)
+        
+        # Iterate on the file backwards, it's more natural and easier...
+        for idx, funstr in enumerate(reversed(self.funlist)):
+            newidx = count - idx
+            #newfunstr = "%s. %s" % (newidx, funstr)
+            #newfunstr = utf8(str(newidx) + ".\t") + funstr
+            fieldterm = "\r\n"
+            if self.parsingasutf8_win_crlf():
+                #newfunstr = newfunstr.decode('utf-8')
+                #newfunstr = utf8(newfunstr.upper())
+                #newfunstr = utf8("\n" + str(newidx) + ".\t") + funstr
+                fieldsize = 101
+                #newfunstr = utf8(fieldterm + str(newidx) + ".\t") + funstr
+                newfunstr = utf8(fieldterm + str(newidx) + ".\t")
+                #newfunstr = utf8(str(newidx) + ".\t") + funstr
+                #if len(funstr) >= fieldsize:
+                #    #TODO: BREAKPOINT HERE
+                #    newfunstr = newfunstr[:fieldsize] + utf8(fieldterm) # + newfunstr[fieldsize:len(newfunstr)]
+                #    #newfunstr = utf8(fieldterm) + newfunstr[:fieldsize-2] + utf8(fieldterm) # + newfunstr[fieldsize:len(newfunstr)]
+                #    #newfunstr = newfunstr[:fieldsize-2] # + newfunstr[fieldsize:len(newfunstr)]
+                #    #newfunstr = funstr[:99]
+                #newfunstr = newfunstr.decode('utf-8').upper().encode('utf-8')
+                #newfunstr = newfunstr.upper()
+                #utf8(str(newfunstr.upper()))#.encode('utf-8')
+            elif self.parsingasutf8_win():
+                newfunstr = utf8(fieldterm + str(newidx) + ". ") # + funstr
+                #newfunstr = utf8(newfunstr)
+                pass
+            self.vlog(VERB_MAX, "looking for: '%s'" % (newfunstr))
+            #beginloc = self.__f.rfind(newfunstr, beginloc, endloc)
+            beginloc = 0
+            beginloc = self.__f.rfind(newfunstr, beginloc, endloc)
+            if beginloc != -1:
+                beginloc += 2
+                self.__f.seek(beginloc)
+                line = self.__f.readline()
+                fieldsize = 85
+                if self.parsingasutf8_win_crlf():
+                    if len(line.strip()) > fieldsize:
+                        print("-----------------------------------MULTILINE")
+                funid = self.__getfunid(line)
+                line = self.__cleanfunfrombody(line)
+                self.vlog(VERB_MAX, "found from %d to %d out of %d | '%s. %s'" % (beginloc, endloc, finalloc, funid, line))
+                #self.fundict[funstr] = (beginloc, endloc, funid)
+                # I switched the dict keys from uppercase (body) to as they are
+                # on the index (capitalized as they are)
+                
+                currentpos = self.__f.tell()
+                
+                #newidx = count - funidx
+                r = model.funmodel(funid, funstr, beginloc, endloc)
+                r.fun.reqstart = beginloc
+                r.fun.reqend   = endloc
+                r.rfistart = self.funrfistart(funstr, beginloc, endloc)
+                r.rfnstart = self.funrfnstart(funstr, beginloc, endloc)
+                r.rnfstart = self.funrnfstart(funstr, beginloc, endloc)
+                r.rgnstart = self.funrgnstart(funstr, beginloc, endloc)
+                startmarkups = [r.fun.reqstart, r.rfistart, r.rfnstart, r.rnfstart, r.rgnstart, r.fun.reqend]
+                startmarkups.sort()
+                result = "FUN id=%s [bytes=%d/%d]:\t'%s'\n" % (r.fun.reqid, r.fun.reqstart, r.fun.reqend, r.fun.reqname)
+                print(result)
+                r.rfiend   = self.funsecend(funstr, r.rfistart, startmarkups)
+                r.rfnend   = self.funsecend(funstr, r.rfnstart, startmarkups)
+                r.rnfend   = self.funsecend(funstr, r.rnfstart, startmarkups)
+                r.rgnend   = self.funsecend(funstr, r.rgnstart, startmarkups)
+                #self.vlog(VERB_MED, "%s" % (self.printfun(funidx+1, funname)))
+    #            self.fun[funname].rfi = self.fp.gettagdic(funname, 'RFI')
+                
+                self.fundict[funstr] = r #(beginloc, endloc, funid)
+                
+                if r.rfistart != -1:
+                    r.rfi = self.gettagdic(funstr, 'RFI', r.rfistart, r.rfiend)
+                    pass
+                if r.rfnstart != -1:
+                    r.rfn = self.gettagdic(funstr, 'RFN', r.rfnstart, r.rfnend)
+                if r.rnfstart != -1:
+                    r.rnf = self.gettagdic(funstr, 'RNF', r.rnfstart, r.rnfend)
+                if r.rgnstart != -1:
+                    r.rgn = self.gettagdic(funstr, 'RGN', r.rgnstart, r.rgnend)
+                
+                self.__f.seek(currentpos)
+                
+                endloc = beginloc - 1
+                beginloc = 0
+            else:
+                # TODO: An exception should be raised here
+                pass
+        
+        self.vlog(VERB_MED, "<- getfundict()")
+        pass
     
     #---- mainline
 
