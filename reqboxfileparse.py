@@ -85,11 +85,16 @@ class funstruc():
         # Public
         pass
 
-class reqboxfileparser():
+class ReqBoxFileParser(object):
     """ Requirements doc file parsing
     Attributes:
         - file: string
     """
+    filename = ''
+    funlist = []
+    fundict = {}
+    file = None
+    f = None
     
     def __init__(self):
         # Public
@@ -103,19 +108,22 @@ class reqboxfileparser():
         #self.vlog = self.__log()
         
         # Init mmap
-        self.__file = None
-        self.__f = None
+        self.file = None
+        self.f = None
         pass
+    
+    def get_f(self):
+        return self.f
 
     def parsefile(self, filename):
         # Public
         self.filename = filename
         
         # Init mmap
-        self.__file = codecs.open(filename, encoding='utf-8', mode='r') # open(filename, 'r')
+        self.file = codecs.open(filename, encoding='utf-8', mode='r') # open(filename, 'r')
         self.vlog(VERB_MIN, "opening file: %s" % filename)
-        self.__f = mmap.mmap(self.__file.fileno(), 0, access=mmap.ACCESS_READ)
-        self.__f.seek(0) # rewind
+        self.f = mmap.mmap(self.file.fileno(), 0, access=mmap.ACCESS_READ)
+        self.f.seek(0) # rewind
         
         # Parsing stuff
         self.getfunlist()
@@ -127,14 +135,14 @@ class reqboxfileparser():
     
     def __del__(self):
         self.fundict.clear()
-        if self.__f:
-            self.__f.close()
-        if self.__file:
-            self.__file.close()
+        if self.f:
+            self.f.close()
+        if self.file:
+            self.file.close()
         del self.funlist
         del self.fundict
-        del self.__f
-        del self.__file
+        del self.f
+        del self.file
         pass
     
     #---- internal support stuff
@@ -276,19 +284,19 @@ class reqboxfileparser():
     
     def bodystartloc(self):
         # Find the position of the begining tag
-        self.__f.seek(0)
+        self.f.seek(0)
         begintag = utf8("Lista Completa de Funcionalidades")
-        beginloc = self.__f.find(begintag)
+        beginloc = self.f.find(begintag)
         # Find the position of the end tag
         endtag = "Lista Completa de Funcionalidades"
         if self.parsingasutf8_win_crlf() or self.parsingasutf8_win():
             endtag = endtag.upper() #"LISTA COMPLETA DE FUNCIONALIDADES"
         endtag = utf8(endtag)
-        endloc = self.__f.find(endtag, beginloc+1)
+        endloc = self.f.find(endtag, beginloc+1)
         # Set the cursor at the begining tag & skip the first line
-        self.__f.seek(endloc)
-        #self.__f.readline()
-        #loc = self.__f.tell()
+        self.f.seek(endloc)
+        #self.f.readline()
+        #loc = self.f.tell()
         return endloc
     
     def getfunlist(self):
@@ -299,19 +307,19 @@ class reqboxfileparser():
         
         # Find the position of the begining tag
         #begintag = "Lista Completa de Funcionalidades"
-        #beginloc = self.__f.find(begintag)
+        #beginloc = self.f.find(begintag)
         ## Find the position of the end tag
         #endtag = "LISTA COMPLETA DE FUNCIONALIDADES"
-        #endloc = self.__f.find(endtag, beginloc+1)
+        #endloc = self.f.find(endtag, beginloc+1)
         ## Set the cursor at the begining tag & skip the first line
-        #self.__f.seek(beginloc)
-        self.__f.seek(0)
+        #self.f.seek(beginloc)
+        self.f.seek(0)
         begintag = utf8("Lista Completa de Funcionalidades")
-        beginloc = self.__f.find(begintag)
+        beginloc = self.f.find(begintag)
         endloc = self.bodystartloc()
-        self.__f.seek(beginloc)
-        self.__f.readline()
-        loc = self.__f.tell()
+        self.f.seek(beginloc)
+        self.f.readline()
+        loc = self.f.tell()
         
         #self.vlog(VERB_MAX, "beginloc = %d" % beginloc)
         #self.vlog(VERB_MAX, "endloc = %d" % endloc)
@@ -319,8 +327,8 @@ class reqboxfileparser():
         self.funlist = []
         count = 0
         while (loc < endloc):
-            line = self.__f.readline()
-            loc = self.__f.tell()
+            line = self.f.readline()
+            loc = self.f.tell()
             self.vlog(VERB_MAX, "reading line '%s' bytes = %d" % (line, loc))
             line = self.__cleanfunfromindex(line)
             
@@ -345,12 +353,12 @@ class reqboxfileparser():
         by the fun name and each value is an object from the model
         """
         self.vlog(VERB_MED, "-> getfundict()")
-        self.__fundict = {}
+        self.fundict = {}
         
         beginloc = self.bodystartloc()
-        finalloc = self.__f.size() - 1
+        finalloc = self.f.size() - 1
         endloc = finalloc
-        self.__f.seek(beginloc)
+        self.f.seek(beginloc)
         self.vlog(VERB_MAX, "bytes = %d" % (beginloc))
         count = len(self.funlist)
         
@@ -382,13 +390,13 @@ class reqboxfileparser():
                 #newfunstr = utf8(newfunstr)
                 pass
             self.vlog(VERB_MAX, "looking for: '%s'" % (newfunstr))
-            #beginloc = self.__f.rfind(newfunstr, beginloc, endloc)
+            #beginloc = self.f.rfind(newfunstr, beginloc, endloc)
             beginloc = 0
-            beginloc = self.__f.rfind(newfunstr, beginloc, endloc)
+            beginloc = self.f.rfind(newfunstr, beginloc, endloc)
             if beginloc != -1:
                 beginloc += 2
-                self.__f.seek(beginloc)
-                line = self.__f.readline()
+                self.f.seek(beginloc)
+                line = self.f.readline()
                 fieldsize = 85
                 if self.parsingasutf8_win_crlf():
                     if len(line.strip()) > fieldsize:
@@ -400,7 +408,7 @@ class reqboxfileparser():
                 # I switched the dict keys from uppercase (body) to as they are
                 # on the index (capitalized as they are)
                 
-                currentpos = self.__f.tell()
+                currentpos = self.f.tell()
                 
                 #newidx = count - funidx
                 r = model.funmodel(funid, funstr, beginloc, endloc)
@@ -433,7 +441,7 @@ class reqboxfileparser():
                 if r.rgnstart != -1:
                     r.rgn = self.gettagdic(funstr, 'RGN', r.rgnstart, r.rgnend)
                 
-                self.__f.seek(currentpos)
+                self.f.seek(currentpos)
                 
                 endloc = beginloc - 1
                 beginloc = 0
@@ -462,9 +470,9 @@ class reqboxfileparser():
             endloc = self.funend(funstr)
         else:
             endloc = end
-        #self.vlog(VERB_MAX, "pos = %d" % (self.__f.tell()))
-        self.__f.seek(beginloc)
-        #self.vlog(VERB_MAX, "pos = %d" % (self.__f.tell()))
+        #self.vlog(VERB_MAX, "pos = %d" % (self.f.tell()))
+        self.f.seek(beginloc)
+        #self.vlog(VERB_MAX, "pos = %d" % (self.f.tell()))
         header = secstr
         if self.parsingasutf8_win_crlf() or self.parsingasutf8_win():
             #header = header.upper()
@@ -472,7 +480,7 @@ class reqboxfileparser():
             header = header.decode('utf-8').upper().encode('utf-8')
         # Secstr is always going to be a str, so it needs to be converted to utf8
         #header = utf8(header)
-        found = self.__f.find(header, beginloc+1, endloc-1)
+        found = self.f.find(header, beginloc+1, endloc-1)
         #self.vlog(VERB_MAX, "found = %d" % (found))
         if not found in range(beginloc, endloc):
             return -1
@@ -565,15 +573,15 @@ class reqboxfileparser():
         return "%s. %s" % (funid, funstr)
         
     def search_file(self, pattern, boffset, eoffset):
-        self.__f.seek(boffset)
+        self.f.seek(boffset)
         #line = f.readline()
-        for line in self.__f:
+        for line in self.f:
             #m = patter.search(line)
             self.vlog(VERB_MAX, "line: '%s'" % (line))
             m = re.match(pattern, line)
             if m:
                 self.vlog(VERB_MAX, "FOUND: '%s'" % (line))
-                search_offset = self.__f.tell() - len(line) - 1
+                search_offset = self.f.tell() - len(line) - 1
                 return search_offset + m.start(), search_offset + m.end()
 
     def tagid(self, tagstr):
@@ -601,8 +609,8 @@ class reqboxfileparser():
             endloc = self.funend(funstr)
         funid = self.funid(funstr)
         funidstr = self.funidname(funstr)
-        self.__f.seek(beginloc)
-        loc = beginloc #self.__f.tell()
+        self.f.seek(beginloc)
+        loc = beginloc #self.f.tell()
         
         insection = 1
         findstr = "^" + tag + ".*"
@@ -627,7 +635,7 @@ class reqboxfileparser():
         isfirst = 1
         reqbody = ""
         while insection:
-            line = self.__f.readline()
+            line = self.f.readline()
             loc += len(line)
             #self.search_file(findstr, beginloc, endloc)   
             m = re.search(findstr, line)#, beginloc, endloc)
@@ -637,9 +645,9 @@ class reqboxfileparser():
                 tagitem = m.group(0)#[:6]
                 reqid = self.__getfunid(tagitem)
                 reqname = self.__getfunname(tagitem)
-                reqstart = self.__f.tell()
+                reqstart = self.f.tell()
                 while inbody and insection:
-                    line = self.__f.readline()
+                    line = self.f.readline()
                     loc += len(line)
                     m = re.search(findstr, line)
                     ended = re.search("^Media\r\n", line)
@@ -647,7 +655,7 @@ class reqboxfileparser():
                         reqbody += line
                     inbody = (m == None or (m != None and len(m.group(0)) == 8)) and (ended == None)
                     insection = loc < endloc
-                reqend = self.__f.tell()
+                reqend = self.f.tell()
                 newreq = model.reqmodel(reqid, reqname, reqstart, reqend)
                 newreq.reqbody = reqbody
                 reqbody = ''
@@ -657,12 +665,12 @@ class reqboxfileparser():
                 #resultdict[] = 
                 
                 #print("found error", m.group(1))
-            #loc = self.__f.find(findstr, loc, endloc)
-            self.__f.seek(loc)
+            #loc = self.f.find(findstr, loc, endloc)
+            self.f.seek(loc)
             insection = loc < endloc
             #self.vlog(VERB_MAX, "line: '%s'" % (line))
             #if cond:
-            #    line = self.__f.readline()
+            #    line = self.f.readline()
             #    if line:
             #        self.vlog(VERB_MAX, "found on location %d | '%s'" % (m.start(), m.group()))
             #    pass
@@ -710,16 +718,16 @@ class reqboxfileparser():
     #---- mainline
 
 def main(argv):
-    rfp = reqboxfileparser()
+    rfp = ReqBoxFileParser()
     if rfp.parsingasutf8_win():# rfp.parsingasutf8_win():
         #rfp.parsefile("./data/LRCv12-utf8-win.txt") # SAVE AS UTF-8 in Win!!
         #rfp.parsefile("./data/LRCv12-utf8-dow2unix-l.txt")
         #rfp.parsefile("./data/LRCv12-win.txt")
         rfp.parsefile("./data/LRCv12.txt")
     elif self.parsingasutf8_win_crlf():
-        #rfp = reqboxfileparser("./data/LRCv12-utf8-win.txt") # SAVE AS UTF-8 in Win!!
-        #rfp = reqboxfileparser("./data/LRCv12-utf8-win-dos2unix.txt") # SAVE AS UTF-8 in Win!!
-        rfp = reqboxfileparser("./data/LRCv12-utf8-crlf.txt") # SAVE AS UTF-8 in Win!!
+        #rfp = ReqBoxFileParser("./data/LRCv12-utf8-win.txt") # SAVE AS UTF-8 in Win!!
+        #rfp = ReqBoxFileParser("./data/LRCv12-utf8-win-dos2unix.txt") # SAVE AS UTF-8 in Win!!
+        rfp = ReqBoxFileParser("./data/LRCv12-utf8-crlf.txt") # SAVE AS UTF-8 in Win!!
         # Error on the body:
             #1.	MANTER TABELA DE RETENÇÃO TRIBUTÁRIA       
             #REQUISITOS FUNCIONAIS DE INTERFACE
@@ -732,9 +740,9 @@ def main(argv):
             #RETENÇÃO TRIBUTÁRIA
             #RFI25
             #1.
-        #rfp = reqboxfileparser("./data/Rv12w.txt")
+        #rfp = ReqBoxFileParser("./data/Rv12w.txt")
     else:
-        #rfp = reqboxfileparser("./data/Rv12.txt")
+        #rfp = ReqBoxFileParser("./data/Rv12.txt")
         pass
     print("INPUT:   " + rfp.filename)
     

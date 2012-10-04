@@ -39,7 +39,7 @@
 import logging, sys, mmap, shutil, contextlib, codecs, re, csv
 import reqboxmodel as model
 from vlog import vlogger
-from reqboxfileparse import reqboxfileparser
+from reqboxfileparse import ReqBoxFileParser
 
 #sys.setdefaultencoding('utf-8')
 
@@ -55,7 +55,7 @@ VERB_MAX = 3
 PARSETYPE = 'utf8-win'
 #PARSETYPE = 'utf8-win-crlf'
 
-class reqboxfileparserng(reqboxfileparser, object):
+class ReqBoxFileParserNG(ReqBoxFileParser, object):
     """ Requirements doc file parsing
     Attributes:
         - dir: objects imports dir
@@ -64,19 +64,20 @@ class reqboxfileparserng(reqboxfileparser, object):
     
     def __init__(self):
         # Public
-        self.filename = ''
-        self.funlist = []
-        self.fundict = {}
+        ReqBoxFileParser.__init__(self)
+#        self.filename = ''
+#        self.funlist = []
+#        self.fundict = {}
         self.importsdir = ''
         
         # Init vlogger
-        self.__verbosity = VERB_MAX
-        self.vlog = vlogger(self.__verbosity, sys.stdout)
+#        self.__verbosity = VERB_MAX
+#        self.vlog = vlogger(self.__verbosity, sys.stdout)
         #self.vlog = self.__log()
         
         # Init mmap
-        self.__file = None
-        self.__f = None
+#        self.__file = None
+#        self.__f = None
         pass
 
     def getfunlist(self):
@@ -107,119 +108,119 @@ class reqboxfileparserng(reqboxfileparser, object):
         self.vlog(VERB_MAX, "result = %s" % (self.funlist))
         return self.funlist
     
-    def getfundict(self):
-        """
-        Fills the fundict property with a dict where each element is indexed
-        by the fun name and each value is an object from the model
-        """
-        self.vlog(VERB_MED, "-> getfundict()")
-        self.__fundict = {}
-        
-        beginloc = self.bodystartloc()
-        #finalloc = __f.size() - 1
-        test = issubclass(reqboxfileparserng, object)
-        test = issubclass(reqboxfileparserng, reqboxfileparser)
-        finalloc = reqboxfileparser(self).__f.size() - 1
-        finalloc = super(reqboxfileparser, self).__f.size() - 1
-        endloc = finalloc
-        self.__f.seek(beginloc)
-        self.vlog(VERB_MAX, "bytes = %d" % (beginloc))
-        count = len(self.funlist)
-        
-        # Iterate on the file backwards, it's more natural and easier...
-        for idx, funstr in enumerate(reversed(self.funlist)):
-            newidx = count - idx
-            #newfunstr = "%s. %s" % (newidx, funstr)
-            #newfunstr = utf8(str(newidx) + ".\t") + funstr
-            fieldterm = "\r\n"
-            if self.parsingasutf8_win_crlf():
-                #newfunstr = newfunstr.decode('utf-8')
-                #newfunstr = utf8(newfunstr.upper())
-                #newfunstr = utf8("\n" + str(newidx) + ".\t") + funstr
-                fieldsize = 101
-                #newfunstr = utf8(fieldterm + str(newidx) + ".\t") + funstr
-                newfunstr = utf8(fieldterm + str(newidx) + ".\t")
-                #newfunstr = utf8(str(newidx) + ".\t") + funstr
-                #if len(funstr) >= fieldsize:
-                #    #TODO: BREAKPOINT HERE
-                #    newfunstr = newfunstr[:fieldsize] + utf8(fieldterm) # + newfunstr[fieldsize:len(newfunstr)]
-                #    #newfunstr = utf8(fieldterm) + newfunstr[:fieldsize-2] + utf8(fieldterm) # + newfunstr[fieldsize:len(newfunstr)]
-                #    #newfunstr = newfunstr[:fieldsize-2] # + newfunstr[fieldsize:len(newfunstr)]
-                #    #newfunstr = funstr[:99]
-                #newfunstr = newfunstr.decode('utf-8').upper().encode('utf-8')
-                #newfunstr = newfunstr.upper()
-                #utf8(str(newfunstr.upper()))#.encode('utf-8')
-            elif self.parsingasutf8_win():
-                newfunstr = utf8(fieldterm + str(newidx) + ". ") # + funstr
-                #newfunstr = utf8(newfunstr)
-                pass
-            self.vlog(VERB_MAX, "looking for: '%s'" % (newfunstr))
-            #beginloc = self.__f.rfind(newfunstr, beginloc, endloc)
-            beginloc = 0
-            beginloc = self.__f.rfind(newfunstr, beginloc, endloc)
-            if beginloc != -1:
-                beginloc += 2
-                self.__f.seek(beginloc)
-                line = self.__f.readline()
-                fieldsize = 85
-                if self.parsingasutf8_win_crlf():
-                    if len(line.strip()) > fieldsize:
-                        print("-----------------------------------MULTILINE")
-                funid = self.__getfunid(line)
-                line = self.__cleanfunfrombody(line)
-                self.vlog(VERB_MAX, "found from %d to %d out of %d | '%s. %s'" % (beginloc, endloc, finalloc, funid, line))
-                #self.fundict[funstr] = (beginloc, endloc, funid)
-                # I switched the dict keys from uppercase (body) to as they are
-                # on the index (capitalized as they are)
-                
-                currentpos = self.__f.tell()
-                
-                #newidx = count - funidx
-                r = model.funmodel(funid, funstr, beginloc, endloc)
-                r.fun.reqstart = beginloc
-                r.fun.reqend   = endloc
-                r.rfistart = self.funrfistart(funstr, beginloc, endloc)
-                r.rfnstart = self.funrfnstart(funstr, beginloc, endloc)
-                r.rnfstart = self.funrnfstart(funstr, beginloc, endloc)
-                r.rgnstart = self.funrgnstart(funstr, beginloc, endloc)
-                startmarkups = [r.fun.reqstart, r.rfistart, r.rfnstart, r.rnfstart, r.rgnstart, r.fun.reqend]
-                startmarkups.sort()
-                result = "FUN id=%s [bytes=%d/%d]:\t'%s'\n" % (r.fun.reqid, r.fun.reqstart, r.fun.reqend, r.fun.reqname)
-                print(result)
-                r.rfiend   = self.funsecend(funstr, r.rfistart, startmarkups)
-                r.rfnend   = self.funsecend(funstr, r.rfnstart, startmarkups)
-                r.rnfend   = self.funsecend(funstr, r.rnfstart, startmarkups)
-                r.rgnend   = self.funsecend(funstr, r.rgnstart, startmarkups)
-                #self.vlog(VERB_MED, "%s" % (self.printfun(funidx+1, funname)))
-    #            self.fun[funname].rfi = self.fp.gettagdic(funname, 'RFI')
-                
-                self.fundict[funstr] = r #(beginloc, endloc, funid)
-                
-                if r.rfistart != -1:
-                    r.rfi = self.gettagdic(funstr, 'RFI', r.rfistart, r.rfiend)
-                    pass
-                if r.rfnstart != -1:
-                    r.rfn = self.gettagdic(funstr, 'RFN', r.rfnstart, r.rfnend)
-                if r.rnfstart != -1:
-                    r.rnf = self.gettagdic(funstr, 'RNF', r.rnfstart, r.rnfend)
-                if r.rgnstart != -1:
-                    r.rgn = self.gettagdic(funstr, 'RGN', r.rgnstart, r.rgnend)
-                
-                self.__f.seek(currentpos)
-                
-                endloc = beginloc - 1
-                beginloc = 0
-            else:
-                # TODO: An exception should be raised here
-                pass
-        
-        self.vlog(VERB_MED, "<- getfundict()")
-        pass
+    #def getfundict(self):
+    #    """
+    #    Fills the fundict property with a dict where each element is indexed
+    #    by the fun name and each value is an object from the model
+    #    """
+    #    self.vlog(VERB_MED, "-> getfundict()")
+    #    self.fundict = {}
+    #    
+    #    beginloc = self.bodystartloc()
+    #    test = issubclass(ReqBoxFileParserNG, object)
+    #    test = issubclass(ReqBoxFileParserNG, ReqBoxFileParser)
+    #    father = super(ReqBoxFileParserNG, self)
+    #    finalloc = father.get_f().size() - 1
+    #    finalloc = self.f.size() - 1
+    #    endloc = finalloc
+    #    self.__f.seek(beginloc)
+    #    self.vlog(VERB_MAX, "bytes = %d" % (beginloc))
+    #    count = len(self.funlist)
+    #    
+    #    # Iterate on the file backwards, it's more natural and easier...
+    #    for idx, funstr in enumerate(reversed(self.funlist)):
+    #        newidx = count - idx
+    #        #newfunstr = "%s. %s" % (newidx, funstr)
+    #        #newfunstr = utf8(str(newidx) + ".\t") + funstr
+    #        fieldterm = "\r\n"
+    #        if self.parsingasutf8_win_crlf():
+    #            #newfunstr = newfunstr.decode('utf-8')
+    #            #newfunstr = utf8(newfunstr.upper())
+    #            #newfunstr = utf8("\n" + str(newidx) + ".\t") + funstr
+    #            fieldsize = 101
+    #            #newfunstr = utf8(fieldterm + str(newidx) + ".\t") + funstr
+    #            newfunstr = utf8(fieldterm + str(newidx) + ".\t")
+    #            #newfunstr = utf8(str(newidx) + ".\t") + funstr
+    #            #if len(funstr) >= fieldsize:
+    #            #    #TODO: BREAKPOINT HERE
+    #            #    newfunstr = newfunstr[:fieldsize] + utf8(fieldterm) # + newfunstr[fieldsize:len(newfunstr)]
+    #            #    #newfunstr = utf8(fieldterm) + newfunstr[:fieldsize-2] + utf8(fieldterm) # + newfunstr[fieldsize:len(newfunstr)]
+    #            #    #newfunstr = newfunstr[:fieldsize-2] # + newfunstr[fieldsize:len(newfunstr)]
+    #            #    #newfunstr = funstr[:99]
+    #            #newfunstr = newfunstr.decode('utf-8').upper().encode('utf-8')
+    #            #newfunstr = newfunstr.upper()
+    #            #utf8(str(newfunstr.upper()))#.encode('utf-8')
+    #        elif self.parsingasutf8_win():
+    #            newfunstr = utf8(fieldterm + str(newidx) + ". ") # + funstr
+    #            #newfunstr = utf8(newfunstr)
+    #            pass
+    #        self.vlog(VERB_MAX, "looking for: '%s'" % (newfunstr))
+    #        #beginloc = self.__f.rfind(newfunstr, beginloc, endloc)
+    #        beginloc = 0
+    #        beginloc = self.__f.rfind(newfunstr, beginloc, endloc)
+    #        if beginloc != -1:
+    #            beginloc += 2
+    #            self.__f.seek(beginloc)
+    #            line = self.__f.readline()
+    #            fieldsize = 85
+    #            if self.parsingasutf8_win_crlf():
+    #                if len(line.strip()) > fieldsize:
+    #                    print("-----------------------------------MULTILINE")
+    #            funid = self.__getfunid(line)
+    #            line = self.__cleanfunfrombody(line)
+    #            self.vlog(VERB_MAX, "found from %d to %d out of %d | '%s. %s'" % (beginloc, endloc, finalloc, funid, line))
+    #            #self.fundict[funstr] = (beginloc, endloc, funid)
+    #            # I switched the dict keys from uppercase (body) to as they are
+    #            # on the index (capitalized as they are)
+    #            
+    #            currentpos = self.__f.tell()
+    #            
+    #            #newidx = count - funidx
+    #            r = model.funmodel(funid, funstr, beginloc, endloc)
+    #            r.fun.reqstart = beginloc
+    #            r.fun.reqend   = endloc
+    #            r.rfistart = self.funrfistart(funstr, beginloc, endloc)
+    #            r.rfnstart = self.funrfnstart(funstr, beginloc, endloc)
+    #            r.rnfstart = self.funrnfstart(funstr, beginloc, endloc)
+    #            r.rgnstart = self.funrgnstart(funstr, beginloc, endloc)
+    #            startmarkups = [r.fun.reqstart, r.rfistart, r.rfnstart, r.rnfstart, r.rgnstart, r.fun.reqend]
+    #            startmarkups.sort()
+    #            result = "FUN id=%s [bytes=%d/%d]:\t'%s'\n" % (r.fun.reqid, r.fun.reqstart, r.fun.reqend, r.fun.reqname)
+    #            print(result)
+    #            r.rfiend   = self.funsecend(funstr, r.rfistart, startmarkups)
+    #            r.rfnend   = self.funsecend(funstr, r.rfnstart, startmarkups)
+    #            r.rnfend   = self.funsecend(funstr, r.rnfstart, startmarkups)
+    #            r.rgnend   = self.funsecend(funstr, r.rgnstart, startmarkups)
+    #            #self.vlog(VERB_MED, "%s" % (self.printfun(funidx+1, funname)))
+    ##            self.fun[funname].rfi = self.fp.gettagdic(funname, 'RFI')
+    #            
+    #            self.fundict[funstr] = r #(beginloc, endloc, funid)
+    #            
+    #            if r.rfistart != -1:
+    #                r.rfi = self.gettagdic(funstr, 'RFI', r.rfistart, r.rfiend)
+    #                pass
+    #            if r.rfnstart != -1:
+    #                r.rfn = self.gettagdic(funstr, 'RFN', r.rfnstart, r.rfnend)
+    #            if r.rnfstart != -1:
+    #                r.rnf = self.gettagdic(funstr, 'RNF', r.rnfstart, r.rnfend)
+    #            if r.rgnstart != -1:
+    #                r.rgn = self.gettagdic(funstr, 'RGN', r.rgnstart, r.rgnend)
+    #            
+    #            self.__f.seek(currentpos)
+    #            
+    #            endloc = beginloc - 1
+    #            beginloc = 0
+    #        else:
+    #            # TODO: An exception should be raised here
+    #            pass
+    #    
+    #    self.vlog(VERB_MED, "<- getfundict()")
+    #    pass
     
     #---- mainline
 
 def main(argv):
-    rfp = reqboxfileparserng()
+    rfp = ReqBoxFileParserNG()
     rfp.importsdir = './data/'
     if rfp.parsingasutf8_win():# rfp.parsingasutf8_win():
         #rfp.parsefile("./data/LRCv12-utf8-win.txt") # SAVE AS UTF-8 in Win!!
@@ -227,9 +228,9 @@ def main(argv):
         #rfp.parsefile("./data/LRCv12-win.txt")
         rfp.parsefile("./data/LRCv12.txt")
     elif self.parsingasutf8_win_crlf():
-        #rfp = reqboxfileparser("./data/LRCv12-utf8-win.txt") # SAVE AS UTF-8 in Win!!
-        #rfp = reqboxfileparser("./data/LRCv12-utf8-win-dos2unix.txt") # SAVE AS UTF-8 in Win!!
-        rfp = reqboxfileparser("./data/LRCv12-utf8-crlf.txt") # SAVE AS UTF-8 in Win!!
+        #rfp = ReqBoxFileParser("./data/LRCv12-utf8-win.txt") # SAVE AS UTF-8 in Win!!
+        #rfp = ReqBoxFileParser("./data/LRCv12-utf8-win-dos2unix.txt") # SAVE AS UTF-8 in Win!!
+        rfp = ReqBoxFileParser("./data/LRCv12-utf8-crlf.txt") # SAVE AS UTF-8 in Win!!
         # Error on the body:
             #1.	MANTER TABELA DE RETENÇÃO TRIBUTÁRIA       
             #REQUISITOS FUNCIONAIS DE INTERFACE
@@ -242,9 +243,9 @@ def main(argv):
             #RETENÇÃO TRIBUTÁRIA
             #RFI25
             #1.
-        #rfp = reqboxfileparser("./data/Rv12w.txt")
+        #rfp = ReqBoxFileParser("./data/Rv12w.txt")
     else:
-        #rfp = reqboxfileparser("./data/Rv12.txt")
+        #rfp = ReqBoxFileParser("./data/Rv12.txt")
         pass
     print("INPUT:   " + rfp.filename)
     
