@@ -99,7 +99,7 @@ class reqbox():
     def __init__(self):
         # Public
         # Init structures
-        self.rbm = rbm.reqboxmodel()
+        self.rbm = rbm.ReqBoxModel()
         self.inputfile = None
         self.parseall = 0
         self.parsefun = 0

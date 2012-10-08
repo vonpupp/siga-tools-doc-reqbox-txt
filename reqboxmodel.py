@@ -2,7 +2,7 @@
 #!/usr/bin/env python
 
 #   Project:			SIGA
-#   Component Name:		reqboxmodel
+#   Component Name:		ReqBoxModel
 #   Language:			Python2
 #
 #   License: 			GNU Public License
@@ -92,7 +92,7 @@ VERB_MIN = 1
 VERB_MED = 2
 VERB_MAX = 3
 
-class reqmodel():
+class ReqModel():
     """ Functionalities model
     Attributes:
         funid, funname, funbody: str
@@ -115,7 +115,7 @@ class reqmodel():
         self.reqstart = funstart
         self.reqend = funend
     
-class funmodel():
+class FunModel():
     """ Functionalities model
     Attributes:
         rfi, rfn, rnf, rgn: dict
@@ -123,7 +123,7 @@ class funmodel():
     
     def __init__(self, funid, funname, funstart, funend):
         # Public
-        self.fun = reqmodel(funid, funname, funstart, funend)
+        self.fun = ReqModel(funid, funname, funstart, funend)
         self.rfi = {}
         self.rfistart = -1
         self.rfiend = -1
@@ -139,7 +139,7 @@ class funmodel():
         self.wrf = {}
         pass
 
-class reqboxmodel():
+class ReqBoxModel():
     """ Reqbox model
     Attributes:
     """
@@ -147,7 +147,7 @@ class reqboxmodel():
     def __init__(self):
         # Public
         # Init structures
-        self.fp = rfp.reqboxfileparser()
+        self.fp = rfp.ReqBoxFileParser()
         #self.fp.parsefile("./data/LRCv12.txt")
         self.uniquerfi = {}
         self.uniquerfn = {}
@@ -227,7 +227,7 @@ class reqboxmodel():
                 r = d[reqstr]
                 
                 if not reqstr in self.uniquerfn:
-                    self.uniquerfn[reqstr] = reqmodel(r.reqid, r.reqname, r.reqstart, r.reqend)
+                    self.uniquerfn[reqstr] = ReqModel(r.reqid, r.reqname, r.reqstart, r.reqend)
                     self.uniquerfn[reqstr].reqbody = r.reqbody
                     print("inserting %s" % (r.reqid))
                 else:
@@ -240,7 +240,7 @@ class reqboxmodel():
                 r = d[reqstr]
                 
                 if not reqstr in self.uniquerfn:
-                    self.uniquernf[reqstr] = reqmodel(r.reqid, r.reqname, r.reqstart, r.reqend)
+                    self.uniquernf[reqstr] = ReqModel(r.reqid, r.reqname, r.reqstart, r.reqend)
                     self.uniquernf[reqstr].reqbody = r.reqbody
                     print("inserting %s" % (r.reqid))
                 else:
@@ -253,7 +253,7 @@ class reqboxmodel():
                 r = d[reqstr]
                 
                 if not reqstr in self.uniquerfn:
-                    self.uniquergn[reqstr] = reqmodel(r.reqid, r.reqname, r.reqstart, r.reqend)
+                    self.uniquergn[reqstr] = ReqModel(r.reqid, r.reqname, r.reqstart, r.reqend)
                     self.uniquergn[reqstr].reqbody = r.reqbody
                     print("inserting %s" % (r.reqid))
                 else:
@@ -537,7 +537,7 @@ class reqboxmodel():
                 csvhdlr.writerow(row)
 
 def main(argv):
-    rbm = reqboxmodel()
+    rbm = ReqBoxModel()
     rbm.parsefile("./input/LRCv13-mod.utf8.fix.txt")
     rbm.printf()
     
