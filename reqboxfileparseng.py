@@ -122,9 +122,16 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
         self.getfunlist()
         #self.vlog(VERB_MED, "fun = %s" % (self.funstr))
         self.vlog(VERB_MED, "len(fun) = %d" % (len(self.funlist)))
-        self.getfundict("\tUC") # No prefix, refactored parameter when this class became super of the ng version
+        self.getfundict(". ") # No prefix, refactored parameter when this class became super of the ng version
         self.vlog(VERB_MED, "fundict = %s" % (self.fundict))
         pass
+    
+    def gettagidx(self, funstr):
+        result = funstr.strip()
+        result = result.split(self.utf8("."))[0]
+        result = result.rstrip()
+        result = result.lstrip()
+        return result
     
     def getfundict(self, prefix):
         """
@@ -134,16 +141,17 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
         self.vlog(VERB_MED, "-> getfundict()")
         self.fundict = {}
         
-        beginloc = self.bodystartloc()
+        bodyloc = beginloc = self.bodystartloc()
         finalloc = self.f.size() - 1
         endloc = finalloc
         self.f.seek(beginloc)
-        self.vlog(VERB_MAX, "bytes = %d" % (beginloc))
+        self.vlog(VERB_MAX, "body start at location %d" % (beginloc))
         count = len(self.funlist)
         
         # Iterate on the file backwards, it's more natural and easier...
         for idx, funstr in enumerate(reversed(self.funlist)):
             newidx = count - idx
+            newidx = self.gettagidx(funstr)
             #newfunstr = "%s. %s" % (newidx, funstr)
             #newfunstr = self.utf8(str(newidx) + ".\t") + funstr
             fieldterm = "\r\n"
@@ -174,10 +182,10 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                 pass
             self.vlog(VERB_MAX, "looking for: '%s'" % (newfunstr))
             #beginloc = self.f.rfind(newfunstr, beginloc, endloc)
-            beginloc = 0
-            beginloc = self.f.rfind(newfunstr, beginloc, endloc)
+            #beginloc = 0
+            beginloc = self.f.find(newfunstr, bodyloc, endloc)
             if beginloc != -1:
-                beginloc += 1
+                beginloc += 2
                 self.f.seek(beginloc)
                 line = self.f.readline()
                 fieldsize = 85
@@ -187,6 +195,12 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                 funid = self.getfunid(line)
                 line = self._cleanfunfrombody(line)
                 self.vlog(VERB_MAX, "found from %d to %d out of %d | '%s. %s'" % (beginloc, endloc, finalloc, funid, line))
+                # TODO: Assert: funstr == line.upper()
+                if funstr != line.upper():
+                    self.vlog(VERB_MAX, "ASSERT. Fun names doesn't match:")
+                    self.vlog(VERB_MAX, "  CSV = '%s'" % (funstr.decode('unicode_escape')))
+                    self.vlog(VERB_MAX, "  DOC = '%s'" % (line.upper().encode('gbk')))
+                
                 #self.fundict[funstr] = (beginloc, endloc, funid)
                 # I switched the dict keys from uppercase (body) to as they are
                 # on the index (capitalized as they are)
@@ -225,7 +239,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                 self.f.seek(currentpos)
                 
                 # endloc = beginloc - 1
-                beginloc = 0
+                beginloc = bodyloc
             else:
                 # TODO: An exception should be raised here
                 pass
