@@ -125,13 +125,13 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
         self.getfundict(". ") # No prefix, refactored parameter when this class became super of the ng version
         self.vlog(VERB_MED, "fundict = %s" % (self.fundict))
         pass
-    
-    def gettagidx(self, funstr):
-        result = funstr.strip()
-        result = result.split(self.utf8("."))[0]
-        result = result.rstrip()
-        result = result.lstrip()
-        return result
+   
+    #def gettagidx(self, funstr):
+    #    result = funstr.strip()
+    #    result = result.split(self.utf8("."))[0]
+    #    result = result.rstrip()
+    #    result = result.lstrip()
+    #    return result
     
     def getfundict(self, prefix):
         """
@@ -148,10 +148,17 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
         self.vlog(VERB_MAX, "body start at location %d" % (beginloc))
         count = len(self.funlist)
         
+        #print('sys.stdout encoding is "' + sys.stdout.encoding + '"')
+        #print('sys.getdefaultencoding() is "' + sys.getdefaultencoding() + '"')
+        #str1 = 'lüelā'
+        #print(str1)
+        #reload(sys)
+        #sys.setdefaultencoding( 'utf-8' )
+        
         # Iterate on the file backwards, it's more natural and easier...
         for idx, funstr in enumerate(reversed(self.funlist)):
             newidx = count - idx
-            newidx = self.gettagidx(funstr)
+            newidx = self.getfunid(funstr)
             #newfunstr = "%s. %s" % (newidx, funstr)
             #newfunstr = self.utf8(str(newidx) + ".\t") + funstr
             fieldterm = "\r\n"
@@ -188,20 +195,28 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                 beginloc += 2
                 self.f.seek(beginloc)
                 line = self.f.readline()
-                fieldsize = 85
-                if self.parsingasutf8_win_crlf():
-                    if len(line.strip()) > fieldsize:
-                        print("-----------------------------------MULTILINE")
+                #fieldsize = 85
+                #if self.parsingasutf8_win_crlf():
+                #    if len(line.strip()) > fieldsize:
+                #        print("-----------------------------------MULTILINE")
                 funid = self.getfunid(line)
                 line = self._cleanfunfrombody(line)
                 self.vlog(VERB_MAX, "found from %d to %d out of %d | '%s. %s'" % (beginloc, endloc, finalloc, funid, line))
                 # TODO: Assert: funstr == line.upper()
-                if funstr != line.upper():
+                csv = funstr.decode('utf-8')
+                doc = line.decode('latin1')
+                if csv != doc:
                     self.vlog(VERB_MAX, "ASSERT. Fun names doesn't match:")
-                    self.vlog(VERB_MAX, "  CSV = '%s'" % (funstr.decode('unicode_escape')))
-                    self.vlog(VERB_MAX, "  DOC = '%s'" % (line.upper().encode('gbk')))
+                    self.vlog(VERB_MAX, "  CSV = '%s'" % (csv)) # .decode('unicode_escape')
+                    #print(csv)
+                    self.vlog(VERB_MAX, "  DOC = '%s'" % (doc))
+                    funstr = self.getfunname(csv)
                 
-                #self.fundict[funstr] = (beginloc, endloc, funid)
+                    r = model.FunModel(funid, funstr, beginloc, endloc)
+                    r.fun.reqstart = beginloc
+                    r.fun.reqend   = endloc
+                    
+                    self.fundict[funstr] = (beginloc, 0, funid)
                 # I switched the dict keys from uppercase (body) to as they are
                 # on the index (capitalized as they are)
                 

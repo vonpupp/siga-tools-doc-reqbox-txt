@@ -270,7 +270,7 @@ class ReqBoxFileParser(object):
         result = result.strip()
         return result
     
-    def __getfunname(self, s):
+    def getfunname(self, s):
         """
         Returns the index of a funstr s, ex:
         s = 'RFI227. MANTER REMESSA DE CARTÃO DE IDENTIFICAÇÃO'
@@ -652,7 +652,7 @@ class ReqBoxFileParser(object):
                 inbody = 1
                 tagitem = m.group(0)#[:6]
                 reqid = self.getfunid(tagitem)
-                reqname = self.__getfunname(tagitem)
+                reqname = self.getfunname(tagitem)
                 reqstart = self.f.tell()
                 while inbody and insection:
                     line = self.f.readline()
