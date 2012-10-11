@@ -37,6 +37,7 @@
 """
 
 import logging, sys, mmap, shutil, contextlib, codecs, re, csv
+import operator
 import reqboxmodel as model
 from vlog import vlogger
 from reqboxfileparse import ReqBoxFileParser
@@ -69,6 +70,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
 #        self.funlist = []
 #        self.fundict = {}
         self.importsdir = ''
+        self.objectlist = []
         
         # Init vlogger
 #        self.__verbosity = VERB_MAX
@@ -122,7 +124,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
         self.getfunlist()
         #self.vlog(VERB_MED, "fun = %s" % (self.funstr))
         self.vlog(VERB_MED, "len(fun) = %d" % (len(self.funlist)))
-        self.getfundict(". ") # No prefix, refactored parameter when this class became super of the ng version
+        self.getfundict() # No prefix, refactored parameter when this class became super of the ng version
         self.vlog(VERB_MED, "fundict = %s" % (self.fundict))
         pass
    
@@ -133,7 +135,12 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
     #    result = result.lstrip()
     #    return result
     
-    def getfundict(self, prefix):
+    def getfundict(self):
+        self.getobjectlist(". ")
+        self.objectlist.sort(key = operator.attrgetter('fun.reqstart'))
+        print('sorted')
+    
+    def getobjectlist(self, prefix):
         """
         Fills the fundict property with a dict where each element is indexed
         by the fun name and each value is an object from the model
@@ -211,12 +218,17 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                     #print(csv)
                     self.vlog(VERB_MAX, "  DOC = '%s'" % (doc))
                     funstr = self.getfunname(csv)
-                
-                    r = model.FunModel(funid, funstr, beginloc, endloc)
-                    r.fun.reqstart = beginloc
-                    r.fun.reqend   = endloc
                     
-                    self.fundict[funstr] = (beginloc, 0, funid)
+                #endloc = 0
+                # The endloc will be filled afterwards, I have to first order the list so
+                # the end is the begining of the next one
+                r = model.FunModel(funid, funstr, beginloc, 0)
+                r.fun.reqstart = beginloc
+                r.fun.reqend   = 0 
+                    
+                self.objectlist.append(r)
+                    
+                #self.fundict[funstr] = (beginloc, 0, funid)
                 # I switched the dict keys from uppercase (body) to as they are
                 # on the index (capitalized as they are)
                 
