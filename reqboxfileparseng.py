@@ -134,12 +134,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
     #    result = result.rstrip()
     #    result = result.lstrip()
     #    return result
-    
-    def getfundict(self):
-        self.getobjectlist(". ")
-        self.objectlist.sort(key = operator.attrgetter('fun.reqstart'))
-        print('sorted')
-    
+       
     def getobjectlist(self, prefix):
         """
         Fills the fundict property with a dict where each element is indexed
@@ -272,6 +267,19 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                 pass
         
         self.vlog(VERB_MED, "<- getfundict()")
+        pass
+    
+    def getfundict(self):
+        self.getobjectlist(". ")
+        self.objectlist.sort(key = operator.attrgetter('fun.reqstart'))
+        # Fill the endloc property with the next beginloc
+        nextbeginloc = 0
+        for idx, item in enumerate(self.objectlist):
+            if idx < len(self.objectlist)-1:
+                nextbeginloc = self.objectlist[idx+1].fun.reqstart
+            else:
+                nextbeginloc = self.f.size()
+            item.fun.reqend = nextbeginloc
         pass
     
     #---- mainline
