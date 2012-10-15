@@ -228,36 +228,6 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                 # on the index (capitalized as they are)
                 
                 currentpos = self.f.tell()
-                
-                #newidx = count - funidx
-                #r = model.FunModel(funid, funstr, beginloc, endloc)
-                #r.fun.reqstart = beginloc
-                #r.fun.reqend   = endloc
-                #r.rfistart = self.funrfistart(funstr, beginloc, endloc)
-                #r.rfnstart = self.funrfnstart(funstr, beginloc, endloc)
-                #r.rnfstart = self.funrnfstart(funstr, beginloc, endloc)
-                #r.rgnstart = self.funrgnstart(funstr, beginloc, endloc)
-                #startmarkups = [r.fun.reqstart, r.rfistart, r.rfnstart, r.rnfstart, r.rgnstart, r.fun.reqend]
-                #startmarkups.sort()
-                #result = "FUN id=%s [bytes=%d/%d]:\t'%s'\n" % (r.fun.reqid, r.fun.reqstart, r.fun.reqend, r.fun.reqname)
-                #print(result)
-                #r.rfiend   = self.funsecend(funstr, r.rfistart, startmarkups)
-                #r.rfnend   = self.funsecend(funstr, r.rfnstart, startmarkups)
-                #r.rnfend   = self.funsecend(funstr, r.rnfstart, startmarkups)
-                #r.rgnend   = self.funsecend(funstr, r.rgnstart, startmarkups)
-                
-                #self.fundict[funstr] = r #(beginloc, endloc, funid)
-                #
-                #if r.rfistart != -1:
-                #    r.rfi = self.gettagdic(funstr, 'RFI', r.rfistart, r.rfiend)
-                #    pass
-                #if r.rfnstart != -1:
-                #    r.rfn = self.gettagdic(funstr, 'RFN', r.rfnstart, r.rfnend)
-                #if r.rnfstart != -1:
-                #    r.rnf = self.gettagdic(funstr, 'RNF', r.rnfstart, r.rnfend)
-                #if r.rgnstart != -1:
-                #    r.rgn = self.gettagdic(funstr, 'RGN', r.rgnstart, r.rgnend)
-                
                 self.f.seek(currentpos)
                 
                 # endloc = beginloc - 1
@@ -281,6 +251,34 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                 nextbeginloc = self.f.size()
             item.fun.reqend = nextbeginloc
             self.fundict[item.fun.reqid] = item
+            #newidx = count - funidx
+            #r = model.FunModel(funid, funstr, beginloc, endloc)
+            #r.fun.reqstart = beginloc
+            #r.fun.reqend   = endloc
+            item.rfistart = self.funrfistart(item.fun.reqname, item.fun.reqstart, item.fun.reqend)
+            item.rfnstart = self.funrfnstart(item.fun.reqname, item.fun.reqstart, item.fun.reqend)
+            item.rnfstart = self.funrnfstart(item.fun.reqname, item.fun.reqstart, item.fun.reqend)
+            item.rgnstart = self.funrgnstart(item.fun.reqname, item.fun.reqstart, item.fun.reqend)
+            startmarkups = [item.fun.reqstart, item.rfistart, item.rfnstart, item.rnfstart, item.rgnstart, item.fun.reqend]
+            startmarkups.sort()
+            #result = "FUN id=%s [bytes=%d/%d]:\t'%s'\n" % (r.fun.reqid, r.fun.reqstart, r.fun.reqend, r.fun.reqname)
+            #print(result)
+            item.rfiend   = self.funsecend(item.fun.reqname, item.rfistart, startmarkups)
+            item.rfnend   = self.funsecend(item.fun.reqname, item.rfnstart, startmarkups)
+            item.rnfend   = self.funsecend(item.fun.reqname, item.rnfstart, startmarkups)
+            item.rgnend   = self.funsecend(item.fun.reqname, item.rgnstart, startmarkups)
+            
+            #self.fundict[funstr] = r #(beginloc, endloc, funid)
+            #
+            #if r.rfistart != -1:
+            #    r.rfi = self.gettagdic(funstr, 'RFI', r.rfistart, r.rfiend)
+            #    pass
+            #if r.rfnstart != -1:
+            #    r.rfn = self.gettagdic(funstr, 'RFN', r.rfnstart, r.rfnend)
+            #if r.rnfstart != -1:
+            #    r.rnf = self.gettagdic(funstr, 'RNF', r.rnfstart, r.rnfend)
+            #if r.rgnstart != -1:
+            #    r.rgn = self.gettagdic(funstr, 'RGN', r.rgnstart, r.rgnend)
         pass
     
     #---- mainline
