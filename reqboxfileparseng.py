@@ -280,6 +280,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
             else:
                 nextbeginloc = self.f.size()
             item.fun.reqend = nextbeginloc
+            self.fundict[item.fun.reqid] = item
         pass
     
     #---- mainline
