@@ -134,6 +134,16 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
     #    result = result.rstrip()
     #    result = result.lstrip()
     #    return result
+    
+    def funrelstart(self, funstr, start=0, end=0):
+        #header = "Regras de Negócio"
+        header = "RELACIONAMENTOS"
+        return self.funhassection(funstr, header, start, end)
+        
+    def funrelend(self, funstr, start=0, end=0):
+        #header = "Regras de Negócio"
+        header = "RELACIONAMENTOS"
+        return self.funhassection(funstr, header, start, end)
        
     def getobjectlist(self, prefix):
         """
@@ -244,29 +254,33 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
         self.objectlist.sort(key = operator.attrgetter('fun.reqstart'))
         # Fill the endloc property with the next beginloc
         nextbeginloc = 0
-        for idx, item in enumerate(self.objectlist):
+        for idx, req in enumerate(self.objectlist):
             if idx < len(self.objectlist)-1:
                 nextbeginloc = self.objectlist[idx+1].fun.reqstart
             else:
                 nextbeginloc = self.f.size()
-            item.fun.reqend = nextbeginloc
-            self.fundict[item.fun.reqid] = item
+            req.fun.reqend = nextbeginloc
+            self.fundict[req.fun.reqid] = req
             #newidx = count - funidx
             #r = model.FunModel(funid, funstr, beginloc, endloc)
             #r.fun.reqstart = beginloc
             #r.fun.reqend   = endloc
-            item.rfistart = self.funrfistart(item.fun.reqname, item.fun.reqstart, item.fun.reqend)
-            item.rfnstart = self.funrfnstart(item.fun.reqname, item.fun.reqstart, item.fun.reqend)
-            item.rnfstart = self.funrnfstart(item.fun.reqname, item.fun.reqstart, item.fun.reqend)
-            item.rgnstart = self.funrgnstart(item.fun.reqname, item.fun.reqstart, item.fun.reqend)
-            startmarkups = [item.fun.reqstart, item.rfistart, item.rfnstart, item.rnfstart, item.rgnstart, item.fun.reqend]
+            req.rfistart = self.funrfistart(req.fun.reqname, req.fun.reqstart, req.fun.reqend)
+            req.rfnstart = self.funrfnstart(req.fun.reqname, req.fun.reqstart, req.fun.reqend)
+            req.rnfstart = self.funrnfstart(req.fun.reqname, req.fun.reqstart, req.fun.reqend)
+            req.rgnstart = self.funrgnstart(req.fun.reqname, req.fun.reqstart, req.fun.reqend)
+            req.relstart = self.funrelstart(req.fun.reqname, req.fun.reqstart, req.fun.reqend)
+            startmarkups = [req.fun.reqstart, req.rfistart, req.rfnstart,
+                            req.rnfstart, req.rgnstart, req.relstart,
+                            req.fun.reqend]
             startmarkups.sort()
             #result = "FUN id=%s [bytes=%d/%d]:\t'%s'\n" % (r.fun.reqid, r.fun.reqstart, r.fun.reqend, r.fun.reqname)
             #print(result)
-            item.rfiend   = self.funsecend(item.fun.reqname, item.rfistart, startmarkups)
-            item.rfnend   = self.funsecend(item.fun.reqname, item.rfnstart, startmarkups)
-            item.rnfend   = self.funsecend(item.fun.reqname, item.rnfstart, startmarkups)
-            item.rgnend   = self.funsecend(item.fun.reqname, item.rgnstart, startmarkups)
+            req.rfiend   = self.funsecend(req.fun.reqname, req.rfistart, startmarkups)
+            req.rfnend   = self.funsecend(req.fun.reqname, req.rfnstart, startmarkups)
+            req.rnfend   = self.funsecend(req.fun.reqname, req.rnfstart, startmarkups)
+            req.rgnend   = self.funsecend(req.fun.reqname, req.rgnstart, startmarkups)
+            req.relend   = self.funsecend(req.fun.reqname, req.relstart, startmarkups)
             
             #self.fundict[funstr] = r #(beginloc, endloc, funid)
             #
