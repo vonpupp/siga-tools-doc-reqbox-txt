@@ -144,10 +144,11 @@ class ReqBoxModel():
     Attributes:
     """
     
-    def __init__(self):
+    def __init__(self, ParserClass):
         # Public
         # Init structures
-        self.fp = rfp.ReqBoxFileParser()
+        #self.fp = rfp.ReqBoxFileParser()
+        self.fp = ParserClass()
         #self.fp.parsefile("./data/LRCv12.txt")
         self.uniquerfi = {}
         self.uniquerfn = {}
@@ -537,7 +538,7 @@ class ReqBoxModel():
                 csvhdlr.writerow(row)
 
 def main(argv):
-    rbm = ReqBoxModel()
+    rbm = ReqBoxModel(rfp.ReqBoxFileParser)
     rbm.parsefile("./input/LRCv13-mod.utf8.fix.txt")
     rbm.printf()
     
