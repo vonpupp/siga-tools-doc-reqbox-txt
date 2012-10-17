@@ -80,6 +80,10 @@ import os
 import csv
 import codecs
 from vlog import vlogger
+import reqboxmodel as rbm1
+import reqboxmodelng as rbm2
+import reqboxfileparse as rfp1
+import reqboxfileparseng as rfp2
 import reqboxmodel as rbm
 
 #---- exceptions
@@ -91,7 +95,7 @@ VERB_MIN = 1
 VERB_MED = 2
 VERB_MAX = 3
 
-class reqbox():
+class ReqBox():
     """ Reqbox
     Attributes:
     """
@@ -99,7 +103,7 @@ class reqbox():
     def __init__(self):
         # Public
         # Init structures
-        self.rbm = rbm.ReqBoxModel()
+        self.rbm = None
         self.inputfile = None
         self.parseall = 0
         self.parsefun = 0
@@ -112,6 +116,13 @@ class reqbox():
         self.__verbosity = VERB_MAX
         self.logv = vlogger(self.__verbosity, sys.stdout)
         #self.vlog = self.__log()
+        
+    def initparser(self, ParserClass):
+        # Public
+        # Init structures
+        self.rbm = rbm.ReqBoxModel(ParserClass)
+        if ParserClass is rfp2.ReqBoxFileParserNG:
+            self.rbm.importsdir = './data/'
         
     def __del__(self):
         #del self.rfi
@@ -186,18 +197,21 @@ class reqbox():
         print "RNF-FUN links exported to:\t" + fn
 
 def main(argv):
-    rb = reqbox()
     try:
-        optlist, args = getopt.getopt(argv[1:], 'hv:aingo:', ['help', 'verbose', 'export-all', 'export-rfi', 'export-rfn', 'in-objects'])
+        optlist, args = getopt.getopt(argv[1:], 'hv:aingo:', ['help', 'verbose',
+            'export-all', 'export-rfi', 'export-rfn', 'in-objects',
+            'parse-v1', 'parse-v2'])
     except getopt.GetoptError, msg:
         sys.stderr.write("reqbox: error: %s" % msg)
         sys.stderr.write("See 'reqbox --help'.\n")
         return 1
     
-    if len(args) is not 1:
-        sys.stderr.write("Not enough arguments. See 'reqbox --help'.\n")
-        return 1
+#    if len(args) is not 1:
+#        sys.stderr.write("Not enough arguments. See 'reqbox --help'.\n")
+#        return 1
     
+    rb = ReqBox()
+    rbm = rfp1.ReqBoxFileParser # Default parser
     for opt, optarg in optlist:
         if opt in ('-h', '--help'):
             sys.stdout.write(__doc__)
@@ -210,6 +224,11 @@ def main(argv):
             pass
         #elif opt in ('-a', '--export-all',
         #             '-i', '--export-rfi'):
+        elif opt in ('--parse-v1'):
+            rbm = rfp1.ReqBoxFileParser
+        elif opt in ('--parse-v2'):
+            rbm = rfp2.ReqBoxFileParserNG
+        
         rb.inputfile = args[0]
         rb.parseall = rb.parseall or opt in ('-a', '--export-all')
         rb.parsefun = rb.parseall or rb.parsefun or opt in ('-f', '--export-fun')
@@ -227,6 +246,7 @@ def main(argv):
     #rb.parsernf = rb.parsernf or rb.parseall
     #rb.parsergn = rb.parsergn or rb.parseall
     
+    rb.initparser(rbm)
     rb.rbm.parsefile(rb.inputfile)
     
     if rb.parsefun:
