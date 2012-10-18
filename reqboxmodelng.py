@@ -104,7 +104,8 @@ class FunModelNG(model.FunModel):
         FunModel.__init__(self)
         self.relstart = -1
         self.relend = -1
-        self.wrf = {}
+        self.extends = {}
+        self.implements = {}
         pass
 
 def main(argv):

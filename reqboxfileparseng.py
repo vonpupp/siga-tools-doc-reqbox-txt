@@ -254,39 +254,39 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
         self.objectlist.sort(key = operator.attrgetter('fun.reqstart'))
         # Fill the endloc property with the next beginloc
         nextbeginloc = 0
-        for idx, req in enumerate(self.objectlist):
+        for idx, r in enumerate(self.objectlist):
             if idx < len(self.objectlist)-1:
                 nextbeginloc = self.objectlist[idx+1].fun.reqstart
             else:
                 nextbeginloc = self.f.size()
-            req.fun.reqend = nextbeginloc
-            self.fundict[req.fun.reqid] = req
+            r.fun.reqend = nextbeginloc
+            
             #newidx = count - funidx
             #r = model.FunModel(funid, funstr, beginloc, endloc)
             #r.fun.reqstart = beginloc
             #r.fun.reqend   = endloc
-            req.rfistart = self.funrfistart(req.fun.reqname, req.fun.reqstart, req.fun.reqend)
-            req.rfnstart = self.funrfnstart(req.fun.reqname, req.fun.reqstart, req.fun.reqend)
-            req.rnfstart = self.funrnfstart(req.fun.reqname, req.fun.reqstart, req.fun.reqend)
-            req.rgnstart = self.funrgnstart(req.fun.reqname, req.fun.reqstart, req.fun.reqend)
-            req.relstart = self.funrelstart(req.fun.reqname, req.fun.reqstart, req.fun.reqend)
-            startmarkups = [req.fun.reqstart, req.rfistart, req.rfnstart,
-                            req.rnfstart, req.rgnstart, req.relstart,
-                            req.fun.reqend]
+            r.rfistart = self.funrfistart(r.fun.reqname, r.fun.reqstart, r.fun.reqend)
+            r.rfnstart = self.funrfnstart(r.fun.reqname, r.fun.reqstart, r.fun.reqend)
+            r.rnfstart = self.funrnfstart(r.fun.reqname, r.fun.reqstart, r.fun.reqend)
+            r.rgnstart = self.funrgnstart(r.fun.reqname, r.fun.reqstart, r.fun.reqend)
+            r.relstart = self.funrelstart(r.fun.reqname, r.fun.reqstart, r.fun.reqend)
+            startmarkups = [r.fun.reqstart, r.rfistart, r.rfnstart,
+                            r.rnfstart, r.rgnstart, r.relstart,
+                            r.fun.reqend]
             startmarkups.sort()
             #result = "FUN id=%s [bytes=%d/%d]:\t'%s'\n" % (r.fun.reqid, r.fun.reqstart, r.fun.reqend, r.fun.reqname)
             #print(result)
-            req.rfiend   = self.funsecend(req.fun.reqname, req.rfistart, startmarkups)
-            req.rfnend   = self.funsecend(req.fun.reqname, req.rfnstart, startmarkups)
-            req.rnfend   = self.funsecend(req.fun.reqname, req.rnfstart, startmarkups)
-            req.rgnend   = self.funsecend(req.fun.reqname, req.rgnstart, startmarkups)
-            req.relend   = self.funsecend(req.fun.reqname, req.relstart, startmarkups)
+            r.rfiend   = self.funsecend(r.fun.reqname, r.rfistart, startmarkups)
+            r.rfnend   = self.funsecend(r.fun.reqname, r.rfnstart, startmarkups)
+            r.rnfend   = self.funsecend(r.fun.reqname, r.rnfstart, startmarkups)
+            r.rgnend   = self.funsecend(r.fun.reqname, r.rgnstart, startmarkups)
+            r.relend   = self.funsecend(r.fun.reqname, r.relstart, startmarkups)
             
-            #self.fundict[funstr] = r #(beginloc, endloc, funid)
-            #
-            #if r.rfistart != -1:
-            #    r.rfi = self.gettagdic(funstr, 'RFI', r.rfistart, r.rfiend)
-            #    pass
+            self.fundict[r.fun.reqid] = r
+            
+            if r.rfistart != -1:
+                r.rfi = self.gettagdic(r.fun.reqname, 'RFI', r.rfistart, r.rfiend)
+                pass
             #if r.rfnstart != -1:
             #    r.rfn = self.gettagdic(funstr, 'RFN', r.rfnstart, r.rfnend)
             #if r.rnfstart != -1:
