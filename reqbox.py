@@ -103,7 +103,7 @@ class ReqBox():
     def __init__(self):
         # Public
         # Init structures
-        self.rbm = None
+        self.model = None
         self.inputfile = None
         self.parseall = 0
         self.parsefun = 0
@@ -120,80 +120,80 @@ class ReqBox():
     def initparser(self, ParserClass):
         # Public
         # Init structures
-        self.rbm = rbm.ReqBoxModel(ParserClass)
+        self.model = rbm.ReqBoxModel(ParserClass)
         if ParserClass is rfp2.ReqBoxFileParserNG:
-            self.rbm.importsdir = './data/'
+            self.model.fp.importsdir = './data/'
         
     def __del__(self):
         #del self.rfi
-        del self.rbm
+        del self.model
 
     def parsefunobjects(self, fn):
         fh = open(fn, 'wb')
-        self.rbm.exporter_funobjects(fh)
+        self.model.exporter_funobjects(fh)
         print "FUN objects exported to:\t" + fn
         
     def parserfiobjects(self, fn):
         fh = open(fn, 'wb')
-        self.rbm.exporter_rfiobjects(fh)
+        self.model.exporter_rfiobjects(fh)
         print "RFI objects exported to:\t" + fn
         
     def parserfnobjects(self, fn):
-        self.rbm.builduniquerfndict()
+        self.model.builduniquerfndict()
         fh = open(fn, 'wb')
-        self.rbm.exporter_rfnobjects(fh)
+        self.model.exporter_rfnobjects(fh)
         print "RFN objects exported to:\t" + fn
 
     def parsernfobjects(self, fn):
-        self.rbm.builduniquernfdict()
+        self.model.builduniquernfdict()
         fh = open(fn, 'wb')
-        self.rbm.exporter_rnfobjects(fh)
+        self.model.exporter_rnfobjects(fh)
         print "RFN objects exported to:\t" + fn
     
     def parsergnobjects(self, fn):
-        self.rbm.builduniquergndict()
+        self.model.builduniquergndict()
         fh = open(fn, 'wb')
-        self.rbm.exporter_rgnobjects(fh)
+        self.model.exporter_rgnobjects(fh)
         print "RNF objects exported to:\t" + fn
     
     def parsefunrfilinks(self, fn):
         fh = open(fn, 'wb')
-        self.rbm.exporter_funrfilinks(fh)
+        self.model.exporter_funrfilinks(fh)
         print "FUN-RFI links exported to:\t" + fn
 
     def parserfifunlinks(self, fn):
         fh = open(fn, 'wb')
-        self.rbm.exporter_rfifunlinks(fh)
+        self.model.exporter_rfifunlinks(fh)
         print "RFI-FUN links exported to:\t" + fn
 
     def parsefunrfnlinks(self, fn):
         fh = open(fn, 'wb')
-        self.rbm.exporter_funrfnlinks(fh)
+        self.model.exporter_funrfnlinks(fh)
         print "FUN-RFN links exported to:\t" + fn
 
     def parserfnfunlinks(self, fn):
         fh = open(fn, 'wb')
-        self.rbm.exporter_rfnfunlinks(fh)
+        self.model.exporter_rfnfunlinks(fh)
         print "RFN-FUN links exported to:\t" + fn
 
     def parsefunrgnlinks(self, fn):
         fh = open(fn, 'wb')
-        self.rbm.exporter_funrgnlinks(fh)
+        self.model.exporter_funrgnlinks(fh)
         print "FUN-RGN links exported to:\t" + fn
 
     def parsergnfunlinks(self, fn):
         fh = open(fn, 'wb')
-        self.rbm.exporter_rgnfunlinks(fh)
+        self.model.exporter_rgnfunlinks(fh)
         print "RGN-FUN links exported to:\t" + fn
 
     def parsefunrnflinks(self, fn):
         fh = open(fn, 'wb')
-        self.rbm.exporter_funrnflinks(fh)
+        self.model.exporter_funrnflinks(fh)
         print "FUN-RNF links exported to:\t" + fn
 
     def parsernffunlinks(self, fn):
         fh = open(fn, 'wb')
-        self.rbm.exporter_rnffunlinks(fh)
+        self.model.exporter_rnffunlinks(fh)
         print "RNF-FUN links exported to:\t" + fn
 
 def main(argv):
@@ -247,7 +247,7 @@ def main(argv):
     #rb.parsergn = rb.parsergn or rb.parseall
     
     rb.initparser(rbm)
-    rb.rbm.parsefile(rb.inputfile)
+    rb.model.parsefile(rb.inputfile)
     
     if rb.parsefun:
         rb.parsefunobjects("out-fun-objects.csv")
