@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
 #!/usr/bin/python3.1
-
+# -*- coding: utf-8 -*-
+#
 #   Project:			SIGA
 #   Component Name:		reqboxfileparse
 #   Language:			Python2

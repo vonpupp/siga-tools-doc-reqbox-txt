@@ -1,4 +1,6 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
 #   Project:			SIGA
 #   Component Name:		reqboxfixcrlf
 #   Language:			Python
@@ -93,10 +95,10 @@ def fixcrlf(sourcefile, destinationfile):
     vlog(VERB_MIN, "Outfile: %s" % destinationfile)
     vlog(VERB_MIN, "  * Total number of lines: %d" % totallines)
         
-    def fixdoublecrlf(sourcefile, destinationfile):
-        # HEX pattern to match: 0D0A0A0D0A
-        # Idea: just remove 0A0D0A
-        pass
+def fixdoublecrlf(sourcefile, destinationfile):
+    # HEX pattern to match: 0D0A0A0D0A
+    # Idea: just remove 0A0D0A
+    pass
 
 def main(argv):
     if len(argv) == 3:
