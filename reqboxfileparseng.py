@@ -373,7 +373,6 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
             #        self.vlog(VERB_MAX, "found on location %d | '%s'" % (m.start(), m.group()))
             #    pass
         return result
-        pass
     
     #---- mainline
 

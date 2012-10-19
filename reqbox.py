@@ -111,16 +111,22 @@ class ReqBox():
         self.parserfn = 0
         self.parsernf = 0
         self.parsergn = 0
+        self.parserverion = 1
         
         # Init vlogger
         self.__verbosity = VERB_MAX
         self.logv = vlogger(self.__verbosity, sys.stdout)
         #self.vlog = self.__log()
         
-    def initparser(self, ParserClass):
+    def initparser(self, ModelClass):#, ParserClass):
         # Public
         # Init structures
-        self.model = rbm.ReqBoxModel(ParserClass)
+        if ModelClass is rbm1.ReqBoxModel:
+            ParserClass = rfp1.ReqBoxFileParser
+        elif ModelClass is rbm2.ReqBoxModelNG:
+            ParserClass = rfp2.ReqBoxFileParserNG
+        self.model = ModelClass(ParserClass)
+        #self.model = rbm.ReqBoxModel(ParserClass)
         if ParserClass is rfp2.ReqBoxFileParserNG:
             self.model.fp.importsdir = './data/'
         
@@ -196,6 +202,13 @@ class ReqBox():
         self.model.exporter_rnffunlinks(fh)
         print "RNF-FUN links exported to:\t" + fn
 
+    # NG PARSER METHODS    
+        
+    def parseobjects(self, fn, d):
+        fh = open(fn, 'wb')
+        self.model.exporter_objects(fh, d)
+        print "Objects exported to:\t" + fn
+        
 def main(argv):
     try:
         optlist, args = getopt.getopt(argv[1:], 'hv:aingo:', ['help', 'verbose',
@@ -225,9 +238,13 @@ def main(argv):
         #elif opt in ('-a', '--export-all',
         #             '-i', '--export-rfi'):
         elif opt in ('--parse-v1'):
-            rbm = rfp1.ReqBoxFileParser
+            rbm = rbm1.ReqBoxModel
+            #rbp = rfp1.ReqBoxFileParser
+            rb.parserverion = 1
         elif opt in ('--parse-v2'):
-            rbm = rfp2.ReqBoxFileParserNG
+            rbm = rbm2.ReqBoxModelNG
+            #rbp = rfp2.ReqBoxFileParserNG
+            rb.parserverion = 2
         
         rb.inputfile = args[0]
         rb.parseall = rb.parseall or opt in ('-a', '--export-all')
@@ -250,11 +267,18 @@ def main(argv):
     rb.model.parsefile(rb.inputfile)
     
     if rb.parsefun:
-        rb.parsefunobjects("out-fun-objects.csv")
-        rb.parsefunrfilinks("out-fun-rfi-links.csv")
-        rb.parsefunrfnlinks("out-fun-rfn-links.csv")
-        rb.parsefunrgnlinks("out-fun-rgn-links.csv")
-        rb.parsefunrnflinks("out-fun-rnf-links.csv")
+        if rb.parserverion == 1:
+            rb.parsefunobjects("out-fun-objects.csv")
+            rb.parsefunrfilinks("out-fun-rfi-links.csv")
+            rb.parsefunrfnlinks("out-fun-rfn-links.csv")
+            rb.parsefunrgnlinks("out-fun-rgn-links.csv")
+            rb.parsefunrnflinks("out-fun-rnf-links.csv")
+        elif rb.parserverion == 2:
+            rb.parseobjects("out-fun-objects-ng.csv", rb.model.fp.fundict)
+            #rb.parsefunrfilinks("out-fun-rfi-links.csv")
+            #rb.parsefunrfnlinks("out-fun-rfn-links.csv")
+            #rb.parsefunrgnlinks("out-fun-rgn-links.csv")
+            #rb.parsefunrnflinks("out-fun-rnf-links.csv")
     
     if rb.parserfi:
         rb.parserfiobjects("out-rfi-objects.csv")

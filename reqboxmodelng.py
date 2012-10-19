@@ -107,6 +107,35 @@ class FunModelNG(model.FunModel):
         self.extends = {}
         self.implements = {}
         pass
+    
+class ReqBoxModelNG(model.ReqBoxModel):
+    """ Reqbox model
+    Attributes:
+    """
+    
+    def exporter_objects(self, fh, d):
+        """
+        Refactored method for exporting objects: FUN (UC), RFI, RFN, RNG, RNF
+        """
+            
+        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
+        csvhdlr.writerow(["Name", "Alias", "Type", "Notes", "Priority", "Author", ])
+        
+        for idx, funstr in enumerate(self.fp.funlist):
+            # d = self.fp.fundict[funstr].rfi
+            for idx, reqstr in enumerate(sorted(d)):
+                r = d[reqstr]
+                row = [r.reqid + ". " + r.reqname, r.reqid, 'Requirement', r.reqbody, "Medium", "Albert De La Fuente"]
+                
+                #Name    Alias   Type    Notes   Priority        Author
+                #RFI001. MANTER HOSPEDAGEM       RFI001. Requirement     "
+                #O sistema deve disponibilizar uma interface para incluir, alterar, excluir e consultar hospedagens, contemplando os seguintes atributos:
+                #* Código da hospedagem
+                #* ...
+                #"       Medium  Albert De La Fuente
+                print("Writing...%s" % (r.reqid))
+                csvhdlr.writerow(row)
+
 
 def main(argv):
     rbm = model.ReqBoxModel(rfp.ReqBoxFileParserNG)
