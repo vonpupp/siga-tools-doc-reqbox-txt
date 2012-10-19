@@ -392,11 +392,14 @@ class ReqBoxModel():
         
         d = self.fp.fundict
         for idx, reqstr in enumerate(self.fp.funlist):
-            r = d[reqstr].fun
-            alias = self.uclabel(r.reqid) # "UC" + r.reqid.zfill(3)
-            row = [alias + ". " + r.reqname, alias, 'UseCase', r.reqbody, "Medium", "Albert De La Fuente"]
-            print("Writing... %s" % (r.reqid))
-            csvhdlr.writerow(row)
+            if reqstr in d:
+                r = d[reqstr].fun
+                alias = self.uclabel(r.reqid) # "UC" + r.reqid.zfill(3)
+                row = [alias + ". " + r.reqname, alias, 'UseCase', r.reqbody, "Medium", "Albert De La Fuente"]
+                print("Writing... %s" % (r.reqid))
+                csvhdlr.writerow(row)
+            else:
+                print("NOT FOUND... %s" % (reqstr))
             
     def fixsecondlevelbullets(self):
         pass

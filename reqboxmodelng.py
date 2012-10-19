@@ -113,7 +113,13 @@ class ReqBoxModelNG(model.ReqBoxModel):
     Attributes:
     """
     
-    def exporter_objects(self, fh, d):
+    def fun_exporter_callback(self, d, reqstr):
+        return d[reqstr].fun
+        
+    def rfi_exporter_callback(self, d, reqstr):
+        return d[reqstr].fun
+    
+    def exporter_objects(self, fh, d, exporter_callback):
         """
         Refactored method for exporting objects: FUN (UC), RFI, RFN, RNG, RNF
         """
@@ -124,17 +130,21 @@ class ReqBoxModelNG(model.ReqBoxModel):
         for idx, funstr in enumerate(self.fp.funlist):
             # d = self.fp.fundict[funstr].rfi
             for idx, reqstr in enumerate(sorted(d)):
-                r = d[reqstr]
-                row = [r.reqid + ". " + r.reqname, r.reqid, 'Requirement', r.reqbody, "Medium", "Albert De La Fuente"]
-                
-                #Name    Alias   Type    Notes   Priority        Author
-                #RFI001. MANTER HOSPEDAGEM       RFI001. Requirement     "
-                #O sistema deve disponibilizar uma interface para incluir, alterar, excluir e consultar hospedagens, contemplando os seguintes atributos:
-                #* Código da hospedagem
-                #* ...
-                #"       Medium  Albert De La Fuente
-                print("Writing...%s" % (r.reqid))
-                csvhdlr.writerow(row)
+                if reqstr in d:
+                    #r = d[reqstr].fun
+                    r = exporter_callback(d, reqstr)
+                    row = [r.reqid + ". " + r.reqname, r.reqid, 'Requirement', r.reqbody, "Medium", "Albert De La Fuente"]
+                    
+                    #Name    Alias   Type    Notes   Priority        Author
+                    #RFI001. MANTER HOSPEDAGEM       RFI001. Requirement     "
+                    #O sistema deve disponibilizar uma interface para incluir, alterar, excluir e consultar hospedagens, contemplando os seguintes atributos:
+                    #* Código da hospedagem
+                    #* ...
+                    #"       Medium  Albert De La Fuente
+                    print("Writing...%s" % (r.reqid))
+                    csvhdlr.writerow(row)
+                else:
+                    print("NOT FOUND... %s" % (reqstr))
 
 
 def main(argv):
