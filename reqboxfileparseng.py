@@ -225,7 +225,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                     self.vlog(VERB_MAX, "  CSV = '%s'" % (csv)) # .decode('unicode_escape')
                     #print(csv)
                     self.vlog(VERB_MAX, "  DOC = '%s'" % (doc))
-                    funstr = self.getfunname(csv)
+                    funstr = csv # self.getfunname(csv)
                     
                 #endloc = 0
                 # The endloc will be filled afterwards, I have to first order the list so

@@ -441,7 +441,6 @@ class ReqBoxFileParser(object):
                 
                 if r.rfistart != -1:
                     r.rfi = self.gettagdic(funstr, 'RFI', r.rfistart, r.rfiend)
-                    pass
                 if r.rfnstart != -1:
                     r.rfn = self.gettagdic(funstr, 'RFN', r.rfnstart, r.rfnend)
                 if r.rnfstart != -1:
