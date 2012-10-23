@@ -615,8 +615,8 @@ class ReqBoxFileParser(object):
             endloc = end
         else:
             endloc = self.funend(funstr)
-        funid = self.funid(funstr)
-        funidstr = self.funidname(funstr)
+        #funid = self.funid(funstr)
+        #funidstr = self.funidname(funstr)
         self.f.seek(beginloc)
         loc = beginloc #self.f.tell()
         
