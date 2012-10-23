@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 #   Project:			SIGA
 #   Component Name:		ReqBoxModel
@@ -127,24 +127,33 @@ class ReqBoxModelNG(model.ReqBoxModel):
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         csvhdlr.writerow(["Name", "Alias", "Type", "Notes", "Priority", "Author", ])
         
-        for idx, funstr in enumerate(self.fp.funlist):
+        #for idx, funstr in enumerate(self.fp.funlist):
             # d = self.fp.fundict[funstr].rfi
-            for idx, reqstr in enumerate(sorted(d)):
-                if reqstr in d:
-                    #r = d[reqstr].fun
-                    r = exporter_callback(d, reqstr)
-                    row = [r.reqid + ". " + r.reqname, r.reqid, 'Requirement', r.reqbody, "Medium", "Albert De La Fuente"]
-                    
-                    #Name    Alias   Type    Notes   Priority        Author
-                    #RFI001. MANTER HOSPEDAGEM       RFI001. Requirement     "
-                    #O sistema deve disponibilizar uma interface para incluir, alterar, excluir e consultar hospedagens, contemplando os seguintes atributos:
-                    #* Código da hospedagem
-                    #* ...
-                    #"       Medium  Albert De La Fuente
-                    print("Writing...%s" % (r.reqid))
-                    csvhdlr.writerow(row)
-                else:
-                    print("NOT FOUND... %s" % (reqstr))
+        for idx, reqstr in enumerate(sorted(d)):
+            if reqstr in d:
+                #r = d[reqstr].fun
+                r = exporter_callback(d, reqstr)
+                reqstr = r.reqid + ". " + r.reqname
+                #ureqstr = reqstr.decode('utf8')
+                #reqstr = reqstr.decode('unicode')
+                #reqstr = self.fp.utf8(reqstr) #.encode('utf-8')
+                #reqstr = reqstr.encode('unicode')
+                #reqstr = reqstr.encode('utf-8')
+                #row = [r.reqname, r.reqid, 'Requirement', r.reqbody, "Medium", "Albert De La Fuente"]
+                r.reqid = r.reqid.decode('utf-8')
+                row = [r.reqname.encode('utf-8'), r.reqid.encode('utf-8')]
+                #row = [reqstr.encode('utf-8'), r.reqid, 'Requirement', r.reqbody, "Medium", "Albert De La Fuente"]
+                
+                #Name    Alias   Type    Notes   Priority        Author
+                #RFI001. MANTER HOSPEDAGEM       RFI001. Requirement     "
+                #O sistema deve disponibilizar uma interface para incluir, alterar, excluir e consultar hospedagens, contemplando os seguintes atributos:
+                #* Código da hospedagem
+                #* ...
+                #"       Medium  Albert De La Fuente
+                print("Writing...%s [%s]" % (r.reqid, type(r.reqname)))
+                csvhdlr.writerow(row)
+            else:
+                print("NOT FOUND... %s" % (reqstr))
 
 
 def main(argv):

@@ -542,10 +542,10 @@ class ReqBoxModel():
 
 def main(argv):
     rbm = ReqBoxModel(rfp.ReqBoxFileParser)
-    rbm.parsefile("./input/LRCv13-mod.utf8.fix.txt")
-    rbm.printf()
+    rbm.parsefile("./data/LFv14.ms.default.fixed.txt")
+    #rbm.printf()
     
-    rbm.fixsecondlevelbullets()
+    #rbm.fixsecondlevelbullets()
     
     fh = open("rfi-objects.csv", 'wb')
     rbm.exporter_rfiobjects(fh)

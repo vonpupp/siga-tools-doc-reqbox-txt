@@ -206,6 +206,7 @@ class ReqBox():
         
     def parseobjects(self, fn, d, exporter_callback):
         fh = open(fn, 'wb')
+        #fh = codecs.open(fn, encoding='utf-8', mode='w')
         self.model.exporter_objects(fh, d, exporter_callback)
         print "Objects exported to:\t" + fn
         
@@ -266,34 +267,33 @@ def main(argv):
     rb.initparser(rbm)
     rb.model.parsefile(rb.inputfile)
     
-    if rb.parsefun:
-        if rb.parserverion == 1:
-            rb.parsefunobjects("out-fun-objects.csv")
-            rb.parsefunrfilinks("out-fun-rfi-links.csv")
-            rb.parsefunrfnlinks("out-fun-rfn-links.csv")
-            rb.parsefunrgnlinks("out-fun-rgn-links.csv")
-            rb.parsefunrnflinks("out-fun-rnf-links.csv")
-        elif rb.parserverion == 2:
-            rb.parseobjects("out-fun-objects-ng.csv", rb.model.fp.fundict, rb.model.fun_exporter_callback)
-            rb.parseobjects("out-rfi-objects-ng.csv", rb.model.fp.fundict, rb.model.rfi_exporter_callback)
-            #rb.parsefunrfilinks("out-fun-rfi-links.csv")
-            #rb.parsefunrfnlinks("out-fun-rfn-links.csv")
-            #rb.parsefunrgnlinks("out-fun-rgn-links.csv")
-            #rb.parsefunrnflinks("out-fun-rnf-links.csv")
+    if rb.parsefun and rb.parserverion == 1:
+        rb.parsefunobjects("out-fun-objects.csv")
+        rb.parsefunrfilinks("out-fun-rfi-links.csv")
+        rb.parsefunrfnlinks("out-fun-rfn-links.csv")
+        rb.parsefunrgnlinks("out-fun-rgn-links.csv")
+        rb.parsefunrnflinks("out-fun-rnf-links.csv")
+    elif rb.parsefun and rb.parserverion == 2:
+        rb.parseobjects("out-fun-objects-ng.csv", rb.model.fp.fundict, rb.model.fun_exporter_callback)
+        rb.parseobjects("out-rfi-objects-ng.csv", rb.model.fp.fundict, rb.model.rfi_exporter_callback)
+        #rb.parsefunrfilinks("out-fun-rfi-links.csv")
+        #rb.parsefunrfnlinks("out-fun-rfn-links.csv")
+        #rb.parsefunrgnlinks("out-fun-rgn-links.csv")
+        #rb.parsefunrnflinks("out-fun-rnf-links.csv")
     
-    if rb.parserfi:
+    if rb.parserfi and rb.parserverion == 1:
         rb.parserfiobjects("out-rfi-objects.csv")
         rb.parserfifunlinks("out-rfi-fun-links.csv")
     
-    if rb.parserfn:
+    if rb.parserfn and rb.parserverion == 1:
         rb.parserfnobjects("out-rfn-objects.csv")
         rb.parserfnfunlinks("out-rfn-fun-links.csv")
 
-    if rb.parsergn:
+    if rb.parsergn and rb.parserverion == 1:
         rb.parsergnobjects("out-rgn-objects.csv")
         rb.parsergnfunlinks("out-rgn-fun-links.csv")
     
-    if rb.parsernf:
+    if rb.parsernf and rb.parserverion == 1:
         rb.parsernfobjects("out-rnf-objects.csv")
         rb.parsernffunlinks("out-rnf-fun-links.csv")
         

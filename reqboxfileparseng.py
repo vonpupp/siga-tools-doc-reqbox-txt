@@ -84,12 +84,13 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
 
     def getfunlist(self):
         """
-        Overrided method to load from a CSV file
+        Overrided method to load from a CSV file as unicode objects
         """
         self.vlog(VERB_MED, "-> %s" % __name__)
         
         self.funlist = []
         
+        #fh = codecs.open(self.importsdir + 'in-uc-objects.csv', encoding='utf-8', mode='r')
         fh = open(self.importsdir + 'in-uc-objects.csv', 'rb')
         f = csv.reader(fh, delimiter=',')
         
@@ -102,9 +103,10 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
         #for row in f:
         #    for header, value in zip(headers, row):
         #        column[header].append(value)
-
+        idx = 0
         for line in f:
-            self.funlist += [line[0]]
+            self.funlist += [line[0].decode('utf-8')] # .decode('utf-8')
+            idx += 1
             
         self.vlog(VERB_MED, "<- %s" % __name__)
         self.vlog(VERB_MAX, "result = %s" % (self.funlist))
@@ -215,7 +217,8 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                 line = self._cleanfunfrombody(line)
                 self.vlog(VERB_MAX, "found from %d to %d out of %d | '%s. %s'" % (beginloc, endloc, finalloc, funid, line))
                 # TODO: Assert: funstr == line.upper()
-                csv = funstr.decode('utf-8')
+                #csv = funstr.decode('utf-8')
+                csv = funstr #.decode('utf-8')
                 doc = line.decode('latin1')
                 if csv != doc:
                     self.vlog(VERB_MAX, "ASSERT. Fun names doesn't match:")
@@ -247,7 +250,6 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                 pass
         
         self.vlog(VERB_MED, "<- getfundict()")
-        pass
     
     def getfundict(self):
         self.getobjectlist(". ")
