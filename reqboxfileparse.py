@@ -626,19 +626,6 @@ class ReqBoxFileParser(object):
         result = {}
         self.vlog(VERB_MAX, "finding from %d... '%s'" % (loc, findstr))
         
-        #pos = 0
-        #if endpos is None:
-        #    endpos = len(text)
-        #d = {}
-        #while 1:
-        #    m = entityRE.search(text,pos,endpos)
-        #    if not m:
-        #        break
-        #    name,charcode,comment = m.groups()
-        #    d[name] = charcode,comment
-        #    pos = m.end()
-        #return d
-
         isfirst = 1
         reqbody = ""
         while insection:
@@ -654,9 +641,12 @@ class ReqBoxFileParser(object):
                 reqname = self.getfunname(tagitem)
                 reqstart = self.f.tell()
                 while inbody and insection:
-                    line = self.f.readline()
-                    loc += len(line)
-                    m = re.search(findstr, line)
+                    if isinstance(self.__class__, ReqBoxFileParser) or findstr is '^RFI.*':
+                        # This is a specific case for RFI, where it has the alias
+                        # duplicated, on the ng version it doesn't happen
+                        line = self.f.readline()
+                        loc += len(line)
+                        m = re.search(findstr, line)
                     ended = re.search("^Media\r\n", line)
                     if (m == None or (m != None and len(m.group(0)) > 9)) and (ended == None):
                         reqbody += line
