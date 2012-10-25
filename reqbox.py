@@ -275,6 +275,7 @@ def main(argv):
         rb.parsefunrnflinks("out-fun-rnf-links.csv")
     elif rb.parsefun and rb.parserverion == 2:
         rb.parseobjects("out-fun-objects-ng.csv", rb.model.fp.fundict, rb.model.fun_exporter_callback)
+        rb.model.removereqcontent()
         rb.parseobjects("out-rfi-objects-ng.csv", rb.model.fp.fundict, rb.model.rfi_exporter_callback)
         #rb.parsefunrfilinks("out-fun-rfi-links.csv")
         #rb.parsefunrfnlinks("out-fun-rfn-links.csv")

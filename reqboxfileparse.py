@@ -641,12 +641,19 @@ class ReqBoxFileParser(object):
                 reqname = self.getfunname(tagitem)
                 reqstart = self.f.tell()
                 while inbody and insection:
-                    if isinstance(self.__class__, ReqBoxFileParser) or findstr is '^RFI.*':
+                    if tag is 'RFI': # or isinstance(self.__class__, ReqBoxFileParser):
                         # This is a specific case for RFI, where it has the alias
                         # duplicated, on the ng version it doesn't happen
                         line = self.f.readline()
                         loc += len(line)
                         m = re.search(findstr, line)
+                    #else:
+                        # This is for consistency reasons, I'd rather load the tagitems
+                        # afterwards from the csv instead of being able to get
+                        # different names for the same requirement.
+                        #if isinstance(self.__class__, ReqBoxFileParser):
+                        #    reqname = ''
+                        #    pass
                     ended = re.search("^Media\r\n", line)
                     if (m == None or (m != None and len(m.group(0)) > 9)) and (ended == None): # if is not rfi clean fun
                         reqbody += line
