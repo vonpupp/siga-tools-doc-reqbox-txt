@@ -648,7 +648,7 @@ class ReqBoxFileParser(object):
                         loc += len(line)
                         m = re.search(findstr, line)
                     ended = re.search("^Media\r\n", line)
-                    if (m == None or (m != None and len(m.group(0)) > 9)) and (ended == None):
+                    if (m == None or (m != None and len(m.group(0)) > 9)) and (ended == None): # if is not rfi clean fun
                         reqbody += line
                     inbody = (m == None or (m != None and len(m.group(0)) == 8)) and (ended == None)
                     insection = loc < endloc
