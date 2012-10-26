@@ -167,7 +167,7 @@ class ReqBoxModelNG(model.ReqBoxModel):
     def builduniquernfdict(self):
         return self.loaduniquedict(self.uniquernf, self.fp.importsdir + 'in-rnf-objects.csv')
     
-    def objectsexporter(self, fh, d, exporter_callback):
+    def objectsexporter(self, fh, d, exportercallback):
         """
         Refactored method for exporting objects: FUN (UC), RFI, RFN, RNG, RNF
         """
@@ -179,7 +179,7 @@ class ReqBoxModelNG(model.ReqBoxModel):
             # d = self.fp.fundict[funstr].rfi
         for idx, reqstr in enumerate(sorted(d)):
             #r = d[reqstr].fun
-            r = exporter_callback(d, reqstr)
+            r = exportercallback(d, reqstr)
             reqid = r.reqid.decode('utf-8')
             reqname = ''
             if r.reqname is not None:

@@ -199,15 +199,15 @@ class ReqBox():
 
     def parsernffunlinks(self, fn):
         fh = open(fn, 'wb')
-        self.model.exporter_rnffunlinks(fh)
+        self.model.rnffunlinksexporter(fh)
         print "RNF-FUN links exported to:\t" + fn
 
     # NG PARSER METHODS    
         
-    def parseobjects(self, fn, d, exporter_callback):
+    def parseobjects(self, fn, d, exportercallback):
         fh = open(fn, 'wb')
         #fh = codecs.open(fn, encoding='utf-8', mode='w')
-        self.model.objectsexporter(fh, d, exporter_callback)
+        self.model.objectsexporter(fh, d, exportercallback)
         print "Objects exported to:\t" + fn    
         
 def main(argv):

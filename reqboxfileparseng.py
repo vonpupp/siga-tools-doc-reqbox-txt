@@ -176,7 +176,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
             #newfunstr = "%s. %s" % (newidx, funstr)
             #newfunstr = self.utf8(str(newidx) + ".\t") + funstr
             fieldterm = "\r\n"
-            if self.parsingasutf8_win_crlf():
+            if self.parsingasutf8wincrlf():
                 #newfunstr = newfunstr.decode('utf-8')
                 #newfunstr = self.utf8(newfunstr.upper())
                 #newfunstr = self.utf8("\n" + str(newidx) + ".\t") + funstr
@@ -193,7 +193,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                 #newfunstr = newfunstr.decode('utf-8').upper().encode('utf-8')
                 #newfunstr = newfunstr.upper()
                 #self.utf8(str(newfunstr.upper()))#.encode('utf-8')
-            elif self.parsingasutf8_win():
+            elif self.parsingasutf8win():
                 if isinstance(self.__class__, ReqBoxFileParser):
                     newfunstr = self.utf8(prefix + str(newidx) + ". ") # + funstr
                 else:
@@ -210,7 +210,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                 self.f.seek(beginloc)
                 line = self.f.readline()
                 #fieldsize = 85
-                #if self.parsingasutf8_win_crlf():
+                #if self.parsingasutf8wincrlf():
                 #    if len(line.strip()) > fieldsize:
                 #        print("-----------------------------------MULTILINE")
                 funid = self.getfunid(line)
@@ -381,12 +381,12 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
 def main(argv):
     rfp = ReqBoxFileParserNG()
     rfp.importsdir = './data/'
-    if rfp.parsingasutf8_win():# rfp.parsingasutf8_win():
+    if rfp.parsingasutf8win():# rfp.parsingasutf8win():
         #rfp.parsefile("./data/LRCv12-utf8-win.txt") # SAVE AS UTF-8 in Win!!
         #rfp.parsefile("./data/LRCv12-utf8-dow2unix-l.txt")
         #rfp.parsefile("./data/LRCv12-win.txt")
         rfp.parsefile("./data/LFv14.ms.default.txt")
-    elif self.parsingasutf8_win_crlf():
+    elif self.parsingasutf8wincrlf():
         #rfp = ReqBoxFileParser("./data/LRCv12-utf8-win.txt") # SAVE AS UTF-8 in Win!!
         #rfp = ReqBoxFileParser("./data/LRCv12-utf8-win-dos2unix.txt") # SAVE AS UTF-8 in Win!!
         rfp = ReqBoxFileParser("./data/LRCv12-utf8-crlf.txt") # SAVE AS UTF-8 in Win!!

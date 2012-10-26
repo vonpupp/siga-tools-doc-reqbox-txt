@@ -523,7 +523,7 @@ class ReqBoxModel():
                 print("Writing... rel-%s-%s" % (funalias, reqalias))
                 csvhdlr.writerow(row)
 
-    def exporter_rnffunlinks(self, fh):
+    def rnffunlinksexporter(self, fh):
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         csvhdlr.writerow(["SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Nao Funcionais (RNF)|Comum - Nao Funcionais (RNF)", "SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "Name"])
         

@@ -55,7 +55,7 @@ PARSETYPE = 'utf8-win'
 #PARSETYPE = 'utf8-win-crlf'
 
     
-def safe_unicode(obj, *args):
+def safeunicode(obj, *args):
     """ return the unicode representation of obj """
     try:
         return unicode(obj, *args)
@@ -64,7 +64,7 @@ def safe_unicode(obj, *args):
         ascii_text = str(obj).encode('string_escape')
         return unicode(ascii_text)
 
-def safe_str(obj):
+def safestr(obj):
     """ return the byte string representation of obj """
     try:
         return str(obj)
@@ -109,7 +109,7 @@ class ReqBoxFileParser(object):
         self.f = None
         pass
     
-    def get_f(self):
+    def getf(self):
         return self.f
     
     def utf8(self, s):
@@ -148,13 +148,13 @@ class ReqBoxFileParser(object):
     
     #---- internal support stuff
     
-    def parsingasutf8_win(self):
+    def parsingasutf8win(self):
         return PARSETYPE == 'utf8-win'
     
-    def parsingasutf8_win_crlf(self):
+    def parsingasutf8wincrlf(self):
         return PARSETYPE == 'utf8-win-crlf'
     
-    def __cleanfunfromindex_oo(self, s):
+    def cleanfunfromindexoo(self, s):
         """
         Returns a clean string from unwanted things at the index, ex:
         s = '183.Gerar Relatório de Arquivo de Retorno (Bancos)	67'
@@ -211,12 +211,12 @@ class ReqBoxFileParser(object):
         return result
     
     def __cleanfunfromindex(self, s):
-        if self.parsingasutf8_win_crlf():
+        if self.parsingasutf8wincrlf():
             return self.__cleanfunfromindex_msw(s)
-        elif self.parsingasutf8_win():
+        elif self.parsingasutf8win():
             return self.__cleanfunfromindex_utf8_win(s)
         else:
-            return self.__cleanfunfromindex_oo(s)
+            return self.cleanfunfromindexoo(s)
 
     def _cleanfunfrombody_oo(self, s):
         """
@@ -252,7 +252,7 @@ class ReqBoxFileParser(object):
         return result
     
     def _cleanfunfrombody(self, s):
-        if self.parsingasutf8_win_crlf():
+        if self.parsingasutf8wincrlf():
             return self._cleanfunfrombody_msw(s)
         else:
             return self._cleanfunfrombody_oo(s)
@@ -290,7 +290,7 @@ class ReqBoxFileParser(object):
         beginloc = self.f.find(begintag)
         # Find the position of the end tag
         endtag = "Lista Completa de Funcionalidades"
-        if self.parsingasutf8_win_crlf() or self.parsingasutf8_win():
+        if self.parsingasutf8wincrlf() or self.parsingasutf8win():
             endtag = endtag.upper() #"LISTA COMPLETA DE FUNCIONALIDADES"
         endtag = self.utf8(endtag)
         endloc = self.f.find(endtag, beginloc+1)
@@ -337,7 +337,7 @@ class ReqBoxFileParser(object):
             if line is not self.utf8("") and (line != b'\xe2\x80\x83'):
                 self.funlist += [line]
                 count += 1
-                #if self.parsingasutf8_win_crlf():
+                #if self.parsingasutf8wincrlf():
                 #    self.funlist += [line.decode('utf-8').upper().encode('utf-8')]
                 #else:
                 #    self.funlist += [line]
@@ -369,7 +369,7 @@ class ReqBoxFileParser(object):
             #newfunstr = "%s. %s" % (newidx, funstr)
             #newfunstr = self.utf8(str(newidx) + ".\t") + funstr
             fieldterm = "\r\n"
-            if self.parsingasutf8_win_crlf():
+            if self.parsingasutf8wincrlf():
                 #newfunstr = newfunstr.decode('utf-8')
                 #newfunstr = self.utf8(newfunstr.upper())
                 #newfunstr = self.utf8("\n" + str(newidx) + ".\t") + funstr
@@ -386,7 +386,7 @@ class ReqBoxFileParser(object):
                 #newfunstr = newfunstr.decode('utf-8').upper().encode('utf-8')
                 #newfunstr = newfunstr.upper()
                 #self.utf8(str(newfunstr.upper()))#.encode('utf-8')
-            elif self.parsingasutf8_win():
+            elif self.parsingasutf8win():
                 #newfunstr = self.utf8(fieldterm + prefix + str(newidx) + ". ") # + funstr
                 # This doesn't seems to be very elegant, but I don't see another way of doing it
                 # without overriding the whole method (which I prefeer not to do it)
@@ -406,7 +406,7 @@ class ReqBoxFileParser(object):
                 self.f.seek(beginloc)
                 line = self.f.readline()
                 fieldsize = 85
-                if self.parsingasutf8_win_crlf():
+                if self.parsingasutf8wincrlf():
                     if len(line.strip()) > fieldsize:
                         print("-----------------------------------MULTILINE")
                 funid = self.getfunid(line)
@@ -481,7 +481,7 @@ class ReqBoxFileParser(object):
         self.f.seek(beginloc)
         #self.vlog(VERB_MAX, "pos = %d" % (self.f.tell()))
         header = secstr
-        if self.parsingasutf8_win_crlf() or self.parsingasutf8_win():
+        if self.parsingasutf8wincrlf() or self.parsingasutf8win():
             #header = header.upper()
             #header = self.utf8(header.decode('utf-8').upper())
             header = header.decode('utf-8').upper().encode('utf-8')
@@ -723,12 +723,12 @@ class ReqBoxFileParser(object):
 
 def main(argv):
     rfp = ReqBoxFileParser()
-    if rfp.parsingasutf8_win():# rfp.parsingasutf8_win():
+    if rfp.parsingasutf8win():# rfp.parsingasutf8win():
         #rfp.parsefile("./data/LRCv12-utf8-win.txt") # SAVE AS UTF-8 in Win!!
         #rfp.parsefile("./data/LRCv12-utf8-dow2unix-l.txt")
         #rfp.parsefile("./data/LRCv12-win.txt")
         rfp.parsefile("./data/LRCv12.txt")
-    elif self.parsingasutf8_win_crlf():
+    elif self.parsingasutf8wincrlf():
         #rfp = ReqBoxFileParser("./data/LRCv12-utf8-win.txt") # SAVE AS UTF-8 in Win!!
         #rfp = ReqBoxFileParser("./data/LRCv12-utf8-win-dos2unix.txt") # SAVE AS UTF-8 in Win!!
         rfp = ReqBoxFileParser("./data/LRCv12-utf8-crlf.txt") # SAVE AS UTF-8 in Win!!
