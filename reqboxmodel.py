@@ -321,7 +321,7 @@ class ReqBoxModel():
             print("Writing...%s" % (r.reqid))
             csvhdlr.writerow(row)
 
-    def exporter_rnfobjects(self, fh):
+    def rnfobjectsexporter(self, fh):
         
         #if self.outfile != "":
         #    fh = open(self.outfile, 'wb')
@@ -352,7 +352,7 @@ class ReqBoxModel():
             print("Writing...%s" % (r.reqid))
             csvhdlr.writerow(row)
 
-    def exporter_rgnobjects(self, fh):
+    def rgnobjectsexporter(self, fh):
         
         #if self.outfile != "":
         #    fh = open(self.outfile, 'wb')
@@ -386,7 +386,7 @@ class ReqBoxModel():
     def uclabel(self, ucid):
         return "UC" + ucid.zfill(3)
     
-    def exporter_funobjects(self, fh):
+    def funobjectsexporter(self, fh):
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         csvhdlr.writerow(["Name", "Alias", "Type", "Notes", "Priority", "Author"])
         
@@ -404,7 +404,7 @@ class ReqBoxModel():
     def fixsecondlevelbullets(self):
         pass
     
-    def exporter_funrfilinks(self, fh):
+    def funrfilinksexporter(self, fh):
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         csvhdlr.writerow(["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)", "Name"])
         
@@ -421,7 +421,7 @@ class ReqBoxModel():
                 print("Writing... rel-%s-%s" % (funalias, reqalias))
                 csvhdlr.writerow(row)
 
-    def exporter_rfifunlinks(self, fh):
+    def rfifunlinksexporter(self, fh):
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         csvhdlr.writerow(["SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)", "SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "Name"])
         
@@ -438,7 +438,7 @@ class ReqBoxModel():
                 print("Writing... rel-%s-%s" % (reqalias, funalias))
                 csvhdlr.writerow(row)
 
-    def exporter_funrfnlinks(self, fh):
+    def funrfnlinksexporter(self, fh):
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         csvhdlr.writerow(["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais (RFN)|Comum - Requisitos Funcionais (RFN)", "Name"])
         
@@ -455,7 +455,7 @@ class ReqBoxModel():
                 print("Writing... rel-%s-%s" % (funalias, reqalias))
                 csvhdlr.writerow(row)
 
-    def exporter_rfnfunlinks(self, fh):
+    def rfnfunlinksexporter(self, fh):
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         csvhdlr.writerow(["SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais (RFN)|Comum - Requisitos Funcionais (RFN)", "SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "Name"])
         
@@ -472,7 +472,7 @@ class ReqBoxModel():
                 print("Writing... rel-%s-%s" % (reqalias, funalias))
                 csvhdlr.writerow(row)
 
-    def exporter_funrgnlinks(self, fh):
+    def funrgnlinksexporter(self, fh):
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         csvhdlr.writerow(["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Regras de Negocio (RGN)|Comum - Regras de Negocio (RGN)", "Name"])
         
@@ -489,7 +489,7 @@ class ReqBoxModel():
                 print("Writing... rel-%s-%s" % (funalias, reqalias))
                 csvhdlr.writerow(row)
 
-    def exporter_rgnfunlinks(self, fh):
+    def rgnfunlinksexporter(self, fh):
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         csvhdlr.writerow(["SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Regras de Negocio (RGN)|Comum - Regras de Negocio (RGN)", "SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "Name"])
         
@@ -506,7 +506,7 @@ class ReqBoxModel():
                 print("Writing... rel-%s-%s" % (reqalias, funalias))
                 csvhdlr.writerow(row)
 
-    def exporter_funrnflinks(self, fh):
+    def funrnflinksexporter(self, fh):
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         csvhdlr.writerow(["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Nao Funcionais (RNF)|Comum - Nao Funcionais (RNF)", "Name"])
         
@@ -556,20 +556,20 @@ def main(argv):
     
     rbm.builduniquernfdict()
     fh = open("rnf-objects.csv", 'wb')
-    rbm.exporter_rnfobjects(fh)
+    rbm.rnfobjectsexporter(fh)
 
     rbm.builduniquergndict()
     fh = open("rgn-objects.csv", 'wb')
-    rbm.exporter_rgnobjects(fh)
+    rbm.rgnobjectsexporter(fh)
     
     fh = open("fun-objects.csv", 'wb')
-    rbm.exporter_funobjects(fh)
+    rbm.funobjectsexporter(fh)
     
     fh = open("fun-rfi-relationships.csv", 'wb')
-    rbm.exporter_funrfilinks(fh)
+    rbm.funrfilinksexporter(fh)
     
     fh = open("rfi-fun-relationships.csv", 'wb')
-    rbm.exporter_rfifunlinks(fh)
+    rbm.rfifunlinksexporter(fh)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

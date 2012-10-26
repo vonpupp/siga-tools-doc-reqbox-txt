@@ -199,7 +199,7 @@ class ReqBoxModelNG(model.ReqBoxModel):
             print("Writing...%s [%s]" % (r.reqid, type(r.reqname)))
             csvhdlr.writerow(row)
     
-    def exporter_funrfilinks(self, fh):
+    def funrfilinksexporter(self, fh):
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         csvhdlr.writerow(["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)", "Name"])
         

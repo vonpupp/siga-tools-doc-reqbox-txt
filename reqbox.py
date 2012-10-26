@@ -136,7 +136,7 @@ class ReqBox():
 
     def parsefunobjects(self, fn):
         fh = open(fn, 'wb')
-        self.model.exporter_funobjects(fh)
+        self.model.funobjectsexporter(fh)
         print "FUN objects exported to:\t" + fn
         
     def parserfiobjects(self, fn):
@@ -153,48 +153,48 @@ class ReqBox():
     def parsernfobjects(self, fn):
         self.model.builduniquernfdict()
         fh = open(fn, 'wb')
-        self.model.exporter_rnfobjects(fh)
+        self.model.rnfobjectsexporter(fh)
         print "RFN objects exported to:\t" + fn
     
     def parsergnobjects(self, fn):
         self.model.builduniquergndict()
         fh = open(fn, 'wb')
-        self.model.exporter_rgnobjects(fh)
+        self.model.rgnobjectsexporter(fh)
         print "RNF objects exported to:\t" + fn
     
     def parsefunrfilinks(self, fn):
         fh = open(fn, 'wb')
-        self.model.exporter_funrfilinks(fh)
+        self.model.funrfilinksexporter(fh)
         print "FUN-RFI links exported to:\t" + fn
 
     def parserfifunlinks(self, fn):
         fh = open(fn, 'wb')
-        self.model.exporter_rfifunlinks(fh)
+        self.model.rfifunlinksexporter(fh)
         print "RFI-FUN links exported to:\t" + fn
 
     def parsefunrfnlinks(self, fn):
         fh = open(fn, 'wb')
-        self.model.exporter_funrfnlinks(fh)
+        self.model.funrfnlinksexporter(fh)
         print "FUN-RFN links exported to:\t" + fn
 
     def parserfnfunlinks(self, fn):
         fh = open(fn, 'wb')
-        self.model.exporter_rfnfunlinks(fh)
+        self.model.rfnfunlinksexporter(fh)
         print "RFN-FUN links exported to:\t" + fn
 
     def parsefunrgnlinks(self, fn):
         fh = open(fn, 'wb')
-        self.model.exporter_funrgnlinks(fh)
+        self.model.funrgnlinksexporter(fh)
         print "FUN-RGN links exported to:\t" + fn
 
     def parsergnfunlinks(self, fn):
         fh = open(fn, 'wb')
-        self.model.exporter_rgnfunlinks(fh)
+        self.model.rgnfunlinksexporter(fh)
         print "RGN-FUN links exported to:\t" + fn
 
     def parsefunrnflinks(self, fn):
         fh = open(fn, 'wb')
-        self.model.exporter_funrnflinks(fh)
+        self.model.funrnflinksexporter(fh)
         print "FUN-RNF links exported to:\t" + fn
 
     def parsernffunlinks(self, fn):
