@@ -208,7 +208,7 @@ class ReqBox():
         fh = open(fn, 'wb')
         #fh = codecs.open(fn, encoding='utf-8', mode='w')
         self.model.exporter_objects(fh, d, exporter_callback)
-        print "Objects exported to:\t" + fn
+        print "Objects exported to:\t" + fn    
         
 def main(argv):
     try:
@@ -275,9 +275,15 @@ def main(argv):
         rb.parsefunrnflinks("out-fun-rnf-links.csv")
     elif rb.parsefun and rb.parserverion == 2:
         rficount = rb.model.builduniquerfidict()
-        rb.parseobjects("out-fun-objects-ng.csv", rb.model.fp.fundict, rb.model.fun_exporter_callback)
+        rfncount = rb.model.builduniquerfndict()
+        rgncount = rb.model.builduniquergndict()
+        rnfcount = rb.model.builduniquernfdict()
+        rb.parseobjects("out-fun-objects-ng.csv", rb.model.fp.fundict, rb.model.funexportercallback)
+        rb.parseobjects("out-rfi-objects-ng.csv", rb.model.uniquerfi, rb.model.childexportercallback)
+        rb.parseobjects("out-rfn-objects-ng.csv", rb.model.uniquerfn, rb.model.childexportercallback)
+        rb.parseobjects("out-rgn-objects-ng.csv", rb.model.uniquergn, rb.model.childexportercallback)
+        rb.parseobjects("out-rnf-objects-ng.csv", rb.model.uniquernf, rb.model.childexportercallback)
         rb.model.removereqcontent()
-        rb.parseobjects("out-rfi-objects-ng.csv", rb.model.uniquerfi, rb.model.rfi_exporter_callback)
         #rb.parsefunrfilinks("out-fun-rfi-links.csv")
         #rb.parsefunrfnlinks("out-fun-rfn-links.csv")
         #rb.parsefunrgnlinks("out-fun-rgn-links.csv")

@@ -113,10 +113,10 @@ class ReqBoxModelNG(model.ReqBoxModel):
     Attributes:
     """
     
-    def fun_exporter_callback(self, d, reqstr):
+    def funexportercallback(self, d, reqstr):
         return d[reqstr].fun
         
-    def rfi_exporter_callback(self, d, reqstr):
+    def childexportercallback(self, d, reqstr):
         return d[reqstr]
     
     def exporter_objects(self, fh, d, exporter_callback):
@@ -132,17 +132,15 @@ class ReqBoxModelNG(model.ReqBoxModel):
         for idx, reqstr in enumerate(sorted(d)):
             #r = d[reqstr].fun
             r = exporter_callback(d, reqstr)
-            #reqstr = r.reqid + ". " + r.reqname
-            reqstr = r.reqname
-            #ureqstr = reqstr.decode('utf8')
-            #reqstr = reqstr.decode('unicode')
-            #reqstr = self.fp.utf8(reqstr) #.encode('utf-8')
-            #reqstr = reqstr.encode('unicode')
-            #reqstr = reqstr.encode('utf-8')
-            #row = [r.reqname, r.reqid, 'Requirement', r.reqbody, "Medium", "Albert De La Fuente"]
-            r.reqid = r.reqid.decode('utf-8')
+            reqid = r.reqid.decode('utf-8')
+            reqname = ''
+            if r.reqname is not None:
+                reqname = r.reqname.encode('utf-8')
+            reqbody = ''
+            if r.reqbody is not None:
+                reqbody = r.reqbody.encode('utf-8')
             #row = [r.reqname.encode('utf-8'), r.reqid.encode('utf-8')]
-            row = [reqstr.encode('utf-8'), r.reqid, 'Requirement', r.reqbody, "Medium", "Albert De La Fuente"]
+            row = [reqname, reqid, 'Requirement', reqbody, "Medium", "Albert De La Fuente"]
             
             #Name    Alias   Type    Notes   Priority        Author
             #RFI001. MANTER HOSPEDAGEM       RFI001. Requirement     "
@@ -182,12 +180,24 @@ class ReqBoxModelNG(model.ReqBoxModel):
         idx = 0
         for items in f:
             if items[1] is not '':
-                d[items[1].decode('utf-8')] = items[2].decode('utf-8')
+                r = model.ReqModel(items[1].decode('utf-8'),
+                                   items[0].decode('utf-8'), 0, 0)
+                r.reqbody = items[2].decode('utf-8')
+                d[items[1].decode('utf-8')] = r
                 idx += 1
         return idx
     
     def builduniquerfidict(self):
         return self.loaduniquedict(self.uniquerfi, self.fp.importsdir + 'in-rfi-objects.csv')
+
+    def builduniquerfndict(self):
+        return self.loaduniquedict(self.uniquerfn, self.fp.importsdir + 'in-rfn-objects.csv')
+
+    def builduniquergndict(self):
+        return self.loaduniquedict(self.uniquergn, self.fp.importsdir + 'in-rgn-objects.csv')
+
+    def builduniquernfdict(self):
+        return self.loaduniquedict(self.uniquernf, self.fp.importsdir + 'in-rnf-objects.csv')
     
     def remapbodies(self, d):
         pass
