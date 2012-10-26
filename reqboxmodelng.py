@@ -117,7 +117,7 @@ class ReqBoxModelNG(model.ReqBoxModel):
         return d[reqstr].fun
         
     def rfi_exporter_callback(self, d, reqstr):
-        return d[reqstr].fun
+        return d[reqstr]
     
     def exporter_objects(self, fh, d, exporter_callback):
         """
@@ -165,9 +165,29 @@ class ReqBoxModelNG(model.ReqBoxModel):
             self.removereqcontentdict(fun.rfn)
             self.removereqcontentdict(fun.rgn)
             self.removereqcontentdict(fun.rnf)
+   
+    def loaduniquedict(self, d, fname):
+        """
+        Loads a dict with ReqModel objects from a csv file
+        
+        Args:
+            d -- the dict to be filled
+            fname -- the csv file name to be parsed
+        """
+        fh = open(fname, 'rb')
+        f = csv.reader(fh, delimiter=',')
+        items = []
+        headers = f.next()
+        
+        idx = 0
+        for items in f:
+            if items[1] is not '':
+                d[items[1].decode('utf-8')] = items[2].decode('utf-8')
+                idx += 1
+        return idx
     
-    def loaduniquedict(self):
-        pass
+    def builduniquerfidict(self):
+        return self.loaduniquedict(self.uniquerfi, self.fp.importsdir + 'in-rfi-objects.csv')
     
     def remapbodies(self, d):
         pass
