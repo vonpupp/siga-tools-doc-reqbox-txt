@@ -118,38 +118,6 @@ class ReqBoxModelNG(model.ReqBoxModel):
         
     def childexportercallback(self, d, reqstr):
         return d[reqstr]
-    
-    def exporter_objects(self, fh, d, exporter_callback):
-        """
-        Refactored method for exporting objects: FUN (UC), RFI, RFN, RNG, RNF
-        """
-            
-        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
-        csvhdlr.writerow(["Name", "Alias", "Type", "Notes", "Priority", "Author", ])
-        
-        #for idx, funstr in enumerate(self.fp.funlist):
-            # d = self.fp.fundict[funstr].rfi
-        for idx, reqstr in enumerate(sorted(d)):
-            #r = d[reqstr].fun
-            r = exporter_callback(d, reqstr)
-            reqid = r.reqid.decode('utf-8')
-            reqname = ''
-            if r.reqname is not None:
-                reqname = r.reqname.encode('utf-8')
-            reqbody = ''
-            if r.reqbody is not None:
-                reqbody = r.reqbody.encode('utf-8')
-            #row = [r.reqname.encode('utf-8'), r.reqid.encode('utf-8')]
-            row = [reqname, reqid, 'Requirement', reqbody, "Medium", "Albert De La Fuente"]
-            
-            #Name    Alias   Type    Notes   Priority        Author
-            #RFI001. MANTER HOSPEDAGEM       RFI001. Requirement     "
-            #O sistema deve disponibilizar uma interface para incluir, alterar, excluir e consultar hospedagens, contemplando os seguintes atributos:
-            #* Código da hospedagem
-            #* ...
-            #"       Medium  Albert De La Fuente
-            print("Writing...%s [%s]" % (r.reqid, type(r.reqname)))
-            csvhdlr.writerow(row)
 
     def removereqcontentdict(self, d):
         for idx, reqstr in enumerate(sorted(d)):
@@ -199,6 +167,55 @@ class ReqBoxModelNG(model.ReqBoxModel):
     def builduniquernfdict(self):
         return self.loaduniquedict(self.uniquernf, self.fp.importsdir + 'in-rnf-objects.csv')
     
+    def objectsexporter(self, fh, d, exporter_callback):
+        """
+        Refactored method for exporting objects: FUN (UC), RFI, RFN, RNG, RNF
+        """
+        
+        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
+        csvhdlr.writerow(["Name", "Alias", "Type", "Notes", "Priority", "Author", ])
+        
+        #for idx, funstr in enumerate(self.fp.funlist):
+            # d = self.fp.fundict[funstr].rfi
+        for idx, reqstr in enumerate(sorted(d)):
+            #r = d[reqstr].fun
+            r = exporter_callback(d, reqstr)
+            reqid = r.reqid.decode('utf-8')
+            reqname = ''
+            if r.reqname is not None:
+                reqname = r.reqname.encode('utf-8')
+            reqbody = ''
+            if r.reqbody is not None:
+                reqbody = r.reqbody.encode('utf-8')
+            #row = [r.reqname.encode('utf-8'), r.reqid.encode('utf-8')]
+            row = [reqname, reqid, 'Requirement', reqbody, "Medium", "Albert De La Fuente"]
+            
+            #Name    Alias   Type    Notes   Priority        Author
+            #RFI001. MANTER HOSPEDAGEM       RFI001. Requirement     "
+            #O sistema deve disponibilizar uma interface para incluir, alterar, excluir e consultar hospedagens, contemplando os seguintes atributos:
+            #* Código da hospedagem
+            #* ...
+            #"       Medium  Albert De La Fuente
+            print("Writing...%s [%s]" % (r.reqid, type(r.reqname)))
+            csvhdlr.writerow(row)
+    
+    def exporter_funrfilinks(self, fh):
+        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
+        csvhdlr.writerow(["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)", "Name"])
+        
+        fd = self.fp.fundict
+        for i0, funstr in enumerate(self.fp.funlist):
+            fun = fd[funstr].fun
+            funalias = self.uclabel(fun.reqid) # "UC" + r.reqid.zfill(3)
+            
+            rd = fd[funstr].rfi
+            for i1, reqstr in enumerate(sorted(rd)):
+                reqalias = rd[reqstr].reqid
+                
+                row = [funalias, reqalias, "rel-%s-%s" % (funalias, reqalias)]
+                print("Writing... rel-%s-%s" % (funalias, reqalias))
+                csvhdlr.writerow(row)
+    
     def remapbodies(self, d):
         pass
 
@@ -207,35 +224,10 @@ class ReqBoxModelNG(model.ReqBoxModel):
         pass
 
 def main(argv):
-    rbm = model.ReqBoxModel(rfp.ReqBoxFileParserNG)
-    rbm.parsefile("./input/LRCv13-mod.utf8.fix.txt")
-    rbm.printf()
-    
-    rbm.fixsecondlevelbullets()
-    
-    fh = open("rfi-objects.csv", 'wb')
-    rbm.exporter_rfiobjects(fh)
-    
-    rbm.builduniquerfndict()
-    fh = open("rfn-objects.csv", 'wb')
-    rbm.exporter_rfnobjects(fh)
-    
-    rbm.builduniquernfdict()
-    fh = open("rnf-objects.csv", 'wb')
-    rbm.exporter_rnfobjects(fh)
-
-    rbm.builduniquergndict()
-    fh = open("rgn-objects.csv", 'wb')
-    rbm.exporter_rgnobjects(fh)
-    
-    fh = open("fun-objects.csv", 'wb')
-    rbm.exporter_funobjects(fh)
-    
-    fh = open("fun-rfi-relationships.csv", 'wb')
-    rbm.exporter_funrfilinks(fh)
-    
-    fh = open("rfi-fun-relationships.csv", 'wb')
-    rbm.exporter_rfifunlinks(fh)
+    #rbm = model.ReqBoxModel(rfp.ReqBoxFileParserNG)
+    #rbm.parsefile("./input/LRCv13-mod.utf8.fix.txt")
+    #rbm.printf()
+    pass
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

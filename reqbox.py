@@ -141,13 +141,13 @@ class ReqBox():
         
     def parserfiobjects(self, fn):
         fh = open(fn, 'wb')
-        self.model.exporter_rfiobjects(fh)
+        self.model.rfiobjectsexporter(fh)
         print "RFI objects exported to:\t" + fn
         
     def parserfnobjects(self, fn):
         self.model.builduniquerfndict()
         fh = open(fn, 'wb')
-        self.model.exporter_rfnobjects(fh)
+        self.model.rfnobjectsexporter(fh)
         print "RFN objects exported to:\t" + fn
 
     def parsernfobjects(self, fn):
@@ -207,7 +207,7 @@ class ReqBox():
     def parseobjects(self, fn, d, exporter_callback):
         fh = open(fn, 'wb')
         #fh = codecs.open(fn, encoding='utf-8', mode='w')
-        self.model.exporter_objects(fh, d, exporter_callback)
+        self.model.objectsexporter(fh, d, exporter_callback)
         print "Objects exported to:\t" + fn    
         
 def main(argv):

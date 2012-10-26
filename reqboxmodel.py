@@ -260,7 +260,7 @@ class ReqBoxModel():
                 else:
                     print("skipping %s" % (r.reqid))
 
-    def exporter_rfiobjects(self, fh):
+    def rfiobjectsexporter(self, fh):
         
         #if self.outfile != "":
         #    fh = open(self.outfile, 'wb')
@@ -290,7 +290,7 @@ class ReqBoxModel():
                 print("Writing...%s" % (r.reqid))
                 csvhdlr.writerow(row)
 
-    def exporter_rfnobjects(self, fh):
+    def rfnobjectsexporter(self, fh):
         
         #if self.outfile != "":
         #    fh = open(self.outfile, 'wb')
@@ -548,11 +548,11 @@ def main(argv):
     #rbm.fixsecondlevelbullets()
     
     fh = open("rfi-objects.csv", 'wb')
-    rbm.exporter_rfiobjects(fh)
+    rbm.rfiobjectsexporter(fh)
     
     rbm.builduniquerfndict()
     fh = open("rfn-objects.csv", 'wb')
-    rbm.exporter_rfnobjects(fh)
+    rbm.rfnobjectsexporter(fh)
     
     rbm.builduniquernfdict()
     fh = open("rnf-objects.csv", 'wb')
