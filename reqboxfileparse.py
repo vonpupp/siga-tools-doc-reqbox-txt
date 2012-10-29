@@ -627,7 +627,7 @@ class ReqBoxFileParser(object):
         self.vlog(VERB_MAX, "finding from %d... '%s'" % (loc, findstr))
         
         isfirst = 1
-        reqbody = ""
+        reqbody = "".decode('utf-8')
         while insection:
             line = self.f.readline()
             loc += len(line)
@@ -656,11 +656,12 @@ class ReqBoxFileParser(object):
                         #    pass
                     ended = re.search("^Media\r\n", line)
                     if (m == None or (m != None and len(m.group(0)) > 9)) and (ended == None): # if is not rfi clean fun
-                        reqbody += line
+                        reqbody += line.decode('latin1')
                     inbody = (m == None or (m != None and len(m.group(0)) == 8)) and (ended == None)
                     insection = loc < endloc
                 reqend = self.f.tell()
-                newreq = model.ReqModel(reqid, reqname, reqstart, reqend)
+                newreq = model.ReqModel(reqid.decode('utf-8'), reqname.decode('latin1'),
+                                        reqstart, reqend)
                 newreq.reqbody = reqbody
                 reqbody = ''
                 result[reqid] = newreq

@@ -164,7 +164,7 @@ class ReqBoxModelNG(model.ReqBoxModel):
             self.removereqcontentdict(fun.rgn)
             self.removereqcontentdict(fun.rnf)
    
-    def loaduniquedict(self, d, fname):
+    def loaduniquecsvdict(self, d, fname):
         """
         Loads a dict with ReqModel objects from a csv file
         
@@ -188,22 +188,23 @@ class ReqBoxModelNG(model.ReqBoxModel):
         return idx
     
     def builduniquerfidict(self):
-        #return self.loaduniquedict(self.uniquerfi, self.fp.importsdir + 'in-rfi-objects.csv')
+        #return self.loaduniquecsvdict(self.uniquerfi, self.fp.importsdir + 'in-rfi-objects.csv')
         for funstr in enumerate(sorted(self.fp.fundict)):
-            for rfistr in enumerate(self.fp.fundict[funstr].rfi):
-                rfi = self.fp.fundict[funstr].rfi[rfistr]
-                if rfistr not in self.uniquerfi:
-                    self.uniquerfi[rfistr] = rfi
+            d = self.fp.fundict[funstr[1]].rfi
+            for rfistr in enumerate(d):
+                rfi = self.fp.fundict[funstr[1]].rfi[rfistr[1]]
+                if rfistr[1] not in self.uniquerfi:
+                    self.uniquerfi[rfistr[1]] = rfi
             
 
     def builduniquerfndict(self):
-        return self.loaduniquedict(self.uniquerfn, self.fp.importsdir + 'in-rfn-objects.csv')
+        return self.loaduniquecsvdict(self.uniquerfn, self.fp.importsdir + 'in-rfn-objects.csv')
 
     def builduniquergndict(self):
-        return self.loaduniquedict(self.uniquergn, self.fp.importsdir + 'in-rgn-objects.csv')
+        return self.loaduniquecsvdict(self.uniquergn, self.fp.importsdir + 'in-rgn-objects.csv')
 
     def builduniquernfdict(self):
-        return self.loaduniquedict(self.uniquernf, self.fp.importsdir + 'in-rnf-objects.csv')
+        return self.loaduniquecsvdict(self.uniquernf, self.fp.importsdir + 'in-rnf-objects.csv')
     
     def funrfilinksexporter(self, fh):
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
