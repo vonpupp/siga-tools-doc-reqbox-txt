@@ -422,6 +422,7 @@ class ReqBoxFileParser(object):
                 r = model.FunModel(funid, funstr, beginloc, endloc)
                 r.fun.reqstart = beginloc
                 r.fun.reqend   = endloc
+                r.fun.fixreqname()
                 r.rfistart = self.funrfistart(funstr, beginloc, endloc)
                 r.rfnstart = self.funrfnstart(funstr, beginloc, endloc)
                 r.rnfstart = self.funrnfstart(funstr, beginloc, endloc)
@@ -663,6 +664,9 @@ class ReqBoxFileParser(object):
                 newreq = model.ReqModel(reqid.decode('utf-8'), reqname.decode('latin1'),
                                         reqstart, reqend)
                 newreq.reqbody = reqbody
+                # Format fixing
+                newreq.fixreqbody()
+                newreq.fixreqname()
                 reqbody = ''
                 result[reqid] = newreq
                 #self.vlog(VERB_MAX, "M IS TRUE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")

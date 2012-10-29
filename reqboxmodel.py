@@ -114,6 +114,18 @@ class ReqModel():
         self.reqbody = None
         self.reqstart = funstart
         self.reqend = funend
+        
+    def fixreqbody(self):
+        self.reqbody = self.reqbody.replace('\r\n\n\r\n','\r\n\r\n')
+        self.reqbody = self.reqbody.replace('\r\no ','\r\n  - ')
+        self.reqname = self.reqname.replace(u'\x96', u'-')
+        pass
+    
+    def fixreqname(self):
+        #tmp = self.reqname.replace(u'\xc296', u'-')
+        self.reqname = self.reqname.replace(u'\x96', u'-')
+        #
+        pass
     
 class FunModel():
     """ Functionalities model
