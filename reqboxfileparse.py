@@ -1,4 +1,4 @@
-#!/usr/bin/python3.1
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 #   Project:			SIGA
@@ -171,7 +171,7 @@ class ReqBoxFileParser(object):
             result = result.lstrip()
         return result
     
-    def __cleanfunfromindex_utf8_win(self, s):
+    def cleanfunfromindexutf8win(self, s):
         """
         Returns a clean string from unwanted things at the index, ex:
         s = '4.	Manter Plano de Contas Padrão	6'
@@ -187,7 +187,7 @@ class ReqBoxFileParser(object):
             result = result.strip()
         return result
     
-    def __cleanfunfromindex_msw(self, s):
+    def cleanfunfromindexmsw(self, s):
         """
         Returns a clean string from unwanted things at the index, ex:
         s = '183.Gerar Relatório de Arquivo de Retorno (Bancos)	67'
@@ -210,15 +210,15 @@ class ReqBoxFileParser(object):
             result = result.lstrip()
         return result
     
-    def __cleanfunfromindex(self, s):
+    def cleanfunfromindex(self, s):
         if self.parsingasutf8wincrlf():
-            return self.__cleanfunfromindex_msw(s)
+            return self.cleanfunfromindexmsw(s)
         elif self.parsingasutf8win():
-            return self.__cleanfunfromindex_utf8_win(s)
+            return self.cleanfunfromindexutf8win(s)
         else:
             return self.cleanfunfromindexoo(s)
 
-    def _cleanfunfrombody_oo(self, s):
+    def cleanfunfrombodyoo(self, s):
         """
         Returns a clean string from unwanted things at the body, ex:
         s = '183. Gerar Relatório de Arquivo de Retorno (Bancos)'
@@ -227,14 +227,14 @@ class ReqBoxFileParser(object):
         Args:
             s -- the string
         """
-        result = self.__cleanfunfromindex(s)
+        result = self.cleanfunfromindex(s)
         result = result.strip()
         #result = result.split("\n")[0]
         #if result is not "":
         #    result = result.split(".")[1]
         return result
 
-    def _cleanfunfrombody_msw(self, s):
+    def cleanfunfrombodymsw(self, s):
         """
         Returns a clean string from unwanted things at the body, ex:
         s = '183. Gerar Relatório de Arquivo de Retorno (Bancos)'
@@ -243,7 +243,7 @@ class ReqBoxFileParser(object):
         Args:
             s -- the string
         """
-        #result = self.__cleanfunfromindex(s)
+        #result = self.cleanfunfromindex(s)
         result = s.strip()
         #result = result.split("\n")[0]
         if result is not self.utf8(""):
@@ -251,11 +251,11 @@ class ReqBoxFileParser(object):
             result = result.split(self.utf8(".\t"))[1]
         return result
     
-    def _cleanfunfrombody(self, s):
+    def cleanfunfrombody(self, s):
         if self.parsingasutf8wincrlf():
-            return self._cleanfunfrombody_msw(s)
+            return self.cleanfunfrombodymsw(s)
         else:
-            return self._cleanfunfrombody_oo(s)
+            return self.cleanfunfrombodyoo(s)
 
     def getfunid(self, s):
         """
@@ -331,7 +331,7 @@ class ReqBoxFileParser(object):
             line = self.f.readline()
             loc = self.f.tell()
             self.vlog(VERB_MAX, "reading line '%s' bytes = %d" % (line, loc))
-            line = self.__cleanfunfromindex(line)
+            line = self.cleanfunfromindex(line)
             
             self.vlog(VERB_MAX, "cleaned line '%s'" % (line))
             if line is not self.utf8("") and (line != b'\xe2\x80\x83'):
@@ -410,7 +410,7 @@ class ReqBoxFileParser(object):
                     if len(line.strip()) > fieldsize:
                         print("-----------------------------------MULTILINE")
                 funid = self.getfunid(line)
-                line = self._cleanfunfrombody(line)
+                line = self.cleanfunfrombody(line)
                 self.vlog(VERB_MAX, "found from %d to %d out of %d | '%s. %s'" % (beginloc, endloc, finalloc, funid, line))
                 #self.fundict[funstr] = (beginloc, endloc, funid)
                 # I switched the dict keys from uppercase (body) to as they are

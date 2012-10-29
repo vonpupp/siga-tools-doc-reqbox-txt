@@ -1,4 +1,4 @@
-#!/usr/bin/python3.1
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 #   Project:			SIGA
@@ -214,7 +214,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                 #    if len(line.strip()) > fieldsize:
                 #        print("-----------------------------------MULTILINE")
                 funid = self.getfunid(line)
-                line = self._cleanfunfrombody(line)
+                line = self.cleanfunfrombody(line)
                 self.vlog(VERB_MAX, "found from %d to %d out of %d | '%s. %s'" % (beginloc, endloc, finalloc, funid, line))
                 # TODO: Assert: funstr == line.upper()
                 #csv = funstr.decode('utf-8')

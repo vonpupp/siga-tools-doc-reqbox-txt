@@ -119,6 +119,38 @@ class ReqBoxModelNG(model.ReqBoxModel):
     def childexportercallback(self, d, reqstr):
         return d[reqstr]
 
+    def objectsexporter(self, fh, d, exportercallback):
+        """
+        Refactored method for exporting objects: FUN (UC), RFI, RFN, RNG, RNF
+        """
+        
+        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
+        csvhdlr.writerow(["Name", "Alias", "Type", "Notes", "Priority", "Author", ])
+        
+        #for idx, funstr in enumerate(self.fp.funlist):
+            # d = self.fp.fundict[funstr].rfi
+        for idx, reqstr in enumerate(sorted(d)):
+            #r = d[reqstr].fun
+            r = exportercallback(d, reqstr)
+            reqid = r.reqid.decode('utf-8')
+            reqname = ''
+            if r.reqname is not None:
+                reqname = r.reqname.encode('utf-8')
+            reqbody = ''
+            if r.reqbody is not None:
+                reqbody = r.reqbody.encode('utf-8')
+            #row = [r.reqname.encode('utf-8'), r.reqid.encode('utf-8')]
+            row = [reqname, reqid, 'Requirement', reqbody, "Medium", "Albert De La Fuente"]
+            
+            #Name    Alias   Type    Notes   Priority        Author
+            #RFI001. MANTER HOSPEDAGEM       RFI001. Requirement     "
+            #O sistema deve disponibilizar uma interface para incluir, alterar, excluir e consultar hospedagens, contemplando os seguintes atributos:
+            #* Código da hospedagem
+            #* ...
+            #"       Medium  Albert De La Fuente
+            print("Writing...%s [%s]" % (r.reqid, type(r.reqname)))
+            csvhdlr.writerow(row)
+
     def removereqcontentdict(self, d):
         for idx, reqstr in enumerate(sorted(d)):
             req = d[reqstr]
@@ -156,7 +188,13 @@ class ReqBoxModelNG(model.ReqBoxModel):
         return idx
     
     def builduniquerfidict(self):
-        return self.loaduniquedict(self.uniquerfi, self.fp.importsdir + 'in-rfi-objects.csv')
+        #return self.loaduniquedict(self.uniquerfi, self.fp.importsdir + 'in-rfi-objects.csv')
+        for funstr in enumerate(sorted(self.fp.fundict)):
+            for rfistr in enumerate(self.fp.fundict[funstr].rfi):
+                rfi = self.fp.fundict[funstr].rfi[rfistr]
+                if rfistr not in self.uniquerfi:
+                    self.uniquerfi[rfistr] = rfi
+            
 
     def builduniquerfndict(self):
         return self.loaduniquedict(self.uniquerfn, self.fp.importsdir + 'in-rfn-objects.csv')
@@ -166,38 +204,6 @@ class ReqBoxModelNG(model.ReqBoxModel):
 
     def builduniquernfdict(self):
         return self.loaduniquedict(self.uniquernf, self.fp.importsdir + 'in-rnf-objects.csv')
-    
-    def objectsexporter(self, fh, d, exportercallback):
-        """
-        Refactored method for exporting objects: FUN (UC), RFI, RFN, RNG, RNF
-        """
-        
-        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
-        csvhdlr.writerow(["Name", "Alias", "Type", "Notes", "Priority", "Author", ])
-        
-        #for idx, funstr in enumerate(self.fp.funlist):
-            # d = self.fp.fundict[funstr].rfi
-        for idx, reqstr in enumerate(sorted(d)):
-            #r = d[reqstr].fun
-            r = exportercallback(d, reqstr)
-            reqid = r.reqid.decode('utf-8')
-            reqname = ''
-            if r.reqname is not None:
-                reqname = r.reqname.encode('utf-8')
-            reqbody = ''
-            if r.reqbody is not None:
-                reqbody = r.reqbody.encode('utf-8')
-            #row = [r.reqname.encode('utf-8'), r.reqid.encode('utf-8')]
-            row = [reqname, reqid, 'Requirement', reqbody, "Medium", "Albert De La Fuente"]
-            
-            #Name    Alias   Type    Notes   Priority        Author
-            #RFI001. MANTER HOSPEDAGEM       RFI001. Requirement     "
-            #O sistema deve disponibilizar uma interface para incluir, alterar, excluir e consultar hospedagens, contemplando os seguintes atributos:
-            #* Código da hospedagem
-            #* ...
-            #"       Medium  Albert De La Fuente
-            print("Writing...%s [%s]" % (r.reqid, type(r.reqname)))
-            csvhdlr.writerow(row)
     
     def funrfilinksexporter(self, fh):
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
