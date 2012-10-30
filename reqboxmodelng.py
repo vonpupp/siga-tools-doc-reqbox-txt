@@ -206,22 +206,51 @@ class ReqBoxModelNG(model.ReqBoxModel):
     def builduniquernfdict(self):
         return self.loaduniquecsvdict(self.uniquernf, self.fp.importsdir + 'in-rnf-objects.csv')
     
-    def funrfilinksexporter(self, fh):
+#    def funexportercallback(self, d, reqstr):
+#        return d[reqstr].fun
+        
+    def exportrfilinksdictcallback(self, d, reqstr):
+        return d[reqstr].rfi
+    
+    def exportlinks(self, fname, rd, direction, header, dictcallback):
+        fh = open(fname, 'wb')
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
-        csvhdlr.writerow(["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)", "Name"])
+        #csvhdlr.writerow(["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)", "Name"])
+        csvhdlr.writerow(header[0], header[1], header[2])
         
         fd = self.fp.fundict
         for i0, funstr in enumerate(self.fp.funlist):
             fun = fd[funstr].fun
             funalias = self.uclabel(fun.reqid) # "UC" + r.reqid.zfill(3)
             
-            rd = fd[funstr].rfi
+            #rd = fd[funstr].rfi
+            r = dictcallback(rd, funstr)
             for i1, reqstr in enumerate(sorted(rd)):
                 reqalias = rd[reqstr].reqid
                 
-                row = [funalias, reqalias, "rel-%s-%s" % (funalias, reqalias)]
+                if direction != 1:
+                    row = [funalias, reqalias, "rel-%s-%s" % (funalias, reqalias)]
+                else:
+                    row = [reqalias, funalias, "rel-%s-%s" % (reqalias, funalias)]
                 print("Writing... rel-%s-%s" % (funalias, reqalias))
                 csvhdlr.writerow(row)
+                
+    #def rfifunlinksexporter(self, fh):
+    #    csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
+    #    csvhdlr.writerow(["SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)", "SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "Name"])
+    #    
+    #    fd = self.fp.fundict
+    #    for i0, funstr in enumerate(self.fp.funlist):
+    #        fun = fd[funstr].fun
+    #        funalias = self.uclabel(fun.reqid) # "UC" + r.reqid.zfill(3)
+    #        
+    #        rd = fd[funstr].rfi
+    #        for i1, reqstr in enumerate(sorted(rd)):
+    #            reqalias = rd[reqstr].reqid
+    #            
+    #            row = [reqalias, funalias, "rel-%s-%s" % (reqalias, funalias)]
+    #            print("Writing... rel-%s-%s" % (reqalias, funalias))
+    #            csvhdlr.writerow(row)
     
     def remapbodies(self, d):
         pass

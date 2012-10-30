@@ -21,8 +21,8 @@
 #   Author:			Albert De La Fuente (www.albertdelafuente.com)
 #   E-Mail:			http://www.google.com/recaptcha/mailhide/d?k=01eb_9W_IYJ4Pm_Y9ALRIPug==&c=L15IEH_kstH8WRWfqnRyeW4IDQuZPzNDRB0KCzMTbHQ=
 #
-#   Description:		This script will parse a full hierarchy from a path
-#        and build a csv representing the wireframes from the project
+#   Description:		This script will create EA importable files
+#                               from .txt (.doc) and .csv (.xls) requirements files
 #
 #   Limitations:		Error handling is correctly implemented, time constraints
 #	The code is not clean and elegant as it should, again, time constraints
@@ -42,31 +42,20 @@
 
     Options:
         -h, --help                          Print this help and exit.
-        -l, --list <level>                  Prints items in that level
+        -a, --export-all                    Parse all
+        --parse-v1 / --parse-v2             Prints items in that level
         
     Examples:
-        reqbox.py --list-fun *
-                                            Output: (Level 1)
-                                            - 001 Manter Tipo de Verificacao de Item de Checklist
-                                            - 002 Manter Carta de Convocacao / Comunicado
-                                            - 003 Manter Remessa de Cartao de Identificacao
-        reqbox.py --list-fun * list RFI *
-                                            Output: (Level 2)
-                                            - 001 Manter Tipo de Verificacao de Item de Checklist
-                                                - RFI234. Manter tipo de verifica??o de item de checklist
-                                            - 002 Manter Carta de Convocacao / Comunicado
-                                            - 003 Manter Remessa de Cartao de Identificacao
-        reqbox.py --list RFI *
-                                            Output: (Level 2)
-                                            - 001 Manter Tipo de Verificacao de Item de Checklist
-                                                - RFI234. Manter tipo de verifica??o de item de checklist
-                                            - 002 Manter Carta de Convocacao / Comunicado
-                                            - 003 Manter Remessa de Cartao de Identificacao
-
-        reqbox.py --list RFN
-        reqbox.py --list RNF
-        reqbox.py --list RNG
-        reqbox.py --list WRF
+        reqbox.py -a --parse-v2 ./data/LFv14.ms.default.fixed.txt
+        
+    Note:
+        Please note that the csv files dir is hardcoded into the application
+        to make command line arguments easier.
+        
+        The csv files are:
+            - in-rfn-objects.csv
+            - in-rgn-objects.csv
+            - in-rnf-objects.csv
 """
 
 from collections import defaultdict
@@ -204,7 +193,7 @@ class ReqBox():
 
     # NG PARSER METHODS    
         
-    def parseobjects(self, fn, d, exportercallback):
+    def exportobjects(self, fn, d, exportercallback):
         fh = open(fn, 'wb')
         #fh = codecs.open(fn, encoding='utf-8', mode='w')
         self.model.objectsexporter(fh, d, exportercallback)
@@ -274,15 +263,14 @@ def main(argv):
         rb.parsefunrgnlinks("out-fun-rgn-links.csv")
         rb.parsefunrnflinks("out-fun-rnf-links.csv")
     elif rb.parsefun and rb.parserverion == 2:
-        rficount = rb.model.builduniquerfidict()
+        rb.exportobjects("out-fun-objects-ng.csv", rb.model.fp.fundict, rb.model.funexportercallback)
+        
         rfncount = rb.model.builduniquerfndict()
         rgncount = rb.model.builduniquergndict()
         rnfcount = rb.model.builduniquernfdict()
-        rb.parseobjects("out-fun-objects-ng.csv", rb.model.fp.fundict, rb.model.funexportercallback)
-        rb.parseobjects("out-rfi-objects-ng.csv", rb.model.uniquerfi, rb.model.childexportercallback)
-        rb.parseobjects("out-rfn-objects-ng.csv", rb.model.uniquerfn, rb.model.childexportercallback)
-        rb.parseobjects("out-rgn-objects-ng.csv", rb.model.uniquergn, rb.model.childexportercallback)
-        rb.parseobjects("out-rnf-objects-ng.csv", rb.model.uniquernf, rb.model.childexportercallback)
+        rb.exportobjects("out-rfn-objects-ng.csv", rb.model.uniquerfn, rb.model.childexportercallback)
+        rb.exportobjects("out-rgn-objects-ng.csv", rb.model.uniquergn, rb.model.childexportercallback)
+        rb.exportobjects("out-rnf-objects-ng.csv", rb.model.uniquernf, rb.model.childexportercallback)
         rb.model.removereqcontent()
         #rb.parsefunrfilinks("out-fun-rfi-links.csv")
         #rb.parsefunrfnlinks("out-fun-rfn-links.csv")
@@ -292,6 +280,16 @@ def main(argv):
     if rb.parserfi and rb.parserverion == 1:
         rb.parserfiobjects("out-rfi-objects.csv")
         rb.parserfifunlinks("out-rfi-fun-links.csv")
+    elif rb.parserfi and rb.parserverion == 2:
+        rficount = rb.model.builduniquerfidict()
+        rb.exportobjects("out-rfi-objects-ng.csv", rb.model.uniquerfi, rb.model.childexportercallback)
+        header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
+                  "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)",
+                  "Name"]
+        rb.exportlinks("fun-rfi-relationships-ng.csv", rb.model.uniquerfi, 1,
+                       header, exportrfilinksdictcallback)
+        rb.exportlinks("rfi-fun-relationships-ng.csv", rb.model.uniquerfi, -1,
+                       header, exportrfilinksdictcallback)
     
     if rb.parserfn and rb.parserverion == 1:
         rb.parserfnobjects("out-rfn-objects.csv")
