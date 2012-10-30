@@ -210,25 +210,25 @@ class ReqBoxModelNG(model.ReqBoxModel):
 #        return d[reqstr].fun
         
     def exportrfilinksdictcallback(self, d, reqstr):
-        return d[reqstr].rfi
+        return d.rfi
     
-    def exportlinks(self, fname, rd, direction, header, dictcallback):
+    def exportlinks(self, fname, direction, header, dictcallback):
         fh = open(fname, 'wb')
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         #csvhdlr.writerow(["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)", "Name"])
-        csvhdlr.writerow(header[0], header[1], header[2])
+        csvhdlr.writerow(header)
         
         fd = self.fp.fundict
-        for i0, funstr in enumerate(self.fp.funlist):
-            fun = fd[funstr].fun
-            funalias = self.uclabel(fun.reqid) # "UC" + r.reqid.zfill(3)
+        for i0, funstr in enumerate(sorted(fd)):
+            fun = fd[funstr]
+            funalias = fun.fun.reqid # "UC" + r.reqid.zfill(3)
             
             #rd = fd[funstr].rfi
-            r = dictcallback(rd, funstr)
+            rd = dictcallback(fun, funstr)
             for i1, reqstr in enumerate(sorted(rd)):
                 reqalias = rd[reqstr].reqid
                 
-                if direction != 1:
+                if direction == 1:
                     row = [funalias, reqalias, "rel-%s-%s" % (funalias, reqalias)]
                 else:
                     row = [reqalias, funalias, "rel-%s-%s" % (reqalias, funalias)]

@@ -197,7 +197,10 @@ class ReqBox():
         fh = open(fn, 'wb')
         #fh = codecs.open(fn, encoding='utf-8', mode='w')
         self.model.objectsexporter(fh, d, exportercallback)
-        print "Objects exported to:\t" + fn    
+        print "Objects exported to:\t" + fn
+        
+    def exportlinks(self, fname, direction, header, dictcallback):
+        return self.model.exportlinks(fname, direction, header, dictcallback)
         
 def main(argv):
     try:
@@ -286,10 +289,10 @@ def main(argv):
         header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
                   "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)",
                   "Name"]
-        rb.exportlinks("fun-rfi-relationships-ng.csv", rb.model.uniquerfi, 1,
-                       header, exportrfilinksdictcallback)
-        rb.exportlinks("rfi-fun-relationships-ng.csv", rb.model.uniquerfi, -1,
-                       header, exportrfilinksdictcallback)
+        rb.exportlinks("fun-rfi-relationships-ng.csv", 1,
+                       header, rb.model.exportrfilinksdictcallback)
+        rb.exportlinks("rfi-fun-relationships-ng.csv", -1,
+                       header, rb.model.exportrfilinksdictcallback)
     
     if rb.parserfn and rb.parserverion == 1:
         rb.parserfnobjects("out-rfn-objects.csv")
