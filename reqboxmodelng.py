@@ -212,6 +212,15 @@ class ReqBoxModelNG(model.ReqBoxModel):
     def exportrfilinksdictcallback(self, d, reqstr):
         return d.rfi
     
+    def exportrfnlinksdictcallback(self, d, reqstr):
+        return d.rfn
+    
+    def exportrgnlinksdictcallback(self, d, reqstr):
+        return d.rgn
+    
+    def exportrnflinksdictcallback(self, d, reqstr):
+        return d.rnf
+    
     def exportlinks(self, fname, direction, header, dictcallback):
         fh = open(fname, 'wb')
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
@@ -230,9 +239,11 @@ class ReqBoxModelNG(model.ReqBoxModel):
                 
                 if direction == 1:
                     row = [funalias, reqalias, "rel-%s-%s" % (funalias, reqalias)]
+                    print("Writing... rel-%s-%s" % (funalias, reqalias))
                 else:
                     row = [reqalias, funalias, "rel-%s-%s" % (reqalias, funalias)]
-                print("Writing... rel-%s-%s" % (funalias, reqalias))
+                    print("Writing... rel-%s-%s" % (reqalias, funalias))
+                
                 csvhdlr.writerow(row)
                 
     #def rfifunlinksexporter(self, fh):
