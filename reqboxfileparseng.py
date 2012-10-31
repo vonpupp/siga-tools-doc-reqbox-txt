@@ -105,7 +105,10 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
         #        column[header].append(value)
         idx = 0
         for line in f:
-            self.funlist += [line[0].decode('utf-8')] # .decode('utf-8')
+            beforenu = line[0]
+            before = line[0].decode('utf-8')
+            after = model.fixmschr(line[0].decode('utf-8'))
+            self.funlist += [model.fixmschr(line[0].decode('utf-8'))] # .decode('utf-8')
             idx += 1
             
         self.vlog(VERB_MED, "<- %s" % __name__)

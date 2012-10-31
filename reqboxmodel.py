@@ -92,6 +92,14 @@ VERB_MIN = 1
 VERB_MED = 2
 VERB_MAX = 3
 
+def fixmschr(s):
+    s = s.replace('\r\n\n\r\n','\r\n\r\n')
+    s = s.replace('\r\no ','\r\n  - ')
+    s = s.replace(u'\x96', u'-')
+    s = s.replace(u'–', u'-')
+    s = s.replace(u'\xe2\x80\x93', u'-')
+    return s
+
 class ReqModel():
     """ Functionalities model
     Attributes:
@@ -116,16 +124,19 @@ class ReqModel():
         self.reqend = funend
         
     def fixreqbody(self):
-        self.reqbody = self.reqbody.replace('\r\n\n\r\n','\r\n\r\n')
-        self.reqbody = self.reqbody.replace('\r\no ','\r\n  - ')
-        self.reqname = self.reqname.replace(u'\x96', u'-')
-        pass
+        self.reqbody = fixmschr(self.reqbody)
+        #self.reqbody = self.reqbody.replace('\r\n\n\r\n','\r\n\r\n')
+        #self.reqbody = self.reqbody.replace('\r\no ','\r\n  - ')
+        #self.reqname = self.reqname.replace(u'\x96', u'-')
+        #pass
     
     def fixreqname(self):
+        self.reqname = fixmschr(self.reqname)
         #tmp = self.reqname.replace(u'\xc296', u'-')
-        self.reqname = self.reqname.replace(u'\x96', u'-')
+        #self.reqname = self.reqname.replace(u'\x96', u'-')
+        #self.reqname = self.reqname.replace(u'\xe2\x80\x93', u'-')
         #
-        pass
+        #pass
     
 class FunModel():
     """ Functionalities model
