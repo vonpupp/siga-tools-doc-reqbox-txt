@@ -436,18 +436,18 @@ class ReqBoxFileParser(object):
                 r.rnfend   = self.funsecend(funstr, r.rnfstart, startmarkups)
                 r.rgnend   = self.funsecend(funstr, r.rgnstart, startmarkups)
                 #self.vlog(VERB_MED, "%s" % (self.printfun(funidx+1, funname)))
-    #            self.fun[funname].rfi = self.fp.gettagdic(funname, 'RFI')
+    #            self.fun[funname].rfi = self.fp.gettagdict(funname, 'RFI')
                 
                 self.fundict[funstr] = r #(beginloc, endloc, funid)
                 
                 if r.rfistart != -1:
-                    r.rfi = self.gettagdic(funstr, 'RFI', r.rfistart, r.rfiend)
+                    r.rfi = self.gettagdict(funstr, 'RFI', r.rfistart, r.rfiend)
                 if r.rfnstart != -1:
-                    r.rfn = self.gettagdic(funstr, 'RFN', r.rfnstart, r.rfnend)
+                    r.rfn = self.gettagdict(funstr, 'RFN', r.rfnstart, r.rfnend)
                 if r.rnfstart != -1:
-                    r.rnf = self.gettagdic(funstr, 'RNF', r.rnfstart, r.rnfend)
+                    r.rnf = self.gettagdict(funstr, 'RNF', r.rnfstart, r.rnfend)
                 if r.rgnstart != -1:
-                    r.rgn = self.gettagdic(funstr, 'RGN', r.rgnstart, r.rgnend)
+                    r.rgn = self.gettagdict(funstr, 'RGN', r.rgnstart, r.rgnend)
                 
                 self.f.seek(currentpos)
                 
@@ -606,7 +606,7 @@ class ReqBoxFileParser(object):
         funid = self.fundict[funstr][2]
         return "%s. %s" % (funid, funstr)
 
-    def gettagdic(self, funstr, tag, start, end):
+    def gettagdict(self, funstr, tag, start, end):
         if start != 0:
             beginloc = start
         else:
@@ -704,7 +704,7 @@ class ReqBoxFileParser(object):
             result = "FUN %s: '%s' [%d | %d]\n" % (funid, funname, beginloc, endloc)
             if self.funrfistart(funstr) != -1:
                 result = result + "RFIs\n"
-                #rfidict = self.gettagdic(funstr, 'RFI')
+                #rfidict = self.gettagdict(funstr, 'RFI')
             #if self.funhasrfn(funstr):
             #    result = result + "RFNs\n"
             #if self.funhasrnf(funstr):

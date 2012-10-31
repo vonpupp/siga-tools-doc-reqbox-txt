@@ -147,10 +147,9 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
         header = "RELACIONAMENTOS"
         return self.funhassection(funstr, header, start, end)
        
-    def getobjectlist(self, prefix):
+    def getfunloc(self, prefix):
         """
-        Fills the fundict property with a dict where each element is indexed
-        by the fun name and each value is an object from the model
+        Fills the objectlist property with the start and end file locations (bytes)
         """
         self.vlog(VERB_MED, "-> getfundict()")
         self.fundict = {}
@@ -250,9 +249,9 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                 pass
         
         self.vlog(VERB_MED, "<- getfundict()")
-    
+       
     def getfundict(self):
-        self.getobjectlist(". ")
+        self.getfunloc(". ")
         self.objectlist.sort(key = operator.attrgetter('fun.reqstart'))
         # Fill the endloc property with the next beginloc
         nextbeginloc = 0
@@ -288,16 +287,95 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
             
             if r.rfistart != -1:
                 # NG parser uses reqid for indexing instead of reqname
-                r.rfi = self.gettagdic(r.fun.reqid, 'RFI', r.rfistart, r.rfiend)
+                r.rfi = self.gettagdict(r.fun.reqid, 'RFI', r.rfistart, r.rfiend)
             if r.rfnstart != -1:
-                r.rfn = self.gettagdic(r.fun.reqid, 'RFN', r.rfnstart, r.rfnend)
+                r.rfn = self.gettagdict(r.fun.reqid, 'RFN', r.rfnstart, r.rfnend)
             if r.rnfstart != -1:
-                r.rnf = self.gettagdic(r.fun.reqid, 'RNF', r.rnfstart, r.rnfend)
+                r.rnf = self.gettagdict(r.fun.reqid, 'RNF', r.rnfstart, r.rnfend)
             if r.rgnstart != -1:
-                r.rgn = self.gettagdic(r.fun.reqid, 'RGN', r.rgnstart, r.rgnend)
+                r.rgn = self.gettagdict(r.fun.reqid, 'RGN', r.rgnstart, r.rgnend)
+            if r.relstart != -1:
+                r.extends = self.getreldict(r.fun.reqid, 'EXTENDS ', r.relstart, r.relend)
+            if r.relstart != -1:
+                r.implements = self.getreldict(r.fun.reqid, 'IMPLEMENTS ', r.relstart, r.relend)
         pass
     
-    #def gettagdic(self, funstr, tag, start, end):
+    def getreldict(self, funstr, tag, start, end):
+        if start != 0:
+            beginloc = start
+        else:
+            beginloc = self.funstart(funstr)
+        if end != 0:
+            endloc = end
+        else:
+            endloc = self.funend(funstr)
+        #funid = self.funid(funstr)
+        #funidstr = self.funidname(funstr)
+        self.f.seek(beginloc)
+        loc = beginloc #self.f.tell()
+        
+        insection = 1
+        findstr = "^" + tag + ".*"
+        expr = re.compile(findstr)
+        findstr = self.utf8(findstr)
+        result = {}
+        self.vlog(VERB_MAX, "finding from %d... '%s'" % (loc, findstr))
+        
+        isfirst = 1
+        reqbody = "".decode('utf-8')
+        while insection:
+            line = self.f.readline()
+            loc += len(line)
+            #self.search_file(findstr, beginloc, endloc)   
+            m = re.search(findstr, line)#, beginloc, endloc)
+            #print("found error", m.)
+            if m and len(m.group(0)) > 9:
+                inbody = 1
+                tagitem = m.group(0)#[:6]
+                reqid = self.getfunid(tagitem)
+                reqname = self.getfunname(tagitem)
+                reqstart = self.f.tell()
+                while inbody and insection:
+                    ended = re.search("^Media\r\n", line)
+                    if (m == None or (m != None and len(m.group(0)) > 9)) and (ended == None): # if is not rfi clean fun
+                        reqbody += line.decode('latin1')
+                    inbody = (m == None or (m != None and len(m.group(0)) == 8)) and (ended == None)
+                    insection = loc < endloc
+                reqend = self.f.tell()
+                reqid = reqid.split(tag)[1][1:]
+                #newreq = model.ReqModel(reqid.decode('utf-8'), reqname.decode('latin1'),
+                #                        reqstart, reqend)
+                #newreq.reqbody = reqbody
+                ## Format fixing
+                #newreq.fixreqbody()
+                #newreq.fixreqname()
+                #reqbody = ''
+                #link = None
+                #if reqid in self.fundict:
+                #    link = self.fundict[reqid]
+                # At this point there are no links yet since UC objects are not
+                # fully parsed yet.
+                # TODO: Post-link them
+                result[reqid] = None 
+                #self.vlog(VERB_MAX, "M IS TRUE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                #print()
+                #resultdict[] = 
+                
+                #print("found error", m.group(1))
+            #loc = self.f.find(findstr, loc, endloc)
+            self.f.seek(loc)
+            insection = loc < endloc
+            #self.vlog(VERB_MAX, "line: '%s'" % (line))
+            #if cond:
+            #    line = self.f.readline()
+            #    if line:
+            #        self.vlog(VERB_MAX, "found on location %d | '%s'" % (m.start(), m.group()))
+            #    pass
+        return result
+        pass
+
+    
+    #def gettagdict(self, funstr, tag, start, end):
     #    if start != 0:
     #        beginloc = start
     #    else:
