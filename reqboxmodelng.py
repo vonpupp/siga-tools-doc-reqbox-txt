@@ -221,7 +221,7 @@ class ReqBoxModelNG(model.ReqBoxModel):
     def exportrnflinksdictcallback(self, d, reqstr):
         return d.rnf
     
-    def exportlinks(self, fname, direction, header, dictcallback):
+    def exportlinks(self, fname, direction, header, dictcallback, linktype):
         fh = open(fname, 'wb')
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         #csvhdlr.writerow(["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)", "Name"])
@@ -238,10 +238,12 @@ class ReqBoxModelNG(model.ReqBoxModel):
                 reqalias = rd[reqstr].reqid
                 
                 if direction == 1:
-                    row = [funalias, reqalias, "rel-%s-%s" % (funalias, reqalias)]
+                    row = [funalias, reqalias, "rel-%s-%s" % (funalias, reqalias),
+                           linktype]
                     print("Writing... rel-%s-%s" % (funalias, reqalias))
                 else:
-                    row = [reqalias, funalias, "rel-%s-%s" % (reqalias, funalias)]
+                    row = [reqalias, funalias, "rel-%s-%s" % (reqalias, funalias),
+                           linktype]
                     print("Writing... rel-%s-%s" % (reqalias, funalias))
                 
                 csvhdlr.writerow(row)

@@ -199,8 +199,9 @@ class ReqBox():
         self.model.objectsexporter(fh, d, exportercallback)
         print "Objects exported to:\t" + fn
         
-    def exportlinks(self, fname, direction, header, dictcallback):
-        return self.model.exportlinks(fname, direction, header, dictcallback)
+    def exportlinks(self, fname, direction, header, dictcallback, linktype):
+        return self.model.exportlinks(fname, direction, header, dictcallback,
+                                      linktype)
         
 def main(argv):
     try:
@@ -281,12 +282,12 @@ def main(argv):
         rb.exportobjects("out2-obj-rfi.csv", rb.model.uniquerfi, rb.model.childexportercallback)
         header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
                   "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)",
-                  "Name"]
+                  "Name", "Type"]
         rb.exportlinks("out2-rel-fun-rfi.csv", 1,
-                       header, rb.model.exportrfilinksdictcallback)
+                       header, rb.model.exportrfilinksdictcallback, "Realization")
         rb.exportlinks("out2-rel-rfi-fun.csv", -1,
                        [header[1], header[0], header[2]],
-                       rb.model.exportrfilinksdictcallback)
+                       rb.model.exportrfilinksdictcallback, "Realization")
     
     if rb.parserfn and rb.parserverion == 1:
         rb.parserfnobjects("out-rfn-objects.csv")
@@ -296,12 +297,12 @@ def main(argv):
         rb.exportobjects("out2-obj-rfn.csv", rb.model.uniquerfn, rb.model.childexportercallback)
         header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
                   "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais (RFN)|Comum - Requisitos Funcionais (RFN)",
-                  "Name"]
+                  "Name", "Type"]
         rb.exportlinks("out2-rel-fun-rfn.csv", 1,
-                       header, rb.model.exportrfnlinksdictcallback)
+                       header, rb.model.exportrfnlinksdictcallback, "Realization")
         rb.exportlinks("out2-rel-rfn-fun.csv", -1,
                        [header[1], header[0], header[2]],
-                       rb.model.exportrfnlinksdictcallback)
+                       rb.model.exportrfnlinksdictcallback, "Realization")
 
     if rb.parsergn and rb.parserverion == 1:
         rb.parsergnobjects("out-rgn-objects.csv")
@@ -311,12 +312,12 @@ def main(argv):
         rb.exportobjects("out2-obj-rgn.csv", rb.model.uniquergn, rb.model.childexportercallback)
         header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
                   "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Regras de Negocio (RGN)|Comum - Regras de Negocio (RGN)",
-                  "Name"]
+                  "Name", "Type"]
         rb.exportlinks("out2-rel-fun-rgn.csv", 1,
-                       header, rb.model.exportrgnlinksdictcallback)
+                       header, rb.model.exportrgnlinksdictcallback, "Realization")
         rb.exportlinks("out2-rel-rgn-fun.csv", -1,
                        [header[1], header[0], header[2]],
-                       rb.model.exportrgnlinksdictcallback)
+                       rb.model.exportrgnlinksdictcallback, "Realization")
     
     if rb.parsernf and rb.parserverion == 1:
         rb.parsernfobjects("out-rnf-objects.csv")
@@ -326,12 +327,12 @@ def main(argv):
         rb.exportobjects("out2-obj-rnf.csv", rb.model.uniquernf, rb.model.childexportercallback)
         header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
                   "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Nao Funcionais (RNF)|Comum - Nao Funcionais (RNF)",
-                  "Name"]
+                  "Name", "Type"]
         rb.exportlinks("out2-rel-fun-rnf.csv", 1,
-                       header, rb.model.exportrnflinksdictcallback)
+                       header, rb.model.exportrnflinksdictcallback, "Realization")
         rb.exportlinks("out2-rel-rnf-fun.csv", -1,
                        [header[1], header[0], header[2]],
-                       rb.model.exportrnflinksdictcallback)
+                       rb.model.exportrnflinksdictcallback, "Realization")
         
     del rb
 #    print "wfl.verbosity=" + str(wfl.__verbosity)
