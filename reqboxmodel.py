@@ -98,6 +98,9 @@ def fixmschr(s):
     s = s.replace(u'\x96', u'-')
     s = s.replace(u'–', u'-')
     s = s.replace(u'\xe2\x80\x93', u'-')
+    s = s.replace(u'“', u'"')
+    s = s.replace(u'”', u'"')
+    s = s.replace(u'•', u'-')
     return s
 
 class ReqModel():

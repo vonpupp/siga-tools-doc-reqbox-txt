@@ -181,8 +181,8 @@ class ReqBoxModelNG(model.ReqBoxModel):
         for items in f:
             if items[1] is not '':
                 r = model.ReqModel(items[1].decode('utf-8'),
-                                   items[0].decode('utf-8'), 0, 0)
-                r.reqbody = items[2].decode('utf-8')
+                                   model.fixmschr(items[0].decode('utf-8')), 0, 0)
+                r.reqbody = model.fixmschr(items[2].decode('utf-8'))
                 d[items[1].decode('utf-8')] = r
                 idx += 1
         return idx
