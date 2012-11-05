@@ -195,7 +195,7 @@ class ReqBoxModelNG(model.ReqBoxModel):
                 rfi = self.fp.fundict[funstr[1]].rfi[rfistr[1]]
                 if rfistr[1] not in self.uniquerfi:
                     self.uniquerfi[rfistr[1]] = rfi
-            
+                    self.uniquerfi[rfistr[1]].reqname = '%s. %s' % (rfi.reqid, rfi.reqname)
 
     def builduniquerfndict(self):
         return self.loaduniquecsvdict(self.uniquerfn, self.fp.importsdir + 'in-rfn-objects.csv')
