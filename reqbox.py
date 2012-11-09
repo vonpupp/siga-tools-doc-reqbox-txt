@@ -203,7 +203,11 @@ class ReqBox():
         
     def exportobjectlinks(self, fname, direction, header, dictcallback, linktype):
         return self.model.exportobjectlinks(fname, direction, header, dictcallback,
-                                      linktype)
+                                            linktype)
+
+    def exportrellinks(self, fname, direction, header, dictcallback, linktype):
+        return self.model.exportrellinks(fname, direction, header, dictcallback,
+                                            linktype)
         
 def main(argv):
     try:
@@ -344,8 +348,8 @@ def main(argv):
         header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
                   "SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
                   "Name", "Type"]
-        rb.exportobjectlinks("out2-utf8-rel-fun-imp.csv", 1,
-                       header, rb.model.exportimplinksdictcallback, "Implements")
+        rb.exportrellinks("out2-utf8-rel-uc-fun-imp.csv", 1, header,
+                          rb.model.exportimplinksdictcallback, "Implements")
 
     del rb
 #    print "wfl.verbosity=" + str(wfl.__verbosity)
