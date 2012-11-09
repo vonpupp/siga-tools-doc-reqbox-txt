@@ -38,9 +38,10 @@
 
 import logging, sys, mmap, shutil, contextlib, codecs, re, csv
 import operator
-import reqboxmodel as model
+import reqboxmodelng as model
 from vlog import vlogger
 from reqboxfileparse import ReqBoxFileParser
+import reqboxstrlib as strlib
 
 #sys.setdefaultencoding('utf-8')
 
@@ -108,7 +109,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
             #beforenu = line[0]
             #before = line[0].decode('utf-8')
             #after = model.fixmschr(line[0].decode('utf-8'))
-            self.funlist += [model.fixmschr(line[0].decode('utf-8'))] # .decode('utf-8')
+            self.funlist += [strlib.fixmschr(line[0].decode('utf-8'))] # .decode('utf-8')
             idx += 1
             
         self.vlog(VERB_MED, "<- %s" % __name__)
@@ -232,7 +233,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                 #endloc = 0
                 # The endloc will be filled afterwards, I have to first order the list so
                 # the end is the begining of the next one
-                r = model.FunModel(funid, funstr, beginloc, 0)
+                r = model.FunModelNG(funid, funstr, beginloc, 0)
                 r.fun.reqstart = beginloc
                 r.fun.reqend   = 0 
                     
@@ -298,9 +299,11 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
             if r.rgnstart != -1:
                 r.rgn = self.gettagdict(r.fun.reqid, 'RGN', r.rgnstart, r.rgnend)
             if r.relstart != -1:
-                r.extends = self.getreldict(r.fun.reqid, 'EXTENDS ', r.relstart, r.relend)
+                r.extends = self.getreldict(r.fun.reqid, 'EXTEND ', r.relstart, r.relend)
             if r.relstart != -1:
                 r.implements = self.getreldict(r.fun.reqid, 'IMPLEMENTS ', r.relstart, r.relend)
+            if r.relstart != -1:
+                r.implements = self.getreldict(r.fun.reqid, 'INCLUDE ', r.relstart, r.relend)
         pass
     
     def getreldict(self, funstr, tag, start, end):

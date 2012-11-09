@@ -100,6 +100,8 @@ class ReqBox():
         self.parserfn = 0
         self.parsernf = 0
         self.parsergn = 0
+        self.parseimp = 0
+        self.parseext = 0
         self.parserverion = 1
         
         # Init vlogger
@@ -199,8 +201,8 @@ class ReqBox():
         self.model.objectsexporter(fh, d, exportercallback)
         print "Objects exported to:\t" + fn
         
-    def exportlinks(self, fname, direction, header, dictcallback, linktype):
-        return self.model.exportlinks(fname, direction, header, dictcallback,
+    def exportobjectlinks(self, fname, direction, header, dictcallback, linktype):
+        return self.model.exportobjectlinks(fname, direction, header, dictcallback,
                                       linktype)
         
 def main(argv):
@@ -247,6 +249,8 @@ def main(argv):
         rb.parserfn = rb.parseall or rb.parserfn or opt in ('-r', '--export-rfn')
         rb.parsernf = rb.parseall or rb.parsernf or opt in ('-n', '--export-rnf')
         rb.parsergn = rb.parseall or rb.parsergn or opt in ('-g', '--export-rgn')
+        rb.parseimp = rb.parseall or rb.parseimp or opt in ('-m', '--export-imp')
+        rb.parseext = rb.parseall or rb.parseext or opt in ('-e', '--export-ext')
         rb.inobjects = opt in ('-o', '--in-objects')
             #if wfl.isVerbose:
                 #wfl.setLogger('/home/afu/Dropbox/mnt-ccb/siga/siga-tools/siga-tools-wf2ea/myapp.log')
@@ -283,9 +287,9 @@ def main(argv):
         header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
                   "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)",
                   "Name", "Type"]
-        rb.exportlinks("out2-utf8-rel-fun-rfi.csv", 1,
+        rb.exportobjectlinks("out2-utf8-rel-fun-rfi.csv", 1,
                        header, rb.model.exportrfilinksdictcallback, "Realization")
-        rb.exportlinks("out2-utf8-rel-rfi-fun.csv", -1,
+        rb.exportobjectlinks("out2-utf8-rel-rfi-fun.csv", -1,
                        [header[1], header[0], header[2]],
                        rb.model.exportrfilinksdictcallback, "Realization")
     
@@ -298,9 +302,9 @@ def main(argv):
         header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
                   "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais (RFN)|Comum - Requisitos Funcionais (RFN)",
                   "Name", "Type"]
-        rb.exportlinks("out2-utf8-rel-fun-rfn.csv", 1,
+        rb.exportobjectlinks("out2-utf8-rel-fun-rfn.csv", 1,
                        header, rb.model.exportrfnlinksdictcallback, "Realization")
-        rb.exportlinks("out2-utf8-rel-rfn-fun.csv", -1,
+        rb.exportobjectlinks("out2-utf8-rel-rfn-fun.csv", -1,
                        [header[1], header[0], header[2]],
                        rb.model.exportrfnlinksdictcallback, "Realization")
 
@@ -313,9 +317,9 @@ def main(argv):
         header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
                   "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Regras de Negocio (RGN)|Comum - Regras de Negocio (RGN)",
                   "Name", "Type"]
-        rb.exportlinks("out2-utf8-rel-fun-rgn.csv", 1,
+        rb.exportobjectlinks("out2-utf8-rel-fun-rgn.csv", 1,
                        header, rb.model.exportrgnlinksdictcallback, "Realization")
-        rb.exportlinks("out2-utf8-rel-rgn-fun.csv", -1,
+        rb.exportobjectlinks("out2-utf8-rel-rgn-fun.csv", -1,
                        [header[1], header[0], header[2]],
                        rb.model.exportrgnlinksdictcallback, "Realization")
     
@@ -328,12 +332,21 @@ def main(argv):
         header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
                   "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Nao Funcionais (RNF)|Comum - Nao Funcionais (RNF)",
                   "Name", "Type"]
-        rb.exportlinks("out2-utf8-rel-fun-rnf.csv", 1,
+        rb.exportobjectlinks("out2-utf8-rel-fun-rnf.csv", 1,
                        header, rb.model.exportrnflinksdictcallback, "Realization")
-        rb.exportlinks("out2-utf8-rel-rnf-fun.csv", -1,
+        rb.exportobjectlinks("out2-utf8-rel-rnf-fun.csv", -1,
                        [header[1], header[0], header[2]],
                        rb.model.exportrnflinksdictcallback, "Realization")
         
+    if rb.parseimp and rb.parserverion == 2:
+        #rnfcount = rb.model.builduniquernfdict()
+        #rb.exportobjects("out2-utf8-obj-rnf.csv", rb.model.uniquernf, rb.model.childexportercallback)
+        header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
+                  "SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
+                  "Name", "Type"]
+        rb.exportobjectlinks("out2-utf8-rel-fun-imp.csv", 1,
+                       header, rb.model.exportimplinksdictcallback, "Implements")
+
     del rb
 #    print "wfl.verbosity=" + str(wfl.__verbosity)
 

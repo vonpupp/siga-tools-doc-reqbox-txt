@@ -80,7 +80,8 @@ import os
 import csv
 import codecs
 import reqboxmodel as model
-import reqboxfileparseng as rfp
+import reqboxstrlib as strlib
+#import reqboxfileparseng as rfp
 from vlog import vlogger
 #from reqboxfileparse import reqboxfileparser
 
@@ -101,10 +102,14 @@ class FunModelNG(model.FunModel):
     
     def __init__(self, funid, funname, funstart, funend):
         # Public
-        FunModel.__init__(self)
+        #FunModel.__init__(self)
+        #super.__init__(self)
+        model.FunModel.__init__(self, funid, funname, funstart, funend)
+        #super(FunModelNG).__init__(self)
         self.relstart = -1
         self.relend = -1
         self.extends = {}
+        self.includes = {}
         self.implements = {}
         pass
     
@@ -182,8 +187,8 @@ class ReqBoxModelNG(model.ReqBoxModel):
             if items[1] is not '':
                 reqid = items[1].split('.')[0].decode('utf-8')
                 r = model.ReqModel(reqid,
-                                   model.fixmschr(items[0].decode('utf-8')), 0, 0)
-                r.reqbody = model.fixmschr(items[2].decode('utf-8'))
+                                   strlib.fixmschr(items[0].decode('utf-8')), 0, 0)
+                r.reqbody = strlib.fixmschr(items[2].decode('utf-8'))
                 d[reqid] = r
                 idx += 1
         return idx
@@ -222,7 +227,7 @@ class ReqBoxModelNG(model.ReqBoxModel):
     def exportrnflinksdictcallback(self, d, reqstr):
         return d.rnf
     
-    def exportlinks(self, fname, direction, header, dictcallback, linktype):
+    def exportobjectlinks(self, fname, direction, header, dictcallback, linktype):
         fh = open(fname, 'wb')
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         #csvhdlr.writerow(["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)", "Name"])
@@ -248,23 +253,9 @@ class ReqBoxModelNG(model.ReqBoxModel):
                     print("Writing... rel-%s-%s" % (reqalias, funalias))
                 
                 csvhdlr.writerow(row)
-                
-    #def rfifunlinksexporter(self, fh):
-    #    csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
-    #    csvhdlr.writerow(["SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)", "SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "Name"])
-    #    
-    #    fd = self.fp.fundict
-    #    for i0, funstr in enumerate(self.fp.funlist):
-    #        fun = fd[funstr].fun
-    #        funalias = self.uclabel(fun.reqid) # "UC" + r.reqid.zfill(3)
-    #        
-    #        rd = fd[funstr].rfi
-    #        for i1, reqstr in enumerate(sorted(rd)):
-    #            reqalias = rd[reqstr].reqid
-    #            
-    #            row = [reqalias, funalias, "rel-%s-%s" % (reqalias, funalias)]
-    #            print("Writing... rel-%s-%s" % (reqalias, funalias))
-    #            csvhdlr.writerow(row)
+
+    def exportimplinksdictcallback(self, d, reqstr):
+        return d.implements
     
     def remapbodies(self, d):
         pass
