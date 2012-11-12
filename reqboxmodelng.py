@@ -283,6 +283,12 @@ class ReqBoxModelNG(model.ReqBoxModel):
                 csvhdlr.writerow(row)
         pass
 
+    def exportextlinksdictcallback(self, d, reqstr):
+        return d.extends
+    
+    def exportinclinksdictcallback(self, d, reqstr):
+        return d.includes
+    
     def exportimplinksdictcallback(self, d, reqstr):
         return d.implements
     

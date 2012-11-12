@@ -100,8 +100,9 @@ class ReqBox():
         self.parserfn = 0
         self.parsernf = 0
         self.parsergn = 0
-        self.parseimp = 0
         self.parseext = 0
+        self.parseinc = 0
+        self.parseimp = 0
         self.parserverion = 1
         
         # Init vlogger
@@ -253,8 +254,9 @@ def main(argv):
         rb.parserfn = rb.parseall or rb.parserfn or opt in ('-r', '--export-rfn')
         rb.parsernf = rb.parseall or rb.parsernf or opt in ('-n', '--export-rnf')
         rb.parsergn = rb.parseall or rb.parsergn or opt in ('-g', '--export-rgn')
-        rb.parseimp = rb.parseall or rb.parseimp or opt in ('-m', '--export-imp')
         rb.parseext = rb.parseall or rb.parseext or opt in ('-e', '--export-ext')
+        rb.parseinc = rb.parseall or rb.parseinc or opt in ('-n', '--export-inc')
+        rb.parseimp = rb.parseall or rb.parseimp or opt in ('-m', '--export-imp')
         rb.inobjects = opt in ('-o', '--in-objects')
             #if wfl.isVerbose:
                 #wfl.setLogger('/home/afu/Dropbox/mnt-ccb/siga/siga-tools/siga-tools-wf2ea/myapp.log')
@@ -341,6 +343,24 @@ def main(argv):
         rb.exportobjectlinks("out2-utf8-rel-rnf-fun.csv", -1,
                        [header[1], header[0], header[2]],
                        rb.model.exportrnflinksdictcallback, "Realization")
+
+    if rb.parseext and rb.parserverion == 2:
+        #rnfcount = rb.model.builduniquernfdict()
+        #rb.exportobjects("out2-utf8-obj-rnf.csv", rb.model.uniquernf, rb.model.childexportercallback)
+        header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
+                  "SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
+                  "Name", "Type"]
+        rb.exportrellinks("out2-utf8-rel-uc-fun-ext.csv", 1, header,
+                          rb.model.exportextlinksdictcallback, "Extends")
+        
+    if rb.parseinc and rb.parserverion == 2:
+        #rnfcount = rb.model.builduniquernfdict()
+        #rb.exportobjects("out2-utf8-obj-rnf.csv", rb.model.uniquernf, rb.model.childexportercallback)
+        header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
+                  "SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
+                  "Name", "Type"]
+        rb.exportrellinks("out2-utf8-rel-uc-fun-inc.csv", 1, header,
+                          rb.model.exportinclinksdictcallback, "Includes")
         
     if rb.parseimp and rb.parserverion == 2:
         #rnfcount = rb.model.builduniquernfdict()
