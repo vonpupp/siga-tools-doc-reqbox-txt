@@ -196,10 +196,10 @@ class ReqBox():
 
     # NG PARSER METHODS    
         
-    def exportobjects(self, fn, d, exportercallback):
+    def exportobjects(self, fn, d, exportercallback, objtype):
         fh = open(fn, 'wb')
         #fh = codecs.open(fn, encoding='utf-8', mode='w')
-        self.model.objectsexporter(fh, d, exportercallback)
+        self.model.objectsexporter(fh, d, exportercallback, objtype)
         print "Objects exported to:\t" + fn
         
     def exportobjectlinks(self, fname, direction, header, dictcallback, linktype):
@@ -277,7 +277,8 @@ def main(argv):
         rb.parsefunrgnlinks("out-fun-rgn-links.csv")
         rb.parsefunrnflinks("out-fun-rnf-links.csv")
     elif rb.parsefun and rb.parserverion == 2:
-        rb.exportobjects("out2-utf8-obj-fun.csv", rb.model.fp.fundict, rb.model.funexportercallback)
+        rb.exportobjects("out2-utf8-obj-fun.csv", rb.model.fp.fundict,
+                         rb.model.funexportercallback, 'UseCase')
         rb.model.removereqcontent()
         #rb.parsefunrfilinks("out-fun-rfi-links.csv")
         #rb.parsefunrfnlinks("out-fun-rfn-links.csv")
@@ -289,7 +290,8 @@ def main(argv):
         rb.parserfifunlinks("out-rfi-fun-links.csv")
     elif rb.parserfi and rb.parserverion == 2:
         rficount = rb.model.builduniquerfidict()
-        rb.exportobjects("out2-utf8-obj-rfi.csv", rb.model.uniquerfi, rb.model.childexportercallback)
+        rb.exportobjects("out2-utf8-obj-rfi.csv", rb.model.uniquerfi,
+                         rb.model.childexportercallback, 'Requirement')
         header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
                   "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)",
                   "Name", "Type"]
@@ -304,7 +306,8 @@ def main(argv):
         rb.parserfnfunlinks("out-rfn-fun-links.csv")
     elif rb.parserfn and rb.parserverion == 2:
         rfncount = rb.model.builduniquerfndict()
-        rb.exportobjects("out2-utf8-obj-rfn.csv", rb.model.uniquerfn, rb.model.childexportercallback)
+        rb.exportobjects("out2-utf8-obj-rfn.csv", rb.model.uniquerfn,
+                         rb.model.childexportercallback, 'Requirement')
         header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
                   "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais (RFN)|Comum - Requisitos Funcionais (RFN)",
                   "Name", "Type"]
@@ -319,7 +322,8 @@ def main(argv):
         rb.parsergnfunlinks("out-rgn-fun-links.csv")
     elif rb.parsergn and rb.parserverion == 2:
         rgncount = rb.model.builduniquergndict()
-        rb.exportobjects("out2-utf8-obj-rgn.csv", rb.model.uniquergn, rb.model.childexportercallback)
+        rb.exportobjects("out2-utf8-obj-rgn.csv", rb.model.uniquergn,
+                         rb.model.childexportercallback, 'Requirement')
         header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
                   "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Regras de Negocio (RGN)|Comum - Regras de Negocio (RGN)",
                   "Name", "Type"]
@@ -334,7 +338,8 @@ def main(argv):
         rb.parsernffunlinks("out-rnf-fun-links.csv")
     elif rb.parsernf and rb.parserverion == 2:
         rnfcount = rb.model.builduniquernfdict()
-        rb.exportobjects("out2-utf8-obj-rnf.csv", rb.model.uniquernf, rb.model.childexportercallback)
+        rb.exportobjects("out2-utf8-obj-rnf.csv", rb.model.uniquernf,
+                         rb.model.childexportercallback, 'Requirement')
         header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
                   "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Nao Funcionais (RNF)|Comum - Nao Funcionais (RNF)",
                   "Name", "Type"]

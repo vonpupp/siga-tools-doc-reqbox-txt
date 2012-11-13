@@ -124,7 +124,7 @@ class ReqBoxModelNG(model.ReqBoxModel):
     def childexportercallback(self, d, reqstr):
         return d[reqstr]
 
-    def objectsexporter(self, fh, d, exportercallback):
+    def objectsexporter(self, fh, d, exportercallback, objtype):
         """
         Refactored method for exporting objects: FUN (UC), RFI, RFN, RNG, RNF
         """
@@ -145,7 +145,7 @@ class ReqBoxModelNG(model.ReqBoxModel):
             if r.reqbody is not None:
                 reqbody = r.reqbody.encode('utf-8')
             #row = [r.reqname.encode('utf-8'), r.reqid.encode('utf-8')]
-            row = [reqname, reqid, 'Requirement', reqbody, "Medium", "Albert De La Fuente"]
+            row = [reqname, reqid, objtype, reqbody, "Medium", "Albert De La Fuente"]
             
             #Name    Alias   Type    Notes   Priority        Author
             #RFI001. MANTER HOSPEDAGEM       RFI001. Requirement     "
