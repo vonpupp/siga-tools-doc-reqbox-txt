@@ -303,7 +303,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
             if r.relstart != -1:
                 r.implements = self.getreldict(r.fun.reqid, 'IMPLEMENTS ', r.relstart, r.relend)
             if r.relstart != -1:
-                r.include = self.getreldict(r.fun.reqid, 'INCLUDE ', r.relstart, r.relend)
+                r.includes = self.getreldict(r.fun.reqid, 'INCLUDE ', r.relstart, r.relend)
         pass
     
     def getreldict(self, funstr, tag, start, end):
