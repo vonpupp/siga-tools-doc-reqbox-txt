@@ -79,9 +79,9 @@ import sys
 import os
 import csv
 import codecs
-from rblib.vlog import vlogger
-import rbparsers.rbfileparse7 as rfp
-import reqboxstrlib as strlib
+from reqbox.lib.vlog import vlogger
+#import reqbox.parsers.rbfileparser7 as rfp
+import reqbox.lib.rbstrlib as strlib
 #from reqboxfileparse import reqboxfileparser
 
 #---- exceptions

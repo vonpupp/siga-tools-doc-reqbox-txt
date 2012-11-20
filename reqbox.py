@@ -32,6 +32,11 @@
 #   Platform Dependencies:	Linux (openSUSE used)
 #   Compiler Options:
 
+#!/usr/bin/python
+__version__ = "8.0"
+__author__ = "Albert De La Fuente (vonpupp@gmail.com)"
+__copyright__ = "(C) 2012 Albert De La Fuente. GNU GPL 3."
+
 """
     Requirements parser multifunctional tool.
     
@@ -68,12 +73,14 @@ import sys
 import os
 import csv
 import codecs
-from vlog import vlogger
-import reqboxmodel as rbm1
-import reqboxmodelng as rbm2
-import reqboxfileparse as rfp1
-import reqboxfileparseng as rfp2
-import reqboxmodel as rbm
+from reqbox.lib.vlog import vlogger
+import reqbox.models.rbmodel7 as rbm1
+import reqbox.models.rbmodel8 as rbm2
+import reqbox.parsers.rbfileparser7 as rfp1
+import reqbox.parsers.rbfileparser8 as rfp2
+from reqbox.models.rbmodel7 import ReqBoxModel
+from reqbox.models.rbmodel8 import ReqBoxModelNG
+#import reqbox.models.rbmodel7 as rbm
 
 #---- exceptions
 
@@ -94,6 +101,7 @@ class ReqBox():
         # Init structures
         self.model = None
         self.inputfile = None
+        self.inputdir = None
         self.parseall = 0
         self.parsefun = 0
         self.parserfi = 0
@@ -103,7 +111,7 @@ class ReqBox():
         self.parseext = 0
         self.parseinc = 0
         self.parseimp = 0
-        self.parserverion = 1
+        self.parserverion = 0
         
         # Init vlogger
         self.__verbosity = VERB_MAX
@@ -113,14 +121,14 @@ class ReqBox():
     def initparser(self, ModelClass):#, ParserClass):
         # Public
         # Init structures
-        if ModelClass is rbm1.ReqBoxModel:
+        if ModelClass == rbm1.ReqBoxModel:
             ParserClass = rfp1.ReqBoxFileParser
-        elif ModelClass is rbm2.ReqBoxModelNG:
+        elif ModelClass is ReqBoxModelNG:
             ParserClass = rfp2.ReqBoxFileParserNG
         self.model = ModelClass(ParserClass)
         #self.model = rbm.ReqBoxModel(ParserClass)
         if ParserClass is rfp2.ReqBoxFileParserNG:
-            self.model.fp.importsdir = './data/'
+            self.model.fp.importsdir = self.inputdir
         
     def __del__(self):
         #del self.rfi
@@ -212,9 +220,9 @@ class ReqBox():
         
 def main(argv):
     try:
-        optlist, args = getopt.getopt(argv[1:], 'hv:aingo:', ['help', 'verbose',
+        optlist, args = getopt.getopt(argv, 'hv:aingo:', ['help', 'verbose',
             'export-all', 'export-rfi', 'export-rfn', 'in-objects',
-            'parse-v1', 'parse-v2'])
+            'parse-v7', 'parse-v8'])
     except getopt.GetoptError, msg:
         sys.stderr.write("reqbox: error: %s" % msg)
         sys.stderr.write("See 'reqbox --help'.\n")
@@ -225,7 +233,7 @@ def main(argv):
 #        return 1
     
     rb = ReqBox()
-    rbm = rfp1.ReqBoxFileParser # Default parser
+    rbm = rbm1.ReqBoxModel # Default parser
     for opt, optarg in optlist:
         if opt in ('-h', '--help'):
             sys.stdout.write(__doc__)
@@ -238,14 +246,16 @@ def main(argv):
             pass
         #elif opt in ('-a', '--export-all',
         #             '-i', '--export-rfi'):
-        elif opt in ('--parse-v1'):
+        elif opt in ('--parse-v7'):
             rbm = rbm1.ReqBoxModel
             #rbp = rfp1.ReqBoxFileParser
-            rb.parserverion = 1
-        elif opt in ('--parse-v2'):
+            rb.parserverion = 7
+        elif opt in ('--parse-v8'):
             rbm = rbm2.ReqBoxModelNG
             #rbp = rfp2.ReqBoxFileParserNG
-            rb.parserverion = 2
+            rb.parserverion = 8
+        elif opt in ('-o', '--in-objects'):
+            rb.inputdir = optarg
         
         rb.inputfile = args[0]
         rb.parseall = rb.parseall or opt in ('-a', '--export-all')
@@ -257,7 +267,7 @@ def main(argv):
         rb.parseext = rb.parseall or rb.parseext or opt in ('-e', '--export-ext')
         rb.parseinc = rb.parseall or rb.parseinc or opt in ('-n', '--export-inc')
         rb.parseimp = rb.parseall or rb.parseimp or opt in ('-m', '--export-imp')
-        rb.inobjects = opt in ('-o', '--in-objects')
+        #rb.inobjects = rb.inobjects or opt in ('-o', '--in-objects')
             #if wfl.isVerbose:
                 #wfl.setLogger('/home/afu/Dropbox/mnt-ccb/siga/siga-tools/siga-tools-wf2ea/myapp.log')
 
@@ -270,13 +280,13 @@ def main(argv):
     rb.initparser(rbm)
     rb.model.parsefile(rb.inputfile)
     
-    if rb.parsefun and rb.parserverion == 1:
+    if rb.parsefun and rb.parserverion == 7:
         rb.parsefunobjects("out-fun-objects.csv")
         rb.parsefunrfilinks("out-fun-rfi-links.csv")
         rb.parsefunrfnlinks("out-fun-rfn-links.csv")
         rb.parsefunrgnlinks("out-fun-rgn-links.csv")
         rb.parsefunrnflinks("out-fun-rnf-links.csv")
-    elif rb.parsefun and rb.parserverion == 2:
+    elif rb.parsefun and rb.parserverion == 8:
         rb.exportobjects("out2-utf8-obj-fun.csv", rb.model.fp.fundict,
                          rb.model.funexportercallback, 'UseCase')
         rb.model.removereqcontent()
@@ -285,10 +295,10 @@ def main(argv):
         #rb.parsefunrgnlinks("out-fun-rgn-links.csv")
         #rb.parsefunrnflinks("out-fun-rnf-links.csv")
     
-    if rb.parserfi and rb.parserverion == 1:
+    if rb.parserfi and rb.parserverion == 7:
         rb.parserfiobjects("out-rfi-objects.csv")
         rb.parserfifunlinks("out-rfi-fun-links.csv")
-    elif rb.parserfi and rb.parserverion == 2:
+    elif rb.parserfi and rb.parserverion == 8:
         rficount = rb.model.builduniquerfidict()
         rb.exportobjects("out2-utf8-obj-rfi.csv", rb.model.uniquerfi,
                          rb.model.childexportercallback, 'Requirement')
@@ -301,10 +311,10 @@ def main(argv):
                        [header[1], header[0], header[2]],
                        rb.model.exportrfilinksdictcallback, "Realization")
     
-    if rb.parserfn and rb.parserverion == 1:
+    if rb.parserfn and rb.parserverion == 7:
         rb.parserfnobjects("out-rfn-objects.csv")
         rb.parserfnfunlinks("out-rfn-fun-links.csv")
-    elif rb.parserfn and rb.parserverion == 2:
+    elif rb.parserfn and rb.parserverion == 8:
         rfncount = rb.model.builduniquerfndict()
         rb.exportobjects("out2-utf8-obj-rfn.csv", rb.model.uniquerfn,
                          rb.model.childexportercallback, 'Requirement')
@@ -317,10 +327,10 @@ def main(argv):
                        [header[1], header[0], header[2]],
                        rb.model.exportrfnlinksdictcallback, "Realization")
 
-    if rb.parsergn and rb.parserverion == 1:
+    if rb.parsergn and rb.parserverion == 7:
         rb.parsergnobjects("out-rgn-objects.csv")
         rb.parsergnfunlinks("out-rgn-fun-links.csv")
-    elif rb.parsergn and rb.parserverion == 2:
+    elif rb.parsergn and rb.parserverion == 8:
         rgncount = rb.model.builduniquergndict()
         rb.exportobjects("out2-utf8-obj-rgn.csv", rb.model.uniquergn,
                          rb.model.childexportercallback, 'Requirement')
@@ -333,10 +343,10 @@ def main(argv):
                        [header[1], header[0], header[2]],
                        rb.model.exportrgnlinksdictcallback, "Realization")
     
-    if rb.parsernf and rb.parserverion == 1:
+    if rb.parsernf and rb.parserverion == 7:
         rb.parsernfobjects("out-rnf-objects.csv")
         rb.parsernffunlinks("out-rnf-fun-links.csv")
-    elif rb.parsernf and rb.parserverion == 2:
+    elif rb.parsernf and rb.parserverion == 8:
         rnfcount = rb.model.builduniquernfdict()
         rb.exportobjects("out2-utf8-obj-rnf.csv", rb.model.uniquernf,
                          rb.model.childexportercallback, 'Requirement')
@@ -349,7 +359,7 @@ def main(argv):
                        [header[1], header[0], header[2]],
                        rb.model.exportrnflinksdictcallback, "Realization")
 
-    if rb.parseext and rb.parserverion == 2:
+    if rb.parseext and rb.parserverion == 8:
         #rnfcount = rb.model.builduniquernfdict()
         #rb.exportobjects("out2-utf8-obj-rnf.csv", rb.model.uniquernf, rb.model.childexportercallback)
         header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
@@ -358,7 +368,7 @@ def main(argv):
         rb.exportrellinks("out2-utf8-rel-uc-fun-ext.csv", 1, header,
                           rb.model.exportextlinksdictcallback, "Extends")
         
-    if rb.parseinc and rb.parserverion == 2:
+    if rb.parseinc and rb.parserverion == 8:
         #rnfcount = rb.model.builduniquernfdict()
         #rb.exportobjects("out2-utf8-obj-rnf.csv", rb.model.uniquernf, rb.model.childexportercallback)
         header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
@@ -367,7 +377,7 @@ def main(argv):
         rb.exportrellinks("out2-utf8-rel-uc-fun-inc.csv", 1, header,
                           rb.model.exportinclinksdictcallback, "Includes")
         
-    if rb.parseimp and rb.parserverion == 2:
+    if rb.parseimp and rb.parserverion == 8:
         #rnfcount = rb.model.builduniquernfdict()
         #rb.exportobjects("out2-utf8-obj-rnf.csv", rb.model.uniquernf, rb.model.childexportercallback)
         header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
@@ -380,4 +390,4 @@ def main(argv):
 #    print "wfl.verbosity=" + str(wfl.__verbosity)
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    sys.exit(main(sys.argv[1:]))

@@ -79,10 +79,10 @@ import sys
 import os
 import csv
 import codecs
-import reqboxmodel as model
-import reqboxstrlib as strlib
+import reqbox.models.rbmodel7 as model
+import reqbox.lib.rbstrlib as strlib
 #import reqboxfileparseng as rfp
-from vlog import vlogger
+from reqbox.lib.vlog import vlogger
 #from reqboxfileparse import reqboxfileparser
 
 #---- exceptions
