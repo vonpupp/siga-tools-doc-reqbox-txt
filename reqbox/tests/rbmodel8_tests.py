@@ -34,6 +34,10 @@
 
 import unittest
 import random
+import sys
+import inspect
+import codecs
+import csv
 
 class ReqBoxTest():
     """ Reqbox
@@ -67,24 +71,58 @@ class ReqBoxTest():
 #- verificar se há funcionalidade sem um código UC; (este item só pode ser feito quando eu terminar a conversão dos casos de uso)
 #- Verificar se há caso de uso que não é extendido nem implementado por ninguém;
 
+rb = None
+
 class TestMissingObjects(unittest.TestCase):
     """ 
     Attributes:
         - rb: ReqBox
     """
     rb = None
+    filename = 'test-missing-objects.test'
+    fh = codecs.open(filename, encoding='utf-8', mode='w') # open(filename, 'r')
+    csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
 
-    def setUp(self, rb):
+    def setUp(self):
         self.rb = rb
-        self.seq = range(10)
+        #self.seq = range(10)
+
+    def uckeymeasure(self, key):
+        #result = self.rb.model.fp.fundict[key][1:] #and key
+        #result = key[2:] #and key
+        result = key #and key
+        return result
 
     def test_01_UC_missing(self):
         # make sure the shuffled sequence does not lose any elements
         #itemcount = self.rb.model.
-        self.assertEqual(3, 5)
+        d = self.rb.model.fp.fundict
+        formatstr = 'UC'
+        itemscount = len(d)
+        
+        maxid = max(d)
+        if maxid.startswith(formatstr):
+            maxid = maxid[len(formatstr):]
+        #item = max(d, key=self.uckeymeasure)
+        #maxid = max(self.uckeymeasure(k) for k in d.keys())
+        self.csvhdlr.writerow(["ID", "Type", "Status"])
+        for number in range(1, itemscount):
+            item = formatstr + '%03d' % number
+            reqid = item
+            reqname = ''
+            reqtype = formatstr
+            reqbody = ''
+            try:
+                self.assertIn(item, d)
+                status = 'ok'
+            except:
+                status = 'FAILED'
+            row = [reqid, reqtype, status]
+            self.csvhdlr.writerow(row)
+        #self.assertEqual(3, 5)
 
         # should raise an exception for an immutable sequence
-        self.assertRaises(TypeError, random.shuffle, (1,2,3))
+        #self.assertRaises(TypeError, random.shuffle, (1,2,3))
 
     def test_shuffle(self):
         # make sure the shuffled sequence does not lose any elements
@@ -120,6 +158,7 @@ class TestEAIntegrity(unittest.TestCase):
         self.assertRaises(TypeError, random.shuffle, (1,2,3))
 
 def parsingsuite():
+    #args = sys.argv[1:]
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(TestMissingObjects))
     return suite

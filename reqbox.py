@@ -393,6 +393,9 @@ def main(argv):
     if rb.dotest:
         #rb.tests = rbt.ReqBoxTest()
         #rb.tests.test01()
+        rbt.rb = rb
+        #sys.argv[1:] = args.unittest_args
+        #unittest.main()
         suiteFew = unittest.TestSuite()
         unittest.TextTestRunner(verbosity=2).run(rbt.parsingsuite())
 
