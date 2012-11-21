@@ -32,7 +32,6 @@
 #   Platform Dependencies:	Linux (openSUSE used)
 #   Compiler Options:
 
-#!/usr/bin/python
 __version__ = "8.0"
 __author__ = "Albert De La Fuente (vonpupp@gmail.com)"
 __copyright__ = "(C) 2012 Albert De La Fuente. GNU GPL 3."
@@ -80,6 +79,8 @@ import reqbox.parsers.rbfileparser7 as rfp1
 import reqbox.parsers.rbfileparser8 as rfp2
 from reqbox.models.rbmodel7 import ReqBoxModel
 from reqbox.models.rbmodel8 import ReqBoxModelNG
+import reqbox.tests.rbmodel8_tests as rbt
+import unittest
 #import reqbox.models.rbmodel7 as rbm
 
 #---- exceptions
@@ -112,6 +113,8 @@ class ReqBox():
         self.parseinc = 0
         self.parseimp = 0
         self.parserverion = 0
+        self.dotest = 0
+        self.tests = None
         
         # Init vlogger
         self.__verbosity = VERB_MAX
@@ -220,9 +223,9 @@ class ReqBox():
         
 def main(argv):
     try:
-        optlist, args = getopt.getopt(argv, 'hv:aingo:', ['help', 'verbose',
+        optlist, args = getopt.getopt(argv, 'hv:aingo:t', ['help', 'verbose',
             'export-all', 'export-rfi', 'export-rfn', 'in-objects',
-            'parse-v7', 'parse-v8'])
+            'parse-v7', 'parse-v8', 'run-tests'])
     except getopt.GetoptError, msg:
         sys.stderr.write("reqbox: error: %s" % msg)
         sys.stderr.write("See 'reqbox --help'.\n")
@@ -267,6 +270,7 @@ def main(argv):
         rb.parseext = rb.parseall or rb.parseext or opt in ('-e', '--export-ext')
         rb.parseinc = rb.parseall or rb.parseinc or opt in ('-n', '--export-inc')
         rb.parseimp = rb.parseall or rb.parseimp or opt in ('-m', '--export-imp')
+        rb.dotest = rb.dotest or opt in ('-t', '--run-tests')
         #rb.inobjects = rb.inobjects or opt in ('-o', '--in-objects')
             #if wfl.isVerbose:
                 #wfl.setLogger('/home/afu/Dropbox/mnt-ccb/siga/siga-tools/siga-tools-wf2ea/myapp.log')
@@ -385,8 +389,14 @@ def main(argv):
                   "Name", "Type"]
         rb.exportrellinks("out2-utf8-rel-uc-fun-imp.csv", 1, header,
                           rb.model.exportimplinksdictcallback, "Implements")
+    
+    if rb.dotest:
+        #rb.tests = rbt.ReqBoxTest()
+        #rb.tests.test01()
+        suiteFew = unittest.TestSuite()
+        unittest.TextTestRunner(verbosity=2).run(rbt.parsingsuite())
 
-    del rb
+    #del rb
 #    print "wfl.verbosity=" + str(wfl.__verbosity)
 
 if __name__ == "__main__":
