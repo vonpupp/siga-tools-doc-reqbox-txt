@@ -79,9 +79,6 @@ class TestMissingObjects(unittest.TestCase):
         - rb: ReqBox
     """
     rb = None
-    filename = 'test-missing-objects.test'
-    fh = codecs.open(filename, encoding='utf-8', mode='w') # open(filename, 'r')
-    csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
 
     def setUp(self):
         self.rb = rb
@@ -93,14 +90,17 @@ class TestMissingObjects(unittest.TestCase):
         result = key #and key
         return result
     
-    def tagcheck(self, d, tagstr):
+    def tagcheck(self, filename, d, tagstr):
+        fh = codecs.open(filename, encoding='utf-8', mode='w') # open(filename, 'r')
+        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
+        
         itemscount = len(d)
         maxid = max(d)
         if maxid.startswith(tagstr):
             maxid = maxid[len(tagstr):]
         #item = max(d, key=self.uckeymeasure)
         #maxid = max(self.uckeymeasure(k) for k in d.keys())
-        self.csvhdlr.writerow(["ID", "Type", "Status"])
+        csvhdlr.writerow(["ID", "Type", "Status"])
         for number in range(1, int(maxid) + 1):
             item = tagstr + '%03d' % number
             reqid = item
@@ -112,22 +112,40 @@ class TestMissingObjects(unittest.TestCase):
                 status = 'ok'
             except:
                 status = 'FAILED'
+                if self.rb.stricttests:
+                    raise
             row = [reqid, reqtype, status]
-            self.csvhdlr.writerow(row)
+            csvhdlr.writerow(row)
 
-    def test_missing_uc_objects(self):
-        # make sure the shuffled sequence does not lose any elements
-        #itemcount = self.rb.model.
+    def test_parser_missing_01_uc_objects(self):
+        filename = sys._getframe().f_code.co_name + '.csv'
         d = self.rb.model.fp.fundict
         tagstr = 'UC'
-        self.tagcheck(d, tagstr)
-        
-    def test_missing_rfi_objects(self):
-        # make sure the shuffled sequence does not lose any elements
-        #itemcount = self.rb.model.
+        self.tagcheck(filename, d, tagstr)
+
+    def test_parser_missing_02_rfi_objects(self):
+        filename = sys._getframe().f_code.co_name + '.csv'
         d = self.rb.model.uniquerfi
         tagstr = 'RFI'
-        self.tagcheck(d, tagstr)
+        self.tagcheck(filename, d, tagstr)
+    
+    def test_parser_missing_02_rfn_objects(self):
+        filename = sys._getframe().f_code.co_name + '.csv'
+        d = self.rb.model.uniquerfn
+        tagstr = 'RFN'
+        self.tagcheck(filename, d, tagstr)
+        
+    def test_parser_missing_02_rgn_objects(self):
+        filename = sys._getframe().f_code.co_name + '.csv'
+        d = self.rb.model.uniquergn
+        tagstr = 'RGN'
+        self.tagcheck(filename, d, tagstr)
+        
+    def test_parser_missing_02_rnf_objects(self):
+        filename = sys._getframe().f_code.co_name + '.csv'
+        d = self.rb.model.uniquernf
+        tagstr = 'RNF'
+        self.tagcheck(filename, d, tagstr)
         
         #itemscount = len(d)
         #maxid = max(d)

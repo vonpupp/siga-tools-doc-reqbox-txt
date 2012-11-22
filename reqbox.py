@@ -113,7 +113,8 @@ class ReqBox():
         self.parseinc = 0
         self.parseimp = 0
         self.parserverion = 0
-        self.dotest = 0
+        self.runtests = 0
+        self.stricttests = 0
         self.tests = None
         
         # Init vlogger
@@ -225,7 +226,7 @@ def main(argv):
     try:
         optlist, args = getopt.getopt(argv, 'hv:aingo:t', ['help', 'verbose',
             'export-all', 'export-rfi', 'export-rfn', 'in-objects',
-            'parse-v7', 'parse-v8', 'run-tests'])
+            'parse-v7', 'parse-v8', 'run-tests', 'strict-tests'])
     except getopt.GetoptError, msg:
         sys.stderr.write("reqbox: error: %s" % msg)
         sys.stderr.write("See 'reqbox --help'.\n")
@@ -270,7 +271,8 @@ def main(argv):
         rb.parseext = rb.parseall or rb.parseext or opt in ('-e', '--export-ext')
         rb.parseinc = rb.parseall or rb.parseinc or opt in ('-n', '--export-inc')
         rb.parseimp = rb.parseall or rb.parseimp or opt in ('-m', '--export-imp')
-        rb.dotest = rb.dotest or opt in ('-t', '--run-tests')
+        rb.runtests = rb.runtests or opt in ('-t', '--run-tests')
+        rb.stricttests = rb.stricttests or opt == '--strict-tests'
         #rb.inobjects = rb.inobjects or opt in ('-o', '--in-objects')
             #if wfl.isVerbose:
                 #wfl.setLogger('/home/afu/Dropbox/mnt-ccb/siga/siga-tools/siga-tools-wf2ea/myapp.log')
@@ -390,7 +392,7 @@ def main(argv):
         rb.exportrellinks("out2-utf8-rel-uc-fun-imp.csv", 1, header,
                           rb.model.exportimplinksdictcallback, "Implements")
     
-    if rb.dotest:
+    if rb.runtests:
         #rb.tests = rbt.ReqBoxTest()
         #rb.tests.test01()
         rbt.rb = rb
