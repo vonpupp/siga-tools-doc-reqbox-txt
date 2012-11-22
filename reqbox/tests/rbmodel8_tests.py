@@ -92,25 +92,20 @@ class TestMissingObjects(unittest.TestCase):
         #result = key[2:] #and key
         result = key #and key
         return result
-
-    def test_01_UC_missing(self):
-        # make sure the shuffled sequence does not lose any elements
-        #itemcount = self.rb.model.
-        d = self.rb.model.fp.fundict
-        formatstr = 'UC'
+    
+    def tagcheck(self, d, tagstr):
         itemscount = len(d)
-        
         maxid = max(d)
-        if maxid.startswith(formatstr):
-            maxid = maxid[len(formatstr):]
+        if maxid.startswith(tagstr):
+            maxid = maxid[len(tagstr):]
         #item = max(d, key=self.uckeymeasure)
         #maxid = max(self.uckeymeasure(k) for k in d.keys())
         self.csvhdlr.writerow(["ID", "Type", "Status"])
-        for number in range(1, itemscount):
-            item = formatstr + '%03d' % number
+        for number in range(1, int(maxid) + 1):
+            item = tagstr + '%03d' % number
             reqid = item
             reqname = ''
-            reqtype = formatstr
+            reqtype = tagstr
             reqbody = ''
             try:
                 self.assertIn(item, d)
@@ -119,29 +114,64 @@ class TestMissingObjects(unittest.TestCase):
                 status = 'FAILED'
             row = [reqid, reqtype, status]
             self.csvhdlr.writerow(row)
+
+    def test_missing_uc_objects(self):
+        # make sure the shuffled sequence does not lose any elements
+        #itemcount = self.rb.model.
+        d = self.rb.model.fp.fundict
+        tagstr = 'UC'
+        self.tagcheck(d, tagstr)
+        
+    def test_missing_rfi_objects(self):
+        # make sure the shuffled sequence does not lose any elements
+        #itemcount = self.rb.model.
+        d = self.rb.model.uniquerfi
+        tagstr = 'RFI'
+        self.tagcheck(d, tagstr)
+        
+        #itemscount = len(d)
+        #maxid = max(d)
+        #if maxid.startswith(formatstr):
+        #    maxid = maxid[len(formatstr):]
+        ##item = max(d, key=self.uckeymeasure)
+        ##maxid = max(self.uckeymeasure(k) for k in d.keys())
+        #self.csvhdlr.writerow(["ID", "Type", "Status"])
+        #for number in range(1, int(maxid) + 1):
+        #    item = formatstr + '%03d' % number
+        #    reqid = item
+        #    reqname = ''
+        #    reqtype = formatstr
+        #    reqbody = ''
+        #    try:
+        #        self.assertIn(item, d)
+        #        status = 'ok'
+        #    except:
+        #        status = 'FAILED'
+        #    row = [reqid, reqtype, status]
+        #    self.csvhdlr.writerow(row)
         #self.assertEqual(3, 5)
 
         # should raise an exception for an immutable sequence
         #self.assertRaises(TypeError, random.shuffle, (1,2,3))
 
-    def test_shuffle(self):
-        # make sure the shuffled sequence does not lose any elements
-        random.shuffle(self.seq)
-        self.seq.sort()
-        self.assertEqual(self.seq, range(10))
-
-        # should raise an exception for an immutable sequence
-        self.assertRaises(TypeError, random.shuffle, (1,2,3))
-
-    def test_choice(self):
-        element = random.choice(self.seq)
-        self.assertTrue(element in self.seq)
-
-    def test_sample(self):
-        with self.assertRaises(ValueError):
-            random.sample(self.seq, 20)
-        for element in random.sample(self.seq, 5):
-            self.assertTrue(element in self.seq)
+    #def test_shuffle(self):
+    #    # make sure the shuffled sequence does not lose any elements
+    #    random.shuffle(self.seq)
+    #    self.seq.sort()
+    #    self.assertEqual(self.seq, range(10))
+    #
+    #    # should raise an exception for an immutable sequence
+    #    self.assertRaises(TypeError, random.shuffle, (1,2,3))
+    #
+    #def test_choice(self):
+    #    element = random.choice(self.seq)
+    #    self.assertTrue(element in self.seq)
+    #
+    #def test_sample(self):
+    #    with self.assertRaises(ValueError):
+    #        random.sample(self.seq, 20)
+    #    for element in random.sample(self.seq, 5):
+    #        self.assertTrue(element in self.seq)
     
 class TestEAIntegrity(unittest.TestCase):
 
