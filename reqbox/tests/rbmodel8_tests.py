@@ -84,13 +84,12 @@ class TestMissingObjects(unittest.TestCase):
         self.rb = rb
         #self.seq = range(10)
 
-    def uckeymeasure(self, key):
-        #result = self.rb.model.fp.fundict[key][1:] #and key
-        #result = key[2:] #and key
-        result = key #and key
-        return result
+    #def uckeymeasure(self, key):
+    #    #result = self.rb.model.fp.fundict[key][1:] #and key
+    #    result = key #and key
+    #    return result
     
-    def tagcheck(self, filename, d, tagstr):
+    def tag_check(self, filename, d, tagstr):
         fh = codecs.open(filename, encoding='utf-8', mode='w') # open(filename, 'r')
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         
@@ -121,56 +120,108 @@ class TestMissingObjects(unittest.TestCase):
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.rb.model.fp.fundict
         tagstr = 'UC'
-        self.tagcheck(filename, d, tagstr)
+        self.tag_check(filename, d, tagstr)
 
     def test_parser_missing_02_rfi_objects(self):
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.rb.model.uniquerfi
         tagstr = 'RFI'
-        self.tagcheck(filename, d, tagstr)
+        self.tag_check(filename, d, tagstr)
     
     def test_parser_missing_02_rfn_objects(self):
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.rb.model.uniquerfn
         tagstr = 'RFN'
-        self.tagcheck(filename, d, tagstr)
+        self.tag_check(filename, d, tagstr)
         
     def test_parser_missing_02_rgn_objects(self):
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.rb.model.uniquergn
         tagstr = 'RGN'
-        self.tagcheck(filename, d, tagstr)
+        self.tag_check(filename, d, tagstr)
         
     def test_parser_missing_02_rnf_objects(self):
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.rb.model.uniquernf
         tagstr = 'RNF'
-        self.tagcheck(filename, d, tagstr)
+        self.tag_check(filename, d, tagstr)
         
-        #itemscount = len(d)
-        #maxid = max(d)
-        #if maxid.startswith(formatstr):
-        #    maxid = maxid[len(formatstr):]
-        ##item = max(d, key=self.uckeymeasure)
-        ##maxid = max(self.uckeymeasure(k) for k in d.keys())
-        #self.csvhdlr.writerow(["ID", "Type", "Status"])
-        #for number in range(1, int(maxid) + 1):
-        #    item = formatstr + '%03d' % number
-        #    reqid = item
-        #    reqname = ''
-        #    reqtype = formatstr
-        #    reqbody = ''
-        #    try:
-        #        self.assertIn(item, d)
-        #        status = 'ok'
-        #    except:
-        #        status = 'FAILED'
-        #    row = [reqid, reqtype, status]
-        #    self.csvhdlr.writerow(row)
-        #self.assertEqual(3, 5)
+class TestOrphanObjects(unittest.TestCase):
+    """ 
+    Attributes:
+        - rb: ReqBox
+    """
+    rb = None
+    revrfi = {}
+    revrfn = {}
 
-        # should raise an exception for an immutable sequence
-        #self.assertRaises(TypeError, random.shuffle, (1,2,3))
+    def setUp(self):
+        self.rb = rb
+        #self.seq = range(10)
+        
+    def reverse_dict(self, get_req_callback, set_req_callback):
+        fundict = self.rb.model.fp.fundict
+        for fid, funstr in enumerate(sorted(fundict)):
+            funmodel = fundict[funstr]
+            reqdict = get_req_callback(funmodel)
+            for rid, reqstr in enumerate(sorted(reqdict)):
+                reqmodel = reqdict[reqstr]
+                set_req_callback(funmodel, reqmodel)
+                #req = reqdict[reqstr]
+                #reqid = reqstr.decode('utf-8')
+                #reqname = ''
+                #if req.reqname is not None:
+                #    reqname = req.reqname.encode('utf-8')
+                #reqbody = ''
+                #if req.reqbody is not None:
+                #    reqbody = req.reqbody.encode('utf-8')
+        pass
+    
+    def get_rfn_dict(self, funmodel):
+        return funmodel.rfn
+    
+    def set_rev_rfn_dict(self, fun, req):
+        self.revrfn[req.reqid] = fun
+        
+    def orphan_check(self, filename, d, tagstr):
+        fh = codecs.open(filename, encoding='utf-8', mode='w') # open(filename, 'r')
+        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
+        
+        itemscount = len(d)
+        maxid = max(d)
+        if maxid.startswith(tagstr):
+            maxid = maxid[len(tagstr):]
+            
+        csvhdlr.writerow(["ID", "Type", "Status"])
+        for number in range(1, int(maxid) + 1):
+            item = tagstr + '%03d' % number
+            reqid = item
+            reqname = ''
+            reqtype = tagstr
+            reqbody = ''
+            try:
+                self.assertIn(item, d)
+                status = 'ok'
+            except:
+                status = 'FAILED'
+                if self.rb.stricttests:
+                    raise
+            row = [reqid, reqtype, status]
+            csvhdlr.writerow(row)
+
+    def test_parser_orphan_01_rfi_objects(self):
+        filename = sys._getframe().f_code.co_name + '.csv'
+        d = self.rb.model.fp.fundict
+        tagstr = 'UC'
+        
+        self.orphan_check(filename, d, tagstr)
+        
+    def test_parser_orphan_02_rfn_objects(self):
+        filename = sys._getframe().f_code.co_name + '.csv'
+        d = self.rb.model.uniquerfn
+        tagstr = 'RFN'
+        self.reverse_dict(self.get_rfn_dict, self.set_rev_rfn_dict)
+        self.orphan_check(filename, d, tagstr)
 
     #def test_shuffle(self):
     #    # make sure the shuffled sequence does not lose any elements
@@ -209,6 +260,7 @@ def parsingsuite():
     #args = sys.argv[1:]
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(TestMissingObjects))
+    suite.addTest(unittest.makeSuite(TestOrphanObjects))
     return suite
 
 def EAsuite():
