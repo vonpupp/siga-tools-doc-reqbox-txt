@@ -154,19 +154,21 @@ class TestOrphanObjects(unittest.TestCase):
     rb = None
     revrfi = {}
     revrfn = {}
+    revrgn = {}
+    revrnf = {}
 
     def setUp(self):
         self.rb = rb
         #self.seq = range(10)
         
-    def reverse_dict(self, get_req_callback, set_req_callback):
+    def reverse_dict(self, get_req_callback, set_req_callback, d):
         fundict = self.rb.model.fp.fundict
         for fid, funstr in enumerate(sorted(fundict)):
             funmodel = fundict[funstr]
             reqdict = get_req_callback(funmodel)
             for rid, reqstr in enumerate(sorted(reqdict)):
                 reqmodel = reqdict[reqstr]
-                set_req_callback(funmodel, reqmodel)
+                set_req_callback(funmodel, reqmodel, d)
                 #req = reqdict[reqstr]
                 #reqid = reqstr.decode('utf-8')
                 #reqname = ''
@@ -177,11 +179,25 @@ class TestOrphanObjects(unittest.TestCase):
                 #    reqbody = req.reqbody.encode('utf-8')
         pass
     
+    def get_rfi_dict(self, funmodel):
+        return funmodel.rfi
+   
     def get_rfn_dict(self, funmodel):
         return funmodel.rfn
     
-    def set_rev_rfn_dict(self, fun, req):
-        self.revrfn[req.reqid] = fun
+    def get_rgn_dict(self, funmodel):
+        return funmodel.rgn
+    
+    def get_rnf_dict(self, funmodel):
+        return funmodel.rnf
+    
+    def set_rev_dict(self, fun, req, d):
+        #d = self.revrfn
+        if not req.reqid in d:
+            d[req.reqid] = [fun]
+        else:
+            l = d[req.reqid]
+            l += [fun]
         
     def orphan_check(self, filename, d, tagstr):
         fh = codecs.open(filename, encoding='utf-8', mode='w') # open(filename, 'r')
@@ -201,6 +217,8 @@ class TestOrphanObjects(unittest.TestCase):
             reqbody = ''
             try:
                 self.assertIn(item, d)
+                l = d[item]
+                self.assertNotEqual(l, [])
                 status = 'ok'
             except:
                 status = 'FAILED'
@@ -211,16 +229,30 @@ class TestOrphanObjects(unittest.TestCase):
 
     def test_parser_orphan_01_rfi_objects(self):
         filename = sys._getframe().f_code.co_name + '.csv'
-        d = self.rb.model.fp.fundict
-        tagstr = 'UC'
-        
+        d = self.revrfi
+        tagstr = 'RFI'
+        self.reverse_dict(self.get_rfi_dict, self.set_rev_dict, d)
         self.orphan_check(filename, d, tagstr)
         
     def test_parser_orphan_02_rfn_objects(self):
         filename = sys._getframe().f_code.co_name + '.csv'
-        d = self.rb.model.uniquerfn
+        d = self.revrfn
         tagstr = 'RFN'
-        self.reverse_dict(self.get_rfn_dict, self.set_rev_rfn_dict)
+        self.reverse_dict(self.get_rfn_dict, self.set_rev_dict, d)
+        self.orphan_check(filename, d, tagstr)
+        
+    def test_parser_orphan_03_rgn_objects(self):
+        filename = sys._getframe().f_code.co_name + '.csv'
+        d = self.revrgn
+        tagstr = 'RGN'
+        self.reverse_dict(self.get_rgn_dict, self.set_rev_dict, d)
+        self.orphan_check(filename, d, tagstr)
+        
+    def test_parser_orphan_04_rnf_objects(self):
+        filename = sys._getframe().f_code.co_name + '.csv'
+        d = self.revrnf
+        tagstr = 'RNF'
+        self.reverse_dict(self.get_rnf_dict, self.set_rev_dict, d)
         self.orphan_check(filename, d, tagstr)
 
     #def test_shuffle(self):
