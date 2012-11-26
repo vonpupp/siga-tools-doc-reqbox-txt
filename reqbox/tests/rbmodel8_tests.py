@@ -60,19 +60,29 @@ class ReqBoxTest():
         """
         itemsnumber = rb.model
         
-#- rodar a matriz de relacionamento;
-#- verificar se tem RFN sem utilização;
-#- verificar se tem RFI sem utilização;
-#- verificar se aparece o mesmo RFI mais de uma vez no documento de funcionalidades;
-#- verificar se aparece o mesmo UC mais de uma vez no documento de funcionalidades;
-#- verificar se há o mesmo número de RFN com nome diferente no documento de funcionalidades;
-#- verificar se há o mesmo número de RFI com nome diferente no documento de funcionalidades;
-#- verificar se há o mesmo número de UC com nome diferente no documento de funcionalidades;
-#- verificar se há funcionalidade sem um código UC; (este item só pode ser feito quando eu terminar a conversão dos casos de uso)
-#- Verificar se há caso de uso que não é extendido nem implementado por ninguém;
+
+
+# Verificar se há funcionalidade sem um código UC.
+
+# Verificar se aparece o mesmo UC mais de uma vez no documento de funcionalidades;
+# Verificar se aparece o mesmo RFI mais de uma vez no documento de funcionalidades;
+
+# Verificar se há o mesmo número de UC com nome diferente no documento de funcionalidades.
+# Verificar se há o mesmo nome de UC com número diferente no documento de funcionalidades.
+# Verificar se há o mesmo número de RFI com nome diferente no documento de funcionalidades.
+# Verificar se há o mesmo nome de RFI com número diferente no documento de funcionalidades.
+# Verificar se há o mesmo número de RFN com nome diferente no documento de funcionalidades.
+# Verificar se há o mesmo nome de RFN com número diferente no documento de funcionalidades.
 
 rb = None
 
+
+# Verificar se tem UC sem utilização;
+#   ok: test_parser_missing_01_uc_objects
+# Verificar se tem RFI sem utilização;
+#   ok: test_parser_missing_02_rfi_objects
+# Verificar se tem RFN sem utilização;
+#   ok: test_parser_missing_03_rfn_objects
 class TestMissingObjects(unittest.TestCase):
     """ 
     Attributes:
@@ -90,6 +100,10 @@ class TestMissingObjects(unittest.TestCase):
     #    return result
     
     def tag_check(self, filename, d, tagstr):
+        """
+        Verifica se foi pulado algum tagstr no dict d e guarda os resultados
+        no arquivo filename
+        """
         fh = codecs.open(filename, encoding='utf-8', mode='w') # open(filename, 'r')
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         
@@ -99,7 +113,7 @@ class TestMissingObjects(unittest.TestCase):
             maxid = maxid[len(tagstr):]
         #item = max(d, key=self.uckeymeasure)
         #maxid = max(self.uckeymeasure(k) for k in d.keys())
-        csvhdlr.writerow(["ID", "Type", "Status"])
+        csvhdlr.writerow(["ID", "Tipo", "Pulados"])
         for number in range(1, int(maxid) + 1):
             item = tagstr + '%03d' % number
             reqid = item
@@ -117,30 +131,45 @@ class TestMissingObjects(unittest.TestCase):
             csvhdlr.writerow(row)
 
     def test_parser_missing_01_uc_objects(self):
+        """
+        Verifica se foi pulado algum numero de UC na sequencia
+        """
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.rb.model.fp.fundict
         tagstr = 'UC'
         self.tag_check(filename, d, tagstr)
 
     def test_parser_missing_02_rfi_objects(self):
+        """
+        Verifica se foi pulado algum numero de RFI na sequencia
+        """
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.rb.model.uniquerfi
         tagstr = 'RFI'
         self.tag_check(filename, d, tagstr)
     
     def test_parser_missing_03_rfn_objects(self):
+        """
+        Verifica se foi pulado algum numero de RFN na sequencia
+        """
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.rb.model.uniquerfn
         tagstr = 'RFN'
         self.tag_check(filename, d, tagstr)
         
     def test_parser_missing_04_rgn_objects(self):
+        """
+        Verifica se foi pulado algum numero de RGN na sequencia
+        """
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.rb.model.uniquergn
         tagstr = 'RGN'
         self.tag_check(filename, d, tagstr)
         
     def test_parser_missing_05_rnf_objects(self):
+        """
+        Verifica se foi pulado algum numero de RNF na sequencia
+        """
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.rb.model.uniquernf
         tagstr = 'RNF'
@@ -255,24 +284,67 @@ class TestOrphanObjects(unittest.TestCase):
         self.reverse_dict(self.get_rnf_dict, self.set_rev_dict, d)
         self.orphan_check(filename, d, tagstr)
 
-    #def test_shuffle(self):
-    #    # make sure the shuffled sequence does not lose any elements
-    #    random.shuffle(self.seq)
-    #    self.seq.sort()
-    #    self.assertEqual(self.seq, range(10))
-    #
-    #    # should raise an exception for an immutable sequence
-    #    self.assertRaises(TypeError, random.shuffle, (1,2,3))
-    #
-    #def test_choice(self):
-    #    element = random.choice(self.seq)
-    #    self.assertTrue(element in self.seq)
-    #
-    #def test_sample(self):
-    #    with self.assertRaises(ValueError):
-    #        random.sample(self.seq, 20)
-    #    for element in random.sample(self.seq, 5):
-    #        self.assertTrue(element in self.seq)
+# Verificar se há caso de uso que não é extendido nem implementado por ninguém.
+#   Subdividido em dois
+#       Extends
+#       Includes
+class TestOrphanUCRel(unittest.TestCase):
+    """ 
+    Attributes:
+        - rb: ReqBox
+    """
+    rb = None
+
+    def setUp(self):
+        self.rb = rb
+        #self.seq = range(10)
+        
+    def get_ext_dict(self, funmodel):
+        return funmodel.extends
+   
+    def get_inc_dict(self, funmodel):
+        return funmodel.includes
+        
+    def orphan_check(self, filename, d, tagstr, get_dict_callback):
+        fh = codecs.open(filename, encoding='utf-8', mode='w') # open(filename, 'r')
+        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
+        
+        itemscount = len(d)
+        maxid = max(d)
+        if maxid.startswith(tagstr):
+            maxid = maxid[len(tagstr):]
+            
+        csvhdlr.writerow(["ID", "Type", "Status"])
+        for number in range(1, int(maxid) + 1):
+            item = tagstr + '%03d' % number
+            reqid = item
+            reqname = ''
+            reqtype = tagstr
+            reqbody = ''
+            try:
+                self.assertIn(item, d)
+                uc = d[item]
+                subdict = get_dict_callback(uc)
+                self.assertNotEqual(subdict, {})
+                status = 'ok'
+            except:
+                status = 'FAILED'
+                if self.rb.stricttests:
+                    raise
+            row = [reqid, reqtype, status]
+            csvhdlr.writerow(row)
+        
+    def test_parser_rel_missing_01_uc_extends(self):
+        filename = sys._getframe().f_code.co_name + '.csv'
+        d = self.rb.model.fp.fundict
+        #self.reverse_dict(self.get_rgn_dict, self.set_rev_dict, d)
+        self.orphan_check(filename, d, 'UC', self.get_ext_dict)
+        
+    def test_parser_rel_missing_02_uc_includes(self):
+        filename = sys._getframe().f_code.co_name + '.csv'
+        d = self.rb.model.fp.fundict
+        #self.reverse_dict(self.get_rgn_dict, self.set_rev_dict, d)
+        self.orphan_check(filename, d, 'UC', self.get_inc_dict)
     
 class TestEAIntegrity(unittest.TestCase):
 
@@ -293,6 +365,7 @@ def parsingsuite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(TestMissingObjects))
     suite.addTest(unittest.makeSuite(TestOrphanObjects))
+    suite.addTest(unittest.makeSuite(TestOrphanUCRel))
     return suite
 
 def EAsuite():
