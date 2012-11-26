@@ -128,19 +128,19 @@ class TestMissingObjects(unittest.TestCase):
         tagstr = 'RFI'
         self.tag_check(filename, d, tagstr)
     
-    def test_parser_missing_02_rfn_objects(self):
+    def test_parser_missing_03_rfn_objects(self):
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.rb.model.uniquerfn
         tagstr = 'RFN'
         self.tag_check(filename, d, tagstr)
         
-    def test_parser_missing_02_rgn_objects(self):
+    def test_parser_missing_04_rgn_objects(self):
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.rb.model.uniquergn
         tagstr = 'RGN'
         self.tag_check(filename, d, tagstr)
         
-    def test_parser_missing_02_rnf_objects(self):
+    def test_parser_missing_05_rnf_objects(self):
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.rb.model.uniquernf
         tagstr = 'RNF'
