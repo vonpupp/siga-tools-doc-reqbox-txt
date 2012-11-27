@@ -381,6 +381,7 @@ class TestFuzzyStrMatch(unittest.TestCase):
     def fuzzy_str_match_iterate(self, d, itemstr, getter):
         ratio = 0
         result = None
+        funstr = ''
         for i in d:
             s1 = getter(d[i])
             #s2 = getter(item)
@@ -388,10 +389,12 @@ class TestFuzzyStrMatch(unittest.TestCase):
             if itemstr != s1 and ratioeval > ratio:
                 result = i
                 ratio = ratioeval
-        return ratio and result and getter(result)
+                funstr = s1
+        return ratio, result, funstr
         
     def fuzzy_str_match(self, filename, d, tagstr, getter):
-        fh = codecs.open(filename, encoding='utf-8', mode='w') # open(filename, 'r')
+        fh = open(filename, 'wb')
+        #fh = codecs.open(filename, encoding='latin1', mode='w') # open(filename, 'r')
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         
         itemscount = len(d)
@@ -399,7 +402,7 @@ class TestFuzzyStrMatch(unittest.TestCase):
         if maxid.startswith(tagstr):
             maxid = maxid[len(tagstr):]
             
-        csvhdlr.writerow(["ID", "Type", "Ratio", "ID", "Title"])
+        csvhdlr.writerow(["ID", "Title", "Type", "Ratio", "ID", "Title"])
         for number in range(1, int(maxid) + 1):
             item = tagstr + '%03d' % number
             reqid = item
@@ -411,15 +414,17 @@ class TestFuzzyStrMatch(unittest.TestCase):
                 reqstr = getter(d[item])
                 #self.assertNotEqual(l, [])
                 ratio, nearest, neareststr = self.fuzzy_str_match_iterate(d, reqstr, getter)
+                ratio = '%0.2f' % (ratio*100) +'%'
                 status = 'ok'
             except:
                 status = 'FAILED'
                 ratio = -1
-                nearest = -1
-                neareststr = -1
+                nearest = ''
+                neareststr = ''
                 if self.rb.stricttests:
                     raise
-            row = [reqid, reqtype, '%d' % (ratio*100), nearest, neareststr]
+            #row = [reqid, reqstr.encode('latin1'), reqtype, ratio, nearest, neareststr.encode('latin1')]
+            row = [reqid, reqstr.encode('utf-8'), reqtype, ratio, nearest, neareststr.encode('utf-8')]
             csvhdlr.writerow(row)
             
     def test_parser_fuzzy_reqstr_01_uc(self):
