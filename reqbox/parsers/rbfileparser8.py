@@ -287,7 +287,10 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
             r.rgnend   = self.funsecend(r.fun.reqname, r.rgnstart, startmarkups)
             r.relend   = self.funsecend(r.fun.reqname, r.relstart, startmarkups)
             
-            self.fundict[r.fun.reqid] = r
+            if not r.fun.reqid in self.fundict:
+                self.fundict[r.fun.reqid] = r
+            else:
+                assert False
             
             if r.rfistart != -1:
                 # NG parser uses reqid for indexing instead of reqname

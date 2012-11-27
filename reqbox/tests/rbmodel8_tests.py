@@ -38,6 +38,7 @@ import sys
 import inspect
 import codecs
 import csv
+import reqbox.lib.rbstrlib as strlib
 
 class ReqBoxTest():
     """ Reqbox
@@ -63,12 +64,17 @@ class ReqBoxTest():
 
 
 # Verificar se há funcionalidade sem um código UC.
+#   ok: not going to happen
 
 # Verificar se aparece o mesmo UC mais de uma vez no documento de funcionalidades;
+# Verificar se há o mesmo número de UC com nome diferente no documento de funcionalidades.
+#   ok: getfundict (assert)
+
+
+
+
 # Verificar se aparece o mesmo RFI mais de uma vez no documento de funcionalidades;
 
-# Verificar se há o mesmo número de UC com nome diferente no documento de funcionalidades.
-# Verificar se há o mesmo nome de UC com número diferente no documento de funcionalidades.
 # Verificar se há o mesmo número de RFI com nome diferente no documento de funcionalidades.
 # Verificar se há o mesmo nome de RFI com número diferente no documento de funcionalidades.
 # Verificar se há o mesmo número de RFN com nome diferente no documento de funcionalidades.
@@ -286,8 +292,9 @@ class TestOrphanObjects(unittest.TestCase):
 
 # Verificar se há caso de uso que não é extendido nem implementado por ninguém.
 #   Subdividido em dois
-#       Extends
-#       Includes
+#       Extends: test_parser_rel_missing_01_uc_extends
+#       Includes test_parser_rel_missing_02_uc_includes
+# TODO: Perhaps I need to reverse the dictionaries to do the same check
 class TestOrphanUCRel(unittest.TestCase):
     """ 
     Attributes:
@@ -337,15 +344,89 @@ class TestOrphanUCRel(unittest.TestCase):
     def test_parser_rel_missing_01_uc_extends(self):
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.rb.model.fp.fundict
-        #self.reverse_dict(self.get_rgn_dict, self.set_rev_dict, d)
         self.orphan_check(filename, d, 'UC', self.get_ext_dict)
         
     def test_parser_rel_missing_02_uc_includes(self):
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.rb.model.fp.fundict
-        #self.reverse_dict(self.get_rgn_dict, self.set_rev_dict, d)
         self.orphan_check(filename, d, 'UC', self.get_inc_dict)
+
+# Verificar se há o mesmo nome de UC com número diferente no documento de funcionalidades.
+class TestFuzzyStrMatch(unittest.TestCase):
+    """ 
+    Attributes:
+        - rb: ReqBox
+    """
+    rb = None
+
+    def setUp(self):
+        self.rb = rb
+        #self.seq = range(10)
+        
+    def get_uc_str(self, funmodel):
+        return funmodel.fun.reqname
     
+    def get_rfi_str(self, funmodel):
+        return funmodel.rfi
+   
+    def get_rfn_str(self, funmodel):
+        return funmodel.rfn
+    
+    def get_rgn_str(self, funmodel):
+        return funmodel.rgn
+    
+    def get_rnf_dict(self, funmodel):
+        return funmodel.rnf
+        
+    def fuzzy_str_match_iterate(self, d, itemstr, getter):
+        ratio = 0
+        result = None
+        for i in d:
+            s1 = getter(d[i])
+            #s2 = getter(item)
+            ratioeval = strlib.mystrfuzzycmp(s1, itemstr)
+            if itemstr != s1 and ratioeval > ratio:
+                result = i
+                ratio = ratioeval
+        return ratio and result and getter(result)
+        
+    def fuzzy_str_match(self, filename, d, tagstr, getter):
+        fh = codecs.open(filename, encoding='utf-8', mode='w') # open(filename, 'r')
+        csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
+        
+        itemscount = len(d)
+        maxid = max(d)
+        if maxid.startswith(tagstr):
+            maxid = maxid[len(tagstr):]
+            
+        csvhdlr.writerow(["ID", "Type", "Ratio", "ID", "Title"])
+        for number in range(1, int(maxid) + 1):
+            item = tagstr + '%03d' % number
+            reqid = item
+            reqname = ''
+            reqtype = tagstr
+            reqbody = ''
+            try:
+                self.assertIn(item, d)
+                reqstr = getter(d[item])
+                #self.assertNotEqual(l, [])
+                ratio, nearest, neareststr = self.fuzzy_str_match_iterate(d, reqstr, getter)
+                status = 'ok'
+            except:
+                status = 'FAILED'
+                ratio = -1
+                nearest = -1
+                neareststr = -1
+                if self.rb.stricttests:
+                    raise
+            row = [reqid, reqtype, '%d' % (ratio*100), nearest, neareststr]
+            csvhdlr.writerow(row)
+            
+    def test_parser_fuzzy_reqstr_01_uc(self):
+        filename = sys._getframe().f_code.co_name + '.csv'
+        d = self.rb.model.fp.fundict
+        self.fuzzy_str_match(filename, d, 'UC', self.get_uc_str)
+
 class TestEAIntegrity(unittest.TestCase):
 
     def setUp(self):
@@ -366,6 +447,7 @@ def parsingsuite():
     suite.addTest(unittest.makeSuite(TestMissingObjects))
     suite.addTest(unittest.makeSuite(TestOrphanObjects))
     suite.addTest(unittest.makeSuite(TestOrphanUCRel))
+    suite.addTest(unittest.makeSuite(TestFuzzyStrMatch))
     return suite
 
 def EAsuite():
