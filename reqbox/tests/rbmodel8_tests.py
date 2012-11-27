@@ -70,18 +70,11 @@ class ReqBoxTest():
 # Verificar se há o mesmo número de UC com nome diferente no documento de funcionalidades.
 #   ok: getfundict (assert)
 
-
-
-
 # Verificar se aparece o mesmo RFI mais de uma vez no documento de funcionalidades;
-
 # Verificar se há o mesmo número de RFI com nome diferente no documento de funcionalidades.
-# Verificar se há o mesmo nome de RFI com número diferente no documento de funcionalidades.
 # Verificar se há o mesmo número de RFN com nome diferente no documento de funcionalidades.
-# Verificar se há o mesmo nome de RFN com número diferente no documento de funcionalidades.
 
 rb = None
-
 
 # Verificar se tem UC sem utilização;
 #   ok: test_parser_missing_01_uc_objects
@@ -136,7 +129,7 @@ class TestMissingObjects(unittest.TestCase):
             row = [reqid, reqtype, status]
             csvhdlr.writerow(row)
 
-    def test_parser_missing_01_uc_objects(self):
+    def test_parser_0101_missing_uc_objects(self):
         """
         Verifica se foi pulado algum numero de UC na sequencia
         """
@@ -145,7 +138,7 @@ class TestMissingObjects(unittest.TestCase):
         tagstr = 'UC'
         self.tag_check(filename, d, tagstr)
 
-    def test_parser_missing_02_rfi_objects(self):
+    def test_parser_0102_missing_rfi_objects(self):
         """
         Verifica se foi pulado algum numero de RFI na sequencia
         """
@@ -154,7 +147,7 @@ class TestMissingObjects(unittest.TestCase):
         tagstr = 'RFI'
         self.tag_check(filename, d, tagstr)
     
-    def test_parser_missing_03_rfn_objects(self):
+    def test_parser_0103_missing_rfn_objects(self):
         """
         Verifica se foi pulado algum numero de RFN na sequencia
         """
@@ -163,7 +156,7 @@ class TestMissingObjects(unittest.TestCase):
         tagstr = 'RFN'
         self.tag_check(filename, d, tagstr)
         
-    def test_parser_missing_04_rgn_objects(self):
+    def test_parser_0104_missing_rgn_objects(self):
         """
         Verifica se foi pulado algum numero de RGN na sequencia
         """
@@ -172,7 +165,7 @@ class TestMissingObjects(unittest.TestCase):
         tagstr = 'RGN'
         self.tag_check(filename, d, tagstr)
         
-    def test_parser_missing_05_rnf_objects(self):
+    def test_parser_0105_missing_rnf_objects(self):
         """
         Verifica se foi pulado algum numero de RNF na sequencia
         """
@@ -262,28 +255,28 @@ class TestOrphanObjects(unittest.TestCase):
             row = [reqid, reqtype, status]
             csvhdlr.writerow(row)
 
-    def test_parser_orphan_01_rfi_objects(self):
+    def test_parser_0201_orphan_rfi_objects(self):
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.revrfi
         tagstr = 'RFI'
         self.reverse_dict(self.get_rfi_dict, self.set_rev_dict, d)
         self.orphan_check(filename, d, tagstr)
         
-    def test_parser_orphan_02_rfn_objects(self):
+    def test_parser_0202_orphan_rfn_objects(self):
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.revrfn
         tagstr = 'RFN'
         self.reverse_dict(self.get_rfn_dict, self.set_rev_dict, d)
         self.orphan_check(filename, d, tagstr)
         
-    def test_parser_orphan_03_rgn_objects(self):
+    def test_parser_0203_orphan_rgn_objects(self):
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.revrgn
         tagstr = 'RGN'
         self.reverse_dict(self.get_rgn_dict, self.set_rev_dict, d)
         self.orphan_check(filename, d, tagstr)
         
-    def test_parser_orphan_04_rnf_objects(self):
+    def test_parser_0204_orphan_rnf_objects(self):
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.revrnf
         tagstr = 'RNF'
@@ -341,17 +334,22 @@ class TestOrphanUCRel(unittest.TestCase):
             row = [reqid, reqtype, status]
             csvhdlr.writerow(row)
         
-    def test_parser_rel_missing_01_uc_extends(self):
+    def test_parser_0301_rel_missing_uc_extends(self):
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.rb.model.fp.fundict
         self.orphan_check(filename, d, 'UC', self.get_ext_dict)
         
-    def test_parser_rel_missing_02_uc_includes(self):
+    def test_parser_0302_rel_missing_uc_includes(self):
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.rb.model.fp.fundict
         self.orphan_check(filename, d, 'UC', self.get_inc_dict)
 
 # Verificar se há o mesmo nome de UC com número diferente no documento de funcionalidades.
+#   ok: test_parser_0401_fuzzy_reqstr_uc
+# Verificar se há o mesmo nome de RFI com número diferente no documento de funcionalidades.
+#   ok: test_parser_0402_fuzzy_reqstr_rfi
+# Verificar se há o mesmo nome de RFN com número diferente no documento de funcionalidades.
+#   ok: test_parser_0403_fuzzy_reqstr_rfn
 class TestFuzzyStrMatch(unittest.TestCase):
     """ 
     Attributes:
@@ -366,17 +364,8 @@ class TestFuzzyStrMatch(unittest.TestCase):
     def get_uc_str(self, funmodel):
         return funmodel.fun.reqname
     
-    def get_rfi_str(self, funmodel):
-        return funmodel.rfi
-   
-    def get_rfn_str(self, funmodel):
-        return funmodel.rfn
-    
-    def get_rgn_str(self, funmodel):
-        return funmodel.rgn
-    
-    def get_rnf_dict(self, funmodel):
-        return funmodel.rnf
+    def get_reqname(self, funmodel):
+        return funmodel.reqname
         
     def fuzzy_str_match_iterate(self, d, itemstr, getter):
         ratio = 0
@@ -409,6 +398,7 @@ class TestFuzzyStrMatch(unittest.TestCase):
             reqname = ''
             reqtype = tagstr
             reqbody = ''
+            reqstr = ''
             try:
                 self.assertIn(item, d)
                 reqstr = getter(d[item])
@@ -427,10 +417,30 @@ class TestFuzzyStrMatch(unittest.TestCase):
             row = [reqid, reqstr.encode('utf-8'), reqtype, ratio, nearest, neareststr.encode('utf-8')]
             csvhdlr.writerow(row)
             
-    def test_parser_fuzzy_reqstr_01_uc(self):
+    def test_parser_0401_fuzzy_reqstr_uc(self):
         filename = sys._getframe().f_code.co_name + '.csv'
         d = self.rb.model.fp.fundict
         self.fuzzy_str_match(filename, d, 'UC', self.get_uc_str)
+        
+    def test_parser_0402_fuzzy_reqstr_rfi(self):
+        filename = sys._getframe().f_code.co_name + '.csv'
+        d = self.rb.model.uniquerfi
+        self.fuzzy_str_match(filename, d, 'RFI', self.get_reqname)
+        
+    def test_parser_0403_fuzzy_reqstr_rfn(self):
+        filename = sys._getframe().f_code.co_name + '.csv'
+        d = self.rb.model.uniquerfn
+        self.fuzzy_str_match(filename, d, 'RFN', self.get_reqname)
+        
+    def test_parser_0404_fuzzy_reqstr_rgn(self):
+        filename = sys._getframe().f_code.co_name + '.csv'
+        d = self.rb.model.uniquergn
+        self.fuzzy_str_match(filename, d, 'RGN', self.get_reqname)
+        
+    def test_parser_0405_fuzzy_reqstr_rnf(self):
+        filename = sys._getframe().f_code.co_name + '.csv'
+        d = self.rb.model.uniquernf
+        self.fuzzy_str_match(filename, d, 'RNF', self.get_reqname)
 
 class TestEAIntegrity(unittest.TestCase):
 
