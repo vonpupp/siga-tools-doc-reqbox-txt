@@ -230,7 +230,8 @@ class ReqBoxModelNG(model.ReqBoxModel):
     def exportrnflinksdictcallback(self, d, reqstr):
         return d.rnf
     
-    def exportobjectlinks(self, fname, direction, header, dictcallback, linktype):
+    def exportobjectlinks(self, fname, direction, header, dictcallback,
+                          linktype, isnamedrel):
         fh = open(fname, 'wb')
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         #csvhdlr.writerow(["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)", "Name"])
@@ -246,19 +247,23 @@ class ReqBoxModelNG(model.ReqBoxModel):
             for i1, reqstr in enumerate(sorted(rd)):
                 reqalias = rd[reqstr].reqid
                 
+                linkname = ''
                 if direction == 1:
-                    row = [funalias, reqalias, "rel-%s-%s" % (funalias, reqalias),
-                           linktype]
+                    if isnamedrel:
+                        linkname = "rel-%s-%s" % (funalias, reqalias)
+                    row = [funalias, reqalias, linkname, linktype]
                     print("Writing... rel-%s-%s" % (funalias, reqalias))
                 else:
-                    row = [reqalias, funalias, "rel-%s-%s" % (reqalias, funalias),
-                           linktype]
+                    if isnamedrel:
+                        linkname = "rel-%s-%s" % (reqalias, funalias)
+                    row = [reqalias, funalias, linkname, linktype]
                     print("Writing... rel-%s-%s" % (reqalias, funalias))
                 
                 csvhdlr.writerow(row)
         pass
     
-    def exportrellinks(self, fname, direction, header, dictcallback, linktype):
+    def exportrellinks(self, fname, direction, header, dictcallback, linktype,
+                       isnamedrel):
         fh = open(fname, 'wb')
         csvhdlr = csv.writer(fh, delimiter='\t')#, quotechar='"')#, quoting=csv.QUOTE_MINIMAL)
         #csvhdlr.writerow(["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)", "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)", "Name"])
@@ -274,13 +279,16 @@ class ReqBoxModelNG(model.ReqBoxModel):
             for i1, reqstr in enumerate(sorted(rd)):
                 reqalias = reqstr
                 
+                linkname = ''
                 if direction == 1:
-                    row = [funalias, reqalias, "rel-%s-%s" % (funalias, reqalias),
-                           linktype]
+                    if isnamedrel:
+                        linkname = "rel-%s-%s" % (funalias, reqalias)
+                    row = [funalias, reqalias, linkname, linktype]
                     print("Writing... rel-%s-%s" % (funalias, reqalias))
                 else:
-                    row = [reqalias, funalias, "rel-%s-%s" % (reqalias, funalias),
-                           linktype]
+                    if isnamedrel:
+                        linkname = "rel-%s-%s" % (reqalias, funalias)
+                    row = [reqalias, funalias, linkname, linktype]
                     print("Writing... rel-%s-%s" % (reqalias, funalias))
                 
                 csvhdlr.writerow(row)

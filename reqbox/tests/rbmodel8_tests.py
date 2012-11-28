@@ -465,7 +465,7 @@ def parsingsuite():
     suite.addTest(unittest.makeSuite(TestFuzzyStrMatch))
     return suite
 
-def EAsuite():
+def easuite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(TestEAIntegrity))
     return suite

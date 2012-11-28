@@ -62,26 +62,17 @@ __copyright__ = "(C) 2012 Albert De La Fuente. GNU GPL 3."
             - in-rnf-objects.csv
 """
 
-from collections import defaultdict
-#from reqbox-model import defaultdict
-
-#import defaultdict
 import getopt
 import logging
 import sys
 import os
 import csv
 import codecs
-from reqbox.lib.vlog import vlogger
-import reqbox.models.rbmodel7 as rbm1
-import reqbox.models.rbmodel8 as rbm2
-import reqbox.parsers.rbfileparser7 as rfp1
-import reqbox.parsers.rbfileparser8 as rfp2
-from reqbox.models.rbmodel7 import ReqBoxModel
-from reqbox.models.rbmodel8 import ReqBoxModelNG
-import reqbox.tests.rbmodel8_tests as rbt
 import unittest
-#import reqbox.models.rbmodel7 as rbm
+import platform
+import reqbox.tests.rbmodel8_tests as rbt
+from collections import defaultdict
+from reqbox.lib.vlog import vlogger
 
 #---- exceptions
 
@@ -115,24 +106,41 @@ class ReqBox():
         self.parserverion = 0
         self.runtests = 0
         self.stricttests = 0
-        self.tests = None
+        #self.tests = None
         
         # Init vlogger
         self.__verbosity = VERB_MAX
         self.logv = vlogger(self.__verbosity, sys.stdout)
         #self.vlog = self.__log()
         
-    def initparser(self, ModelClass):#, ParserClass):
+    def initparser(self):#, ModelClass):#, ParserClass):
         # Public
         # Init structures
-        if ModelClass == rbm1.ReqBoxModel:
-            ParserClass = rfp1.ReqBoxFileParser
-        elif ModelClass is ReqBoxModelNG:
-            ParserClass = rfp2.ReqBoxFileParserNG
+        
+        if self.parserverion == 7:
+            import reqbox.models.rbmodel7 as model
+            import reqbox.parsers.rbfileparser7 as parser
+            ModelClass = model.ReqBoxModel
+            ParserClass = parser.ReqBoxFileParser
+        elif self.parserverion == 8:
+            import reqbox.models.rbmodel8 as model
+            import reqbox.parsers.rbfileparser8 as parser
+            
+            ModelClass = model.ReqBoxModelNG
+            ParserClass = parser.ReqBoxFileParserNG
         self.model = ModelClass(ParserClass)
         #self.model = rbm.ReqBoxModel(ParserClass)
-        if ParserClass is rfp2.ReqBoxFileParserNG:
+        if self.parserverion == 8:
             self.model.fp.importsdir = self.inputdir
+        
+        #if ModelClass == rbm1.ReqBoxModel:
+        #    ParserClass = rfp1.ReqBoxFileParser
+        #elif ModelClass is rbm2.ReqBoxModelNG:
+        #    ParserClass = rfp2.ReqBoxFileParserNG
+        #self.model = ModelClass(ParserClass)
+        ##self.model = rbm.ReqBoxModel(ParserClass)
+        #if ParserClass is rfp2.ReqBoxFileParserNG:
+        #    self.model.fp.importsdir = self.inputdir
         
     def __del__(self):
         #del self.rfi
@@ -215,16 +223,18 @@ class ReqBox():
         print "Objects exported to:\t" + fn
         
     def exportobjectlinks(self, fname, direction, header, dictcallback, linktype):
-        return self.model.exportobjectlinks(fname, direction, header, dictcallback,
-                                            linktype)
+        return self.model.exportobjectlinks(fname, direction, header,
+                                            dictcallback, linktype, 0)
 
     def exportrellinks(self, fname, direction, header, dictcallback, linktype):
-        return self.model.exportrellinks(fname, direction, header, dictcallback,
-                                            linktype)
+        return self.model.exportrellinks(fname, direction, header,
+                                         dictcallback, linktype, 0)
         
 def main(argv):
     try:
-        optlist, args = getopt.getopt(argv, 'hv:aingo:t', ['help', 'verbose',
+        optlist, args = getopt.getopt(argv, 'hv:p:aingo:t', [
+            'help', 'verbose',
+            'parse'
             'export-all', 'export-rfi', 'export-rfn', 'in-objects',
             'parse-v7', 'parse-v8', 'run-tests', 'strict-tests'])
     except getopt.GetoptError, msg:
@@ -237,7 +247,8 @@ def main(argv):
 #        return 1
     
     rb = ReqBox()
-    rbm = rbm1.ReqBoxModel # Default parser
+    rb.parserverion = 7
+    #rbm = rbm1.ReqBoxModel # Default parser
     for opt, optarg in optlist:
         if opt in ('-h', '--help'):
             sys.stdout.write(__doc__)
@@ -250,14 +261,21 @@ def main(argv):
             pass
         #elif opt in ('-a', '--export-all',
         #             '-i', '--export-rfi'):
-        elif opt in ('--parse-v7'):
-            rbm = rbm1.ReqBoxModel
+        elif opt in ('-p', '--parse'):
+            #rbm = rbm1.ReqBoxModel
             #rbp = rfp1.ReqBoxFileParser
-            rb.parserverion = 7
-        elif opt in ('--parse-v8'):
-            rbm = rbm2.ReqBoxModelNG
-            #rbp = rfp2.ReqBoxFileParserNG
-            rb.parserverion = 8
+            if optarg.lower() == 'v7':
+                rb.parserverion = 7
+            elif optarg.lower() == 'v8':
+                rb.parserverion = 8
+        #elif opt in ('--parse-v7'):
+        #    rbm = rbm1.ReqBoxModel
+        #    #rbp = rfp1.ReqBoxFileParser
+        #    rb.parserverion = 7
+        #elif opt in ('--parse-v8'):
+        #    rbm = rbm2.ReqBoxModelNG
+        #    #rbp = rfp2.ReqBoxFileParserNG
+        #    rb.parserverion = 8
         elif opt in ('-o', '--in-objects'):
             rb.inputdir = optarg
         
@@ -283,7 +301,8 @@ def main(argv):
     #rb.parsernf = rb.parsernf or rb.parseall
     #rb.parsergn = rb.parsergn or rb.parseall
     
-    rb.initparser(rbm)
+    #rb.initparser(rbm)
+    rb.initparser()
     rb.model.parsefile(rb.inputfile)
     
     if rb.parsefun and rb.parserverion == 7:
@@ -392,14 +411,12 @@ def main(argv):
         rb.exportrellinks("out2-utf8-rel-uc-fun-imp.csv", 1, header,
                           rb.model.exportimplinksdictcallback, "Implements")
     
-    if rb.runtests:
-        #rb.tests = rbt.ReqBoxTest()
-        #rb.tests.test01()
+    if rb.runtests and rb.parserverion == 8:
         rbt.rb = rb
-        #sys.argv[1:] = args.unittest_args
-        #unittest.main()
         suiteFew = unittest.TestSuite()
         unittest.TextTestRunner(verbosity=2).run(rbt.parsingsuite())
+        if platform.system() == 'Windows':
+            unittest.TextTestRunner(verbosity=2).run(rbt.easuite())
 
     #del rb
 #    print "wfl.verbosity=" + str(wfl.__verbosity)
