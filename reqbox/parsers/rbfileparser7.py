@@ -485,7 +485,10 @@ class ReqBoxFileParser(object):
         if self.parsingasutf8wincrlf() or self.parsingasutf8win():
             #header = header.upper()
             #header = self.utf8(header.decode('utf-8').upper())
-            header = header.decode('utf-8').upper().encode('utf-8')
+            #header = header.decode('utf-8').upper().encode('utf-8')
+            header = header.decode('utf-8').upper()
+            header = header.encode('latin1')
+            #header = header.decode('latin1').upper()
         # Secstr is always going to be a str, so it needs to be converted to utf8
         #header = self.utf8(header)
         found = self.f.find(header, beginloc+1, endloc-1)

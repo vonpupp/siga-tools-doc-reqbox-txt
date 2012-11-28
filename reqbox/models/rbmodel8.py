@@ -111,6 +111,9 @@ class FunModelNG(model.FunModel):
         self.extends = {}
         self.includes = {}
         self.implements = {}
+        self.opstart = -1
+        self.opend = -1
+        self.operations = {}
         pass
     
 class ReqBoxModelNG(model.ReqBoxModel):

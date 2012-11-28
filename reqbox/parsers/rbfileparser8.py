@@ -150,6 +150,14 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
         #header = "Regras de Negócio"
         header = "RELACIONAMENTOS"
         return self.funhassection(funstr, header, start, end)
+        
+    def funopstart(self, funstr, start=0, end=0):
+        header = "OPERAÇÕES"
+        return self.funhassection(funstr, header, start, end)
+        
+    def funopend(self, funstr, start=0, end=0):
+        header = "OPERAÇÕES"
+        return self.funhassection(funstr, header, start, end)
        
     def getfunloc(self, prefix):
         """
@@ -275,8 +283,9 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
             r.rnfstart = self.funrnfstart(r.fun.reqname, r.fun.reqstart, r.fun.reqend)
             r.rgnstart = self.funrgnstart(r.fun.reqname, r.fun.reqstart, r.fun.reqend)
             r.relstart = self.funrelstart(r.fun.reqname, r.fun.reqstart, r.fun.reqend)
+            r.opstart  = self.funopstart(r.fun.reqname, r.fun.reqstart, r.fun.reqend)
             startmarkups = [r.fun.reqstart, r.rfistart, r.rfnstart,
-                            r.rnfstart, r.rgnstart, r.relstart,
+                            r.rnfstart, r.rgnstart, r.relstart, r.opstart,
                             r.fun.reqend]
             startmarkups.sort()
             #result = "FUN id=%s [bytes=%d/%d]:\t'%s'\n" % (r.fun.reqid, r.fun.reqstart, r.fun.reqend, r.fun.reqname)
@@ -286,6 +295,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
             r.rnfend   = self.funsecend(r.fun.reqname, r.rnfstart, startmarkups)
             r.rgnend   = self.funsecend(r.fun.reqname, r.rgnstart, startmarkups)
             r.relend   = self.funsecend(r.fun.reqname, r.relstart, startmarkups)
+            r.opend    = self.funsecend(r.fun.reqname, r.opstart, startmarkups)
             
             if not r.fun.reqid in self.fundict:
                 self.fundict[r.fun.reqid] = r
@@ -307,7 +317,89 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                 r.implements = self.getreldict(r.fun.reqid, 'IMPLEMENTS ', r.relstart, r.relend)
             if r.relstart != -1:
                 r.includes = self.getreldict(r.fun.reqid, 'INCLUDE ', r.relstart, r.relend)
+            if r.opstart != -1:
+                r.operations, r.fun.reqbody = self.getopdict(r.fun.reqid, r.opstart, r.opend)
         pass
+    
+    def getopdict(self, funstr, start, end):
+        if start != 0:
+            beginloc = start
+        else:
+            beginloc = self.funstart(funstr)
+        if end != 0:
+            endloc = end
+        else:
+            endloc = self.funend(funstr)
+        #funid = self.funid(funstr)
+        #funidstr = self.funidname(funstr)
+        self.f.seek(beginloc)
+        loc = beginloc #self.f.tell()
+        
+        insection = 1
+        result = {}
+        #findstr = "^" + tag + ".*"
+        #expr = re.compile(findstr)
+        #findstr = self.utf8(findstr)
+        #self.vlog(VERB_MAX, "finding from %d... '%s'" % (loc, findstr))
+        
+        isfirst = 1
+        reqbody = "".decode('latin1')
+        line = self.f.readline()
+        line = self.f.readline()
+        while insection:
+            line = self.f.readline()
+            if line.strip() != '':
+                reqid = self.getfunid(line)
+                result[reqid] = line.strip()
+                reqbody += line.decode('latin1')
+            loc = self.f.tell()
+            insection = loc < endloc
+            #self.search_file(findstr, beginloc, endloc)   
+            #m = re.search(findstr, line)#, beginloc, endloc)
+            #print("found error", m.)
+            #if m and len(m.group(0)) > 9:
+            #    inbody = 1
+            #    tagitem = m.group(0)#[:6]
+            #    reqid = self.getfunid(tagitem)
+            #    reqname = self.getfunname(tagitem)
+            #    reqstart = self.f.tell()
+            #    while inbody and insection:
+            #        ended = re.search("^Media\r\n", line)
+            #        if (m == None or (m != None and len(m.group(0)) > 9)) and (ended == None): # if is not rfi clean fun
+            #            reqbody += line.decode('latin1')
+            #        inbody = (m == None or (m != None and len(m.group(0)) == 8)) and (ended == None)
+            #        insection = loc < endloc
+            #    reqend = self.f.tell()
+            #    reqid = reqid.split(tag)[1][1:]
+                #newreq = model.ReqModel(reqid.decode('utf-8'), reqname.decode('latin1'),
+                #                        reqstart, reqend)
+                #newreq.reqbody = reqbody
+                ## Format fixing
+                #newreq.fixreqbody()
+                #newreq.fixreqname()
+                #reqbody = ''
+                #link = None
+                #if reqid in self.fundict:
+                #    link = self.fundict[reqid]
+                # At this point there are no links yet since UC objects are not
+                # fully parsed yet.
+                # TODO: Post-link them
+                #result[reqid] = None
+                #self.vlog(VERB_MAX, "M IS TRUE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                #print()
+                #resultdict[] = 
+                
+                #print("found error", m.group(1))
+            #loc = self.f.find(findstr, loc, endloc)
+            #self.f.seek(loc)
+            #insection = loc < endloc
+            #self.vlog(VERB_MAX, "line: '%s'" % (line))
+            #if cond:
+            #    line = self.f.readline()
+            #    if line:
+            #        self.vlog(VERB_MAX, "found on location %d | '%s'" % (m.start(), m.group()))
+            #    pass
+        return result, reqbody
     
     def getreldict(self, funstr, tag, start, end):
         if start != 0:
