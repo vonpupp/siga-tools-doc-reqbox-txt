@@ -39,9 +39,10 @@
 import logging, sys, mmap, shutil, contextlib, codecs, re, csv
 import operator
 import reqbox.models.rbmodel8 as model
-from reqbox.lib.vlog import vlogger
-from reqbox.parsers.rbfileparser7 import ReqBoxFileParser
 import reqbox.lib.rbstrlib as strlib
+from reqbox.parsers.rbfileparser7 import ReqBoxFileParser
+#from reqbox.lib.vlog import vlogger
+from ..lib.logger import *
 
 #sys.setdefaultencoding('utf-8')
 
@@ -87,7 +88,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
         """
         Overrided method to load from a CSV file as unicode objects
         """
-        self.vlog(VERB_MED, "-> %s" % __name__)
+        #log_debug("-> %s" % __name__)
         
         self.funlist = []
         
@@ -112,8 +113,8 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
             self.funlist += [strlib.fixmschr(line[0].decode('utf-8'))] # .decode('utf-8')
             idx += 1
             
-        self.vlog(VERB_MED, "<- %s" % __name__)
-        self.vlog(VERB_MAX, "result = %s" % (self.funlist))
+        #log_debug("<- %s" % __name__)
+        #log_debug("result = %s" % (self.funlist))
         return self.funlist
     
     def parsefile(self, filename):
@@ -122,16 +123,16 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
         
         # Init mmap
         self.file = codecs.open(filename, encoding='utf-8', mode='r') # open(filename, 'r')
-        self.vlog(VERB_MIN, "opening file: %s" % filename)
+        #self.vlog(VERB_MIN, "opening file: %s" % filename)
         self.f = mmap.mmap(self.file.fileno(), 0, access=mmap.ACCESS_READ)
         self.f.seek(0) # rewind
         
         # Parsing stuff
         self.getfunlist()
-        #self.vlog(VERB_MED, "fun = %s" % (self.funstr))
-        self.vlog(VERB_MED, "len(fun) = %d" % (len(self.funlist)))
+        #log_debug("fun = %s" % (self.funstr))
+        #log_debug("len(fun) = %d" % (len(self.funlist)))
         self.getfundict() # No prefix, refactored parameter when this class became super of the ng version
-        self.vlog(VERB_MED, "fundict = %s" % (self.fundict))
+        #log_debug("fundict = %s" % (self.fundict))
         pass
    
     #def gettagidx(self, funstr):
@@ -163,14 +164,14 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
         """
         Fills the objectlist property with the start and end file locations (bytes)
         """
-        self.vlog(VERB_MED, "-> getfundict()")
+        log_debug("-> getfundict()")
         self.fundict = {}
         
         bodyloc = beginloc = self.bodystartloc()
         finalloc = self.f.size() - 1
         endloc = finalloc
         self.f.seek(beginloc)
-        self.vlog(VERB_MAX, "body start at location %d" % (beginloc))
+        log_debug("body start at location %d" % (beginloc))
         count = len(self.funlist)
         
         #print('sys.stdout encoding is "' + sys.stdout.encoding + '"')
@@ -212,7 +213,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                     newfunstr = self.utf8(prefix + stridx + ". ") # + funstr
                 #newfunstr = self.utf8(newfunstr)
                 pass
-            self.vlog(VERB_MAX, "looking for: '%s'" % (newfunstr))
+            log_debug("looking for: '%s'" % (newfunstr))
             #beginloc = self.f.rfind(newfunstr, beginloc, endloc)
             #beginloc = 0
             beginloc = self.f.find(newfunstr, bodyloc, endloc)
@@ -226,16 +227,16 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                 #        print("-----------------------------------MULTILINE")
                 funid = self.getfunid(line)
                 line = self.cleanfunfrombody(line)
-                self.vlog(VERB_MAX, "found from %d to %d out of %d | '%s. %s'" % (beginloc, endloc, finalloc, funid, line))
+                log_debug("found from %d to %d out of %d | '%s. %s'" % (beginloc, endloc, finalloc, funid, line))
                 # TODO: Assert: funstr == line.upper()
                 #csv = funstr.decode('utf-8')
                 csv = funstr #.decode('utf-8')
                 doc = line.decode('latin1')
                 if csv != doc:
-                    self.vlog(VERB_MAX, "ASSERT. Fun names doesn't match:")
-                    self.vlog(VERB_MAX, "  CSV = '%s'" % (csv)) # .decode('unicode_escape')
+                    log_debug("ASSERT. Fun names doesn't match:")
+                    log_debug("  CSV = '%s'" % (csv)) # .decode('unicode_escape')
                     #print(csv)
-                    self.vlog(VERB_MAX, "  DOC = '%s'" % (doc))
+                    log_debug("  DOC = '%s'" % (doc))
                     funstr = csv # self.getfunname(csv)
                     
                 #endloc = 0
@@ -260,7 +261,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                 # TODO: An exception should be raised here
                 pass
         
-        self.vlog(VERB_MED, "<- getfundict()")
+        log_debug("<- getfundict()")
        
     def getfundict(self):
         self.getfunloc(". ")
@@ -340,7 +341,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
         #findstr = "^" + tag + ".*"
         #expr = re.compile(findstr)
         #findstr = self.utf8(findstr)
-        #self.vlog(VERB_MAX, "finding from %d... '%s'" % (loc, findstr))
+        #log_debug("finding from %d... '%s'" % (loc, findstr))
         
         isfirst = 1
         reqbody = "".decode('latin1')
@@ -385,7 +386,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                 # fully parsed yet.
                 # TODO: Post-link them
                 #result[reqid] = None
-                #self.vlog(VERB_MAX, "M IS TRUE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                #log_debug("M IS TRUE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                 #print()
                 #resultdict[] = 
                 
@@ -393,11 +394,11 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
             #loc = self.f.find(findstr, loc, endloc)
             #self.f.seek(loc)
             #insection = loc < endloc
-            #self.vlog(VERB_MAX, "line: '%s'" % (line))
+            #log_debug("line: '%s'" % (line))
             #if cond:
             #    line = self.f.readline()
             #    if line:
-            #        self.vlog(VERB_MAX, "found on location %d | '%s'" % (m.start(), m.group()))
+            #        log_debug("found on location %d | '%s'" % (m.start(), m.group()))
             #    pass
         return result, reqbody
     
@@ -420,7 +421,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
         expr = re.compile(findstr)
         findstr = self.utf8(findstr)
         result = {}
-        self.vlog(VERB_MAX, "finding from %d... '%s'" % (loc, findstr))
+        log_debug("finding from %d... '%s'" % (loc, findstr))
         
         isfirst = 1
         reqbody = "".decode('utf-8')
@@ -458,7 +459,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
                 # fully parsed yet.
                 # TODO: Post-link them
                 result[reqid] = None 
-                #self.vlog(VERB_MAX, "M IS TRUE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                #log_debug("M IS TRUE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                 #print()
                 #resultdict[] = 
                 
@@ -466,11 +467,11 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
             #loc = self.f.find(findstr, loc, endloc)
             self.f.seek(loc)
             insection = loc < endloc
-            #self.vlog(VERB_MAX, "line: '%s'" % (line))
+            #log_debug("line: '%s'" % (line))
             #if cond:
             #    line = self.f.readline()
             #    if line:
-            #        self.vlog(VERB_MAX, "found on location %d | '%s'" % (m.start(), m.group()))
+            #        log_debug("found on location %d | '%s'" % (m.start(), m.group()))
             #    pass
         return result
         pass
@@ -496,7 +497,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
     #    expr = re.compile(findstr)
     #    findstr = self.utf8(findstr)
     #    result = {}
-    #    self.vlog(VERB_MAX, "finding from %d... '%s'" % (loc, findstr))
+    #    log_debug("finding from %d... '%s'" % (loc, findstr))
     #    
     #    #pos = 0
     #    #if endpos is None:
@@ -539,7 +540,7 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
     #            newreq.reqbody = reqbody
     #            reqbody = ''
     #            result[reqid] = newreq
-    #            #self.vlog(VERB_MAX, "M IS TRUE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    #            #log_debug("M IS TRUE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     #            #print()
     #            #resultdict[] = 
     #            
@@ -547,11 +548,11 @@ class ReqBoxFileParserNG(ReqBoxFileParser, object):
     #        #loc = self.f.find(findstr, loc, endloc)
     #        self.f.seek(loc)
     #        insection = loc < endloc
-    #        #self.vlog(VERB_MAX, "line: '%s'" % (line))
+    #        #log_debug("line: '%s'" % (line))
     #        #if cond:
     #        #    line = self.f.readline()
     #        #    if line:
-    #        #        self.vlog(VERB_MAX, "found on location %d | '%s'" % (m.start(), m.group()))
+    #        #        log_debug("found on location %d | '%s'" % (m.start(), m.group()))
     #        #    pass
     #    return result
     

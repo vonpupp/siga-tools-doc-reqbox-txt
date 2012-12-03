@@ -72,7 +72,8 @@ import unittest
 import platform
 import reqbox.tests.rbmodel8_tests as rbt
 from collections import defaultdict
-from reqbox.lib.vlog import vlogger
+#from reqbox.lib.vlog import vlogger
+from reqbox.lib.logger import * #debug, info, warning, error, critical, get_exception
 
 #---- exceptions
 
@@ -109,8 +110,8 @@ class ReqBox():
         #self.tests = None
         
         # Init vlogger
-        self.__verbosity = VERB_MAX
-        self.logv = vlogger(self.__verbosity, sys.stdout)
+        #self.__verbosity = VERB_MAX
+        #self.logv = vlogger(self.__verbosity, sys.stdout)
         #self.vlog = self.__log()
         
     def initparser(self):#, ModelClass):#, ParserClass):
@@ -125,9 +126,13 @@ class ReqBox():
         elif self.parserverion == 8:
             import reqbox.models.rbmodel8 as model
             import reqbox.parsers.rbfileparser8 as parser
-            
             ModelClass = model.ReqBoxModelNG
             ParserClass = parser.ReqBoxFileParserNG
+            log_debug('Parser v8')
+            log_debug('Debug: Parser v8')
+            log_info(1, 'Info: Parser v8 - 1')
+            log_info(2, 'Info: Parser v8 - 2')
+            log_info(3, 'Info: Parser v8 - 3')
         self.model = ModelClass(ParserClass)
         #self.model = rbm.ReqBoxModel(ParserClass)
         if self.parserverion == 8:
@@ -254,6 +259,7 @@ def main(argv):
             sys.stdout.write(__doc__)
             return 0
         elif opt in ('-v', '--verbose'):
+            log_setverbosity(int(optarg))
             #wfl.setVerbosity(int(optarg))
             #wfl.logv(VERB_MED, "main.optarg[%d]" % len(optlist))
             #wfl.logv(VERB_MED, "main.optarg = " .join(map(str, optarg)))
@@ -312,7 +318,9 @@ def main(argv):
         rb.parsefunrgnlinks("out-fun-rgn-links.csv")
         rb.parsefunrnflinks("out-fun-rnf-links.csv")
     elif rb.parsefun and rb.parserverion == 8:
-        rb.exportobjects("out2-utf8-obj-fun.csv", rb.model.fp.fundict,
+        filename = "out2-utf8-obj-fun.csv"
+        log_info(1, 'Exporting FUN objects: %s' % filename)
+        rb.exportobjects(filename, rb.model.fp.fundict,
                          rb.model.funexportercallback, 'UseCase')
         rb.model.removereqcontent()
         #rb.parsefunrfilinks("out-fun-rfi-links.csv")
@@ -324,15 +332,23 @@ def main(argv):
         rb.parserfiobjects("out-rfi-objects.csv")
         rb.parserfifunlinks("out-rfi-fun-links.csv")
     elif rb.parserfi and rb.parserverion == 8:
+        filename = "out2-utf8-obj-rfi.csv"
+        log_info(1, 'Exporting OBJ RFI: %s' % filename)
         rficount = rb.model.builduniquerfidict()
-        rb.exportobjects("out2-utf8-obj-rfi.csv", rb.model.uniquerfi,
+        rb.exportobjects(filename, rb.model.uniquerfi,
                          rb.model.childexportercallback, 'Requirement')
         header = ["SIGA stable|Biblioteca de Casos de Uso (UC)|Comum - Casos de Uso (UC)",
                   "SIGA stable|Biblioteca de Requisitos (RFI / RFN / RNF / RGN)|Requisitos Funcionais de Interface (RFI)|Comum - Requisitos Funcionais de Interface (RFI)",
                   "Name", "Type"]
-        rb.exportobjectlinks("out2-utf8-rel-fun-rfi.csv", 1,
+        
+        filename = "out2-utf8-rel-fun-rfi.csv"
+        log_info(1, 'Exporting REL FUN-RFI: %s' % filename)
+        rb.exportobjectlinks(filename, 1,
                        header, rb.model.exportrfilinksdictcallback, "Realization")
-        rb.exportobjectlinks("out2-utf8-rel-rfi-fun.csv", -1,
+        
+        filename = "out2-utf8-rel-rfi-fun.csv"
+        log_info(1, 'Exporting REL RFI-FUN: %s' % filename)
+        rb.exportobjectlinks(filename, -1,
                        [header[1], header[0], header[2]],
                        rb.model.exportrfilinksdictcallback, "Realization")
     

@@ -79,10 +79,11 @@ import sys
 import os
 import csv
 import codecs
-from reqbox.lib.vlog import vlogger
 #import reqbox.parsers.rbfileparser7 as rfp
 import reqbox.lib.rbstrlib as strlib
+#from reqbox.lib.vlog import vlogger
 #from reqboxfileparse import reqboxfileparser
+from ..lib.logger import *
 
 #---- exceptions
 
@@ -173,8 +174,8 @@ class ReqBoxModel():
         self.uniquergn = {}
         
         # Init vlogger
-        self.__verbosity = VERB_MAX
-        self.vlog = vlogger(self.__verbosity, sys.stdout)
+        #self.__verbosity = VERB_MAX
+        #self.vlog = vlogger(self.__verbosity, sys.stdout)
         #self.vlog = self.__log()
         
     def __del__(self):
@@ -292,7 +293,7 @@ class ReqBoxModel():
             for idx, reqstr in enumerate(sorted(d)):
                 r = d[reqstr]
                 
-                #self.vlog(VERB_MED, "len = '%d'" % len(result.split(utf8("\t"))))
+                #log_debug("len = '%d'" % len(result.split(utf8("\t"))))
                 row = [r.reqid + ". " + r.reqname, r.reqid, 'Requirement', r.reqbody, "Medium", "Albert De La Fuente"]
                 
                 #Name    Alias   Type    Notes   Priority        Author
@@ -323,7 +324,7 @@ class ReqBoxModel():
                 
                 #if self.uniquerfn
                 
-                #self.vlog(VERB_MED, "len = '%d'" % len(result.split(utf8("\t"))))
+                #log_debug("len = '%d'" % len(result.split(utf8("\t"))))
             row = [r.reqid + ". " + r.reqname, r.reqid, 'Requirement', r.reqbody, "Medium", "Albert De La Fuente"]
                 
                 #Name    Alias   Type    Notes   Priority        Author
@@ -354,7 +355,7 @@ class ReqBoxModel():
                 
                 #if self.uniquerfn
                 
-                #self.vlog(VERB_MED, "len = '%d'" % len(result.split(utf8("\t"))))
+                #log_debug("len = '%d'" % len(result.split(utf8("\t"))))
             row = [r.reqid + ". " + r.reqname, r.reqid, 'Requirement', r.reqbody, "Medium", "Albert De La Fuente"]
                 
                 #Name    Alias   Type    Notes   Priority        Author
@@ -385,7 +386,7 @@ class ReqBoxModel():
                 
                 #if self.uniquerfn
                 
-                #self.vlog(VERB_MED, "len = '%d'" % len(result.split(utf8("\t"))))
+                #log_debug("len = '%d'" % len(result.split(utf8("\t"))))
             row = [r.reqid + ". " + r.reqname, r.reqid, 'Requirement', r.reqbody, "Medium", "Albert De La Fuente"]
                 
                 #Name    Alias   Type    Notes   Priority        Author

@@ -37,8 +37,9 @@
 """
 
 import logging, sys, mmap, shutil, contextlib, codecs, re
-from reqbox.lib.vlog import vlogger
 import reqbox.models.rbmodel7 as model
+#from reqbox.lib.vlog import vlogger
+from ..lib.logger import *
 
 #sys.setdefaultencoding('utf-8')
 
@@ -100,8 +101,8 @@ class ReqBoxFileParser(object):
         self.fundict = {}
         
         # Init vlogger
-        self.__verbosity = VERB_MAX
-        self.vlog = vlogger(self.__verbosity, sys.stdout)
+        #self.__verbosity = VERB_MAX
+        #self.vlog = vlogger(self.__verbosity, sys.stdout)
         #self.vlog = self.__log()
         
         # Init mmap
@@ -128,10 +129,10 @@ class ReqBoxFileParser(object):
         
         # Parsing stuff
         self.getfunlist()
-        #self.vlog(VERB_MED, "fun = %s" % (self.funstr))
-        self.vlog(VERB_MED, "len(fun) = %d" % (len(self.funlist)))
+        #log_debug("fun = %s" % (self.funstr))
+        log_debug("len(fun) = %d" % (len(self.funlist)))
         self.getfundict("\r\n") # No prefix, refactored parameter when this class became super of the ng version
-        self.vlog(VERB_MED, "fundict = %s" % (self.fundict))
+        log_debug("fundict = %s" % (self.fundict))
         pass
     
     def __del__(self):
@@ -200,11 +201,11 @@ class ReqBoxFileParser(object):
         #result = result.rstrip() # Trim leading spaces (Ex: FUN 43)
         #result = result.lstrip()
         if result is not self.utf8(""):
-            self.vlog(VERB_MED, "len = '%d'" % len(result.split(self.utf8("\t"))))
-            self.vlog(VERB_MED, "result = '%s'" % result)
+            log_debug("len = '%d'" % len(result.split(self.utf8("\t"))))
+            log_debug("result = '%s'" % result)
             if result != b'\xe2\x80\x83':
                 result = result.split(self.utf8("\t"))[1]
-                self.vlog(VERB_MED, "RESULT IS CRAP = '%s'" % result)
+                log_debug("RESULT IS CRAP = '%s'" % result)
             #result = result.split(".")[1]
             result = result.rstrip() # Trim leading spaces (Ex: FUN 43)
             result = result.lstrip()
@@ -304,7 +305,7 @@ class ReqBoxFileParser(object):
         """
         Fills the funlist list with all the parsed functionalities based on the index.
         """
-        self.vlog(VERB_MED, "-> %s" % __name__)
+        log_debug("-> %s" % __name__)
         
         # Find the position of the begining tag
         #begintag = "Lista Completa de Funcionalidades"
@@ -322,18 +323,18 @@ class ReqBoxFileParser(object):
         self.f.readline()
         loc = self.f.tell()
         
-        #self.vlog(VERB_MAX, "beginloc = %d" % beginloc)
-        #self.vlog(VERB_MAX, "endloc = %d" % endloc)
+        #log_debug("beginloc = %d" % beginloc)
+        #log_debug("endloc = %d" % endloc)
         
         self.funlist = []
         count = 0
         while (loc < endloc):
             line = self.f.readline()
             loc = self.f.tell()
-            self.vlog(VERB_MAX, "reading line '%s' bytes = %d" % (line, loc))
+            log_debug("reading line '%s' bytes = %d" % (line, loc))
             line = self.cleanfunfromindex(line)
             
-            self.vlog(VERB_MAX, "cleaned line '%s'" % (line))
+            log_debug("cleaned line '%s'" % (line))
             if line is not self.utf8("") and (line != b'\xe2\x80\x83'):
                 self.funlist += [line]
                 count += 1
@@ -342,9 +343,9 @@ class ReqBoxFileParser(object):
                 #else:
                 #    self.funlist += [line]
         
-        #self.vlog(VERB_MED, "<- getfunlist()")
-        self.vlog(VERB_MED, "<- %s" % __name__)
-        self.vlog(VERB_MAX, "result = %s" % (self.funlist))
+        #log_debug("<- getfunlist()")
+        log_debug("<- %s" % __name__)
+        log_debug("result = %s" % (self.funlist))
         #self.funlist += [result]
         return self.funlist
     
@@ -353,14 +354,14 @@ class ReqBoxFileParser(object):
         Fills the fundict property with a dict where each element is indexed
         by the fun name and each value is an object from the model
         """
-        self.vlog(VERB_MED, "-> getfundict()")
+        log_debug("-> getfundict()")
         self.fundict = {}
         
         beginloc = self.bodystartloc()
         finalloc = self.f.size() - 1
         endloc = finalloc
         self.f.seek(beginloc)
-        self.vlog(VERB_MAX, "bytes = %d" % (beginloc))
+        log_debug("bytes = %d" % (beginloc))
         count = len(self.funlist)
         
         # Iterate on the file backwards, it's more natural and easier...
@@ -397,7 +398,7 @@ class ReqBoxFileParser(object):
                     newfunstr = self.utf8(prefix + stridx + ". ") # + funstr
                 #newfunstr = self.utf8(newfunstr)
                 pass
-            self.vlog(VERB_MAX, "looking for: '%s'" % (newfunstr))
+            log_debug("looking for: '%s'" % (newfunstr))
             #beginloc = self.f.rfind(newfunstr, beginloc, endloc)
             beginloc = 0
             beginloc = self.f.rfind(newfunstr, beginloc, endloc)
@@ -411,7 +412,7 @@ class ReqBoxFileParser(object):
                         print("-----------------------------------MULTILINE")
                 funid = self.getfunid(line)
                 line = self.cleanfunfrombody(line)
-                self.vlog(VERB_MAX, "found from %d to %d out of %d | '%s. %s'" % (beginloc, endloc, finalloc, funid, line))
+                log_debug("found from %d to %d out of %d | '%s. %s'" % (beginloc, endloc, finalloc, funid, line))
                 #self.fundict[funstr] = (beginloc, endloc, funid)
                 # I switched the dict keys from uppercase (body) to as they are
                 # on the index (capitalized as they are)
@@ -435,7 +436,7 @@ class ReqBoxFileParser(object):
                 r.rfnend   = self.funsecend(funstr, r.rfnstart, startmarkups)
                 r.rnfend   = self.funsecend(funstr, r.rnfstart, startmarkups)
                 r.rgnend   = self.funsecend(funstr, r.rgnstart, startmarkups)
-                #self.vlog(VERB_MED, "%s" % (self.printfun(funidx+1, funname)))
+                #log_debug("%s" % (self.printfun(funidx+1, funname)))
     #            self.fun[funname].rfi = self.fp.gettagdict(funname, 'RFI')
                 
                 self.fundict[funstr] = r #(beginloc, endloc, funid)
@@ -457,7 +458,7 @@ class ReqBoxFileParser(object):
                 # TODO: An exception should be raised here
                 pass
         
-        self.vlog(VERB_MED, "<- getfundict()")
+        log_debug("<- getfundict()")
         pass
     
     def funhassection(self, funstr, secstr, start=0, end=0):
@@ -478,9 +479,9 @@ class ReqBoxFileParser(object):
             endloc = self.funend(funstr)
         else:
             endloc = end
-        #self.vlog(VERB_MAX, "pos = %d" % (self.f.tell()))
+        #log_debug("pos = %d" % (self.f.tell()))
         self.f.seek(beginloc)
-        #self.vlog(VERB_MAX, "pos = %d" % (self.f.tell()))
+        #log_debug("pos = %d" % (self.f.tell()))
         header = secstr
         if self.parsingasutf8wincrlf() or self.parsingasutf8win():
             #header = header.upper()
@@ -492,7 +493,7 @@ class ReqBoxFileParser(object):
         # Secstr is always going to be a str, so it needs to be converted to utf8
         #header = self.utf8(header)
         found = self.f.find(header, beginloc+1, endloc-1)
-        #self.vlog(VERB_MAX, "found = %d" % (found))
+        #log_debug("found = %d" % (found))
         if not found in range(beginloc, endloc):
             return -1
         else:
@@ -588,10 +589,10 @@ class ReqBoxFileParser(object):
         #line = f.readline()
         for line in self.f:
             #m = patter.search(line)
-            self.vlog(VERB_MAX, "line: '%s'" % (line))
+            log_debug("line: '%s'" % (line))
             m = re.match(pattern, line)
             if m:
-                self.vlog(VERB_MAX, "FOUND: '%s'" % (line))
+                log_debug("FOUND: '%s'" % (line))
                 search_offset = self.f.tell() - len(line) - 1
                 return search_offset + m.start(), search_offset + m.end()
 
@@ -628,7 +629,7 @@ class ReqBoxFileParser(object):
         expr = re.compile(findstr)
         findstr = self.utf8(findstr)
         result = {}
-        self.vlog(VERB_MAX, "finding from %d... '%s'" % (loc, findstr))
+        log_debug("finding from %d... '%s'" % (loc, findstr))
         
         isfirst = 1
         reqbody = "".decode('utf-8')
@@ -672,7 +673,7 @@ class ReqBoxFileParser(object):
                 newreq.fixreqname()
                 reqbody = ''
                 result[reqid] = newreq
-                #self.vlog(VERB_MAX, "M IS TRUE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                #log_debug("M IS TRUE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                 #print()
                 #resultdict[] = 
                 
@@ -680,18 +681,18 @@ class ReqBoxFileParser(object):
             #loc = self.f.find(findstr, loc, endloc)
             self.f.seek(loc)
             insection = loc < endloc
-            #self.vlog(VERB_MAX, "line: '%s'" % (line))
+            #log_debug("line: '%s'" % (line))
             #if cond:
             #    line = self.f.readline()
             #    if line:
-            #        self.vlog(VERB_MAX, "found on location %d | '%s'" % (m.start(), m.group()))
+            #        log_debug("found on location %d | '%s'" % (m.start(), m.group()))
             #    pass
         return result
         pass
     
     #def printmap(self, d):
     #    for k, v in d.items():
-    #        self.vlog(VERB_MAX, "[%s] | %s" % (k, v))
+    #        log_debug("[%s] | %s" % (k, v))
                 
             
     def printfun(self, idx, funstr):

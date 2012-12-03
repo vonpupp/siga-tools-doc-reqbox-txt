@@ -81,8 +81,9 @@ import csv
 import codecs
 import reqbox.models.rbmodel7 as model
 import reqbox.lib.rbstrlib as strlib
+from reqbox.lib.logger import *
 #import reqboxfileparseng as rfp
-from reqbox.lib.vlog import vlogger
+#from reqbox.lib.vlog import vlogger
 #from reqboxfileparse import reqboxfileparser
 
 #---- exceptions
@@ -156,7 +157,7 @@ class ReqBoxModelNG(model.ReqBoxModel):
             #* Código da hospedagem
             #* ...
             #"       Medium  Albert De La Fuente
-            print("Writing...%s [%s]" % (r.reqid, type(r.reqname)))
+            log_info(2, "Writing...%s" % (r.reqid))
             csvhdlr.writerow(row)
 
     def removereqcontentdict(self, d):
@@ -252,12 +253,12 @@ class ReqBoxModelNG(model.ReqBoxModel):
                     if isnamedrel:
                         linkname = "rel-%s-%s" % (funalias, reqalias)
                     row = [funalias, reqalias, linkname, linktype]
-                    print("Writing... rel-%s-%s" % (funalias, reqalias))
+                    log_info(2, "Writing... rel-%s-%s" % (funalias, reqalias))
                 else:
                     if isnamedrel:
                         linkname = "rel-%s-%s" % (reqalias, funalias)
                     row = [reqalias, funalias, linkname, linktype]
-                    print("Writing... rel-%s-%s" % (reqalias, funalias))
+                    log_info(2, "Writing... rel-%s-%s" % (reqalias, funalias))
                 
                 csvhdlr.writerow(row)
         pass
@@ -284,12 +285,12 @@ class ReqBoxModelNG(model.ReqBoxModel):
                     if isnamedrel:
                         linkname = "rel-%s-%s" % (funalias, reqalias)
                     row = [funalias, reqalias, linkname, linktype]
-                    print("Writing... rel-%s-%s" % (funalias, reqalias))
+                    log_info(2, "Writing... rel-%s-%s" % (funalias, reqalias))
                 else:
                     if isnamedrel:
                         linkname = "rel-%s-%s" % (reqalias, funalias)
                     row = [reqalias, funalias, linkname, linktype]
-                    print("Writing... rel-%s-%s" % (reqalias, funalias))
+                    log_info(2, "Writing... rel-%s-%s" % (reqalias, funalias))
                 
                 csvhdlr.writerow(row)
         pass

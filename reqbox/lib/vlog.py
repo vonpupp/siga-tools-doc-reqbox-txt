@@ -3,6 +3,7 @@
 
 import sys #as __sys
 import logging
+import traceback
 
 class vlogger:
     def __init__(self, verbosity = 0, log = sys.stderr):
